@@ -19,7 +19,7 @@ export const routes: Routes = [
   },
   {
     path: 'xk92-admin/login',
-    loadComponent: () => import('./features/admin/login/login.component').then(m => m.AdminLoginComponent),
+    loadComponent: () => import('./features/admin/login/admin-login.component').then(m => m.AdminLoginComponent),
   },
   {
     path: 'xk92-admin',
@@ -32,7 +32,17 @@ export const routes: Routes = [
       },
       {
         path: 'products',
-        loadComponent: () => import('./features/admin/products/products.component').then(m => m.AdminProductsComponent),
+        loadComponent: () => import('./features/admin/products/admin-products.component').then(m => m.AdminProductsComponent),
+      },
+      {
+        path: 'products/new',
+        loadComponent: () => import('./features/admin/products/admin-product-form.component').then(m => m.AdminProductFormComponent),
+        canDeactivate: [() => import('./core/guards/unsaved-changes.guard').then(m => m.unsavedChangesGuard)]
+      },
+      {
+        path: 'products/:id/edit',
+        loadComponent: () => import('./features/admin/products/admin-product-form.component').then(m => m.AdminProductFormComponent),
+        canDeactivate: [() => import('./core/guards/unsaved-changes.guard').then(m => m.unsavedChangesGuard)]
       },
       {
         path: 'deals',
@@ -40,10 +50,10 @@ export const routes: Routes = [
       },
       {
         path: 'categories',
-        loadComponent: () => import('./features/admin/categories/categories.component').then(m => m.AdminCategoriesComponent),
+        loadComponent: () => import('./features/admin/categories/admin-categories.component').then(m => m.AdminCategoriesComponent),
       },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
-  { path: '**', redirectTo: '' }
+  { path: '**', loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent) }
 ];

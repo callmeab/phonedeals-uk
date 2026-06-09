@@ -1,0 +1,22 @@
+{
+  "name": "phonedeals-uk-worker",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "db:setup": "wrangler d1 execute phonedeals-uk-db --local --file=src/db/migrations/001_initial_schema.sql && wrangler d1 execute phonedeals-uk-db --local --file=src/db/migrations/002_seed_categories.sql",
+    "db:setup:prod": "wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/001_initial_schema.sql && wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/002_seed_categories.sql",
+    "db:seed:admin": "tsx src/db/seed-admin.ts"
+  },
+  "dependencies": {
+    "aws4fetch": "^1.0.20",
+    "hono": "^4.4.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240529.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.0.4",
+    "wrangler": "^3.57.1"
+  }
+}

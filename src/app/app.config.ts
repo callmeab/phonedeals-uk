@@ -1,11 +1,11 @@
 import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
+import { provideRouter, withComponentInputBinding, withInMemoryScrolling, withPreloading, PreloadAllModules } from '@angular/router';
 import { provideClientHydration } from '@angular/platform-browser';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 
 import { routes } from './app.routes';
-// Assume authInterceptor will be implemented in core/interceptors/auth.interceptor.ts
-// import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { authInterceptor } from './core/interceptors/auth.interceptor';
+import { errorInterceptor } from './core/interceptors/error.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,12 +13,13 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       withComponentInputBinding(),
-      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' })
+      withInMemoryScrolling({ scrollPositionRestoration: 'enabled' }),
+      withPreloading(PreloadAllModules)
     ),
     provideClientHydration(),
     provideHttpClient(
       withFetch(),
-      // withInterceptors([authInterceptor])
+      withInterceptors([authInterceptor, errorInterceptor])
     )
   ]
 };

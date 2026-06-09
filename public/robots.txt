@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+Disallow: /xk92-admin
+Disallow: /xk92-admin/
+
+# Allow search engines to crawl all public content
+Allow: /iphone
+Allow: /samsung
+Allow: /phones/
+
+# Sitemap location
+Sitemap: https://www.phonedealsuk.co.uk/sitemap.xml

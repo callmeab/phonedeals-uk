@@ -1,0 +1,46 @@
+name: Deploy PhoneDeals UK
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Root Dependencies
+        run: npm ci
+
+      - name: Install Worker Dependencies
+        run: cd worker && npm ci
+
+      - name: Deploy Cloudflare Worker
+        run: cd worker && npx wrangler deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
+      - name: Generate Prerender Routes
+        run: node scripts/generate-prerender-routes.mjs
+        env:
+          # Assuming the worker deploys to this default dev domain.
+          # If using a custom domain, update this to match your actual API endpoint.
+          API_URL: https://phonedeals-uk-api.workers.dev
+
+      - name: Build Angular Application
+        run: npx ng build --configuration=production
+
+      - name: Deploy Cloudflare Pages
+        run: npx wrangler pages deploy dist/phonedeals-uk/browser --project-name=phonedeals-uk
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

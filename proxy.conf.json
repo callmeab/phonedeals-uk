@@ -1,0 +1,8 @@
+{
+  "/api": {
+    "target": "https://phonedeals-uk-api.phonedeals-uk-2025.workers.dev",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

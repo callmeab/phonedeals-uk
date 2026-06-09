@@ -1,0 +1,604 @@
+import { Component, ChangeDetectionStrategy, inject, signal, effect, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
+import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
+import { ApiService } from '../../../core/services/api.service';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+
+function frontendSlugify(text: string): string {
+  if (!text) return '';
+  return text.toString().toLowerCase().trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+}
+
+@Component({
+  selector: 'app-admin-product-form',
+  standalone: true,
+  imports: [CommonModule, RouterLink, ReactiveFormsModule, LoadingSpinnerComponent],
+  template: `
+    <div class="space-y-6 pb-12 max-w-4xl mx-auto">
+      
+      <!-- Header -->
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ isEditMode() ? 'Edit Product' : 'Create New Product' }}</h1>
+          <p class="text-sm text-gray-500 mt-1">{{ isEditMode() ? 'Update the details for this device.' : 'Add a new phone to your catalog.' }}</p>
+        </div>
+        <a routerLink="/xk92-admin/products" class="text-sm font-medium text-gray-500 hover:text-gray-700 underline focus:outline-none">
+          Cancel & Return
+        </a>
+      </div>
+
+      <!-- Main Form Loading Overlay -->
+      @if (isPageLoading()) {
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 py-32 flex flex-col items-center justify-center">
+          <app-loading-spinner size="lg"></app-loading-spinner>
+          <p class="mt-4 text-sm text-gray-500 font-medium">Loading product details...</p>
+        </div>
+      } @else {
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-8">
+          
+          <!-- Basic Info Section -->
+          <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+              <h3 class="text-lg font-semibold text-gray-900">Basic Information</h3>
+            </div>
+            <div class="p-6 space-y-6">
+              
+              <!-- Name & Category Row -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label for="name" class="block text-sm font-medium text-gray-700">Product Name <span class="text-red-500">*</span></label>
+                  <input type="text" id="name" formControlName="name" placeholder="e.g. iPhone 15 Pro Max" 
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border"
+                    [class.border-red-300]="isFieldInvalid('name')"
+                  >
+                  @if (isFieldInvalid('name')) {
+                    <p class="mt-1 text-xs text-red-600">Product name is required.</p>
+                  }
+                </div>
+
+                <div>
+                  <label for="category_id" class="block text-sm font-medium text-gray-700">Category <span class="text-red-500">*</span></label>
+                  <select id="category_id" formControlName="category_id" 
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border bg-white"
+                    [class.border-red-300]="isFieldInvalid('category_id')"
+                  >
+                    <option [ngValue]="null" disabled>Select a brand...</option>
+                    <option [ngValue]="1">Apple iPhone</option>
+                    <option [ngValue]="2">Samsung Galaxy</option>
+                  </select>
+                  @if (isFieldInvalid('category_id')) {
+                    <p class="mt-1 text-xs text-red-600">Category is required.</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Slug Row -->
+              <div>
+                <label for="slug" class="block text-sm font-medium text-gray-700">URL Slug <span class="text-red-500">*</span></label>
+                <div class="mt-1 flex rounded-md shadow-sm">
+                  <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
+                    phonedeals.co.uk/products/
+                  </span>
+                  <input type="text" id="slug" formControlName="slug" (input)="onSlugManuallyEdited()"
+                    class="flex-1 min-w-0 block w-full rounded-none rounded-r-md border-gray-300 focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border"
+                    [class.border-red-300]="isFieldInvalid('slug')"
+                  >
+                </div>
+                @if (isFieldInvalid('slug')) {
+                  <p class="mt-1 text-xs text-red-600">Valid URL slug is required (lowercase, numbers, hyphens).</p>
+                }
+              </div>
+
+              <!-- Description Row -->
+              <div>
+                <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
+                <textarea id="description" formControlName="description" rows="5" placeholder="Marketing copy and technical highlights..."
+                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border resize-y h-[150px]"
+                ></textarea>
+              </div>
+
+              <!-- Toggles Row -->
+              <div class="flex flex-col sm:flex-row gap-8 pt-2">
+                <div class="flex items-center">
+                  <input id="is_active" type="checkbox" formControlName="is_active" class="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded">
+                  <label for="is_active" class="ml-2 block text-sm text-gray-900 font-medium">
+                    Active (Visible on site)
+                  </label>
+                </div>
+                <div class="flex items-center">
+                  <input id="is_featured" type="checkbox" formControlName="is_featured" class="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded">
+                  <label for="is_featured" class="ml-2 block text-sm text-gray-900 font-medium">
+                    Featured (Pinned to top)
+                  </label>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Variants Section -->
+          <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+              <h3 class="text-lg font-semibold text-gray-900">Device Variants</h3>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+              
+              <!-- Storage Options -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Storage Options</label>
+                <p class="text-xs text-gray-500 mb-3">Press Enter or comma to add an option (e.g., 128GB).</p>
+                
+                <div class="flex flex-wrap gap-2 mb-3">
+                  @for (opt of storageOptions(); track opt) {
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                      {{ opt }}
+                      <button type="button" (click)="removeChip('storage', opt)" class="flex-shrink-0 ml-1.5 h-4 w-4 rounded-full inline-flex items-center justify-center text-blue-400 hover:bg-blue-200 hover:text-blue-500 focus:outline-none focus:bg-blue-500 focus:text-white">
+                        <span class="sr-only">Remove option</span>
+                        <svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+                          <path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7" />
+                        </svg>
+                      </button>
+                    </span>
+                  }
+                </div>
+                
+                <input type="text" placeholder="Add storage..." 
+                  (keydown)="onChipInput($event, 'storage')"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border"
+                >
+              </div>
+
+              <!-- Colours -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Available Colours</label>
+                <p class="text-xs text-gray-500 mb-3">Press Enter or comma to add a colour (e.g., Midnight).</p>
+                
+                <div class="flex flex-wrap gap-2 mb-3">
+                  @for (col of colours(); track col) {
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-800">
+                      {{ col }}
+                      <button type="button" (click)="removeChip('colour', col)" class="flex-shrink-0 ml-1.5 h-4 w-4 rounded-full inline-flex items-center justify-center text-purple-400 hover:bg-purple-200 hover:text-purple-500 focus:outline-none focus:bg-purple-500 focus:text-white">
+                        <span class="sr-only">Remove colour</span>
+                        <svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+                          <path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7" />
+                        </svg>
+                      </button>
+                    </span>
+                  }
+                </div>
+                
+                <input type="text" placeholder="Add colour..." 
+                  (keydown)="onChipInput($event, 'colour')"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border"
+                >
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Images Section -->
+          <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+              <h3 class="text-lg font-semibold text-gray-900">Product Images</h3>
+              @if (isUploading()) {
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Uploading...
+                </span>
+              }
+            </div>
+            
+            <div class="p-6 space-y-6">
+              
+              <!-- Primary Image -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Primary Hero Image</label>
+                <div 
+                  class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors"
+                  [ngClass]="dragActive() === 'primary' ? 'border-accent bg-blue-50' : 'border-gray-300 hover:border-gray-400'"
+                  (dragover)="onDragOver($event, 'primary')"
+                  (dragleave)="onDragLeave($event)"
+                  (drop)="onDrop($event, 'primary')"
+                >
+                  <div class="space-y-1 text-center">
+                    @if (form.value.primary_image_url) {
+                      <div class="relative inline-block">
+                        <img [src]="form.value.primary_image_url" alt="Primary" class="mx-auto h-32 w-auto rounded-md object-contain border border-gray-200 shadow-sm">
+                        <button type="button" (click)="removePrimaryImage()" class="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 shadow-sm hover:bg-red-200 focus:outline-none">
+                          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                      </div>
+                    } @else {
+                      <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <div class="flex text-sm text-gray-600 justify-center">
+                        <label for="primary-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-accent hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-accent">
+                          <span>Upload a file</span>
+                          <input id="primary-upload" name="file-upload" type="file" class="sr-only" accept="image/*" (change)="onFileSelected($event, 'primary')">
+                        </label>
+                        <p class="pl-1">or drag and drop</p>
+                      </div>
+                      <p class="text-xs text-gray-500">PNG, JPG, WEBP up to 2MB</p>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Gallery Images -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Gallery Images (Optional, up to 6)</label>
+                <div 
+                  class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors"
+                  [ngClass]="dragActive() === 'gallery' ? 'border-accent bg-blue-50' : 'border-gray-300 hover:border-gray-400'"
+                  (dragover)="onDragOver($event, 'gallery')"
+                  (dragleave)="onDragLeave($event)"
+                  (drop)="onDrop($event, 'gallery')"
+                >
+                  <div class="space-y-3 w-full">
+                    
+                    @if (galleryImages().length > 0) {
+                      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        @for (img of galleryImages(); track img; let i = $index) {
+                          <div class="relative group">
+                            <img [src]="img" class="h-24 w-full rounded-md object-cover border border-gray-200 shadow-sm">
+                            <button type="button" (click)="removeGalleryImage(i)" class="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 shadow-sm hover:bg-red-200 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus:opacity-100">
+                              <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                          </div>
+                        }
+                        
+                        @if (galleryImages().length < 6) {
+                          <label for="gallery-upload" class="h-24 w-full rounded-md border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-accent hover:bg-blue-50 transition-colors">
+                            <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                            <input id="gallery-upload" type="file" class="sr-only" accept="image/*" multiple (change)="onFileSelected($event, 'gallery')">
+                          </label>
+                        }
+                      </div>
+                    } @else {
+                      <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                          <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <div class="flex text-sm text-gray-600 justify-center mt-2">
+                          <label for="gallery-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-accent hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-accent">
+                            <span>Upload files</span>
+                            <input id="gallery-upload" type="file" class="sr-only" accept="image/*" multiple (change)="onFileSelected($event, 'gallery')">
+                          </label>
+                          <p class="pl-1">or drag and drop</p>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Error Banner -->
+          @if (submitError()) {
+            <div class="rounded-md bg-red-50 p-4 border border-red-200 shadow-sm">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="ml-3">
+                  <h3 class="text-sm font-medium text-red-800">{{ submitError() }}</h3>
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Submit Bar -->
+          <div class="pt-5 border-t border-gray-200 flex justify-end gap-3">
+            <button type="button" routerLink="/xk92-admin/products" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors">
+              Cancel
+            </button>
+            <button type="submit" [disabled]="isSubmitting() || isUploading()" class="inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
+              @if (isSubmitting()) {
+                <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              } @else {
+                {{ isEditMode() ? 'Update Product' : 'Save Product' }}
+              }
+            </button>
+          </div>
+
+        </form>
+      }
+    </div>
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush
+})
+export class AdminProductFormComponent implements OnInit {
+  private fb = inject(NonNullableFormBuilder);
+  private api = inject(ApiService);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  form = this.fb.group({
+    name: ['', [Validators.required, Validators.maxLength(100)]],
+    slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
+    category_id: [null as number | null, [Validators.required]],
+    description: [''],
+    primary_image_url: [''],
+    is_featured: [false],
+    is_active: [true]
+  });
+
+  isEditMode = signal(false);
+  productId = signal<string | null>(null);
+  isPageLoading = signal(false);
+  isSubmitting = signal(false);
+  submitError = signal<string | null>(null);
+  
+  storageOptions = signal<string[]>([]);
+  colours = signal<string[]>([]);
+  galleryImages = signal<string[]>([]);
+
+  manualSlug = signal(false);
+  dragActive = signal<'primary' | 'gallery' | null>(null);
+  isUploading = signal(false);
+
+  private submitted = false;
+
+  constructor() {
+    this.form.get('name')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(name => {
+      if (!this.manualSlug() && name) {
+        this.form.patchValue({ slug: frontendSlugify(name) }, { emitEvent: false });
+      }
+    });
+  }
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditMode.set(true);
+      this.productId.set(id);
+      this.loadProduct(id);
+    }
+  }
+
+  canDeactivate(): boolean {
+    if (this.form.dirty && !this.submitted) {
+      return window.confirm('You have unsaved changes. Are you sure you want to leave?');
+    }
+    return true;
+  }
+
+  isFieldInvalid(field: string): boolean {
+    const control = this.form.get(field);
+    return !!(control && control.invalid && (control.dirty || control.touched || this.submitted));
+  }
+
+  onSlugManuallyEdited() {
+    this.manualSlug.set(true);
+  }
+
+  loadProduct(id: string) {
+    this.isPageLoading.set(true);
+    this.api.get<{ success: boolean, data: any }>(`/api/admin/products/${id}`).subscribe({
+      next: (res) => {
+        const p = res.data;
+        this.form.patchValue({
+          name: p.name,
+          slug: p.slug,
+          category_id: p.category_id,
+          description: p.description,
+          primary_image_url: p.primary_image_url,
+          is_featured: !!p.is_featured,
+          is_active: !!p.is_active
+        });
+
+        if (p.storage_options) {
+          try { this.storageOptions.set(JSON.parse(p.storage_options)); } catch {}
+        }
+        if (p.colours) {
+          try { this.colours.set(JSON.parse(p.colours)); } catch {}
+        }
+        if (p.gallery_images) {
+          try { this.galleryImages.set(JSON.parse(p.gallery_images)); } catch {}
+        }
+
+        this.manualSlug.set(true);
+        this.isPageLoading.set(false);
+      },
+      error: () => {
+        alert('Failed to load product details.');
+        this.router.navigate(['/xk92-admin/products']);
+      }
+    });
+  }
+
+  onChipInput(event: KeyboardEvent, type: 'storage' | 'colour') {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
+      const input = event.target as HTMLInputElement;
+      const value = input.value.trim();
+      
+      if (value) {
+        if (type === 'storage' && !this.storageOptions().includes(value)) {
+          this.storageOptions.update(v => [...v, value]);
+        } else if (type === 'colour' && !this.colours().includes(value)) {
+          this.colours.update(v => [...v, value]);
+        }
+        input.value = '';
+        this.form.markAsDirty();
+      }
+    }
+  }
+
+  removeChip(type: 'storage' | 'colour', value: string) {
+    if (type === 'storage') {
+      this.storageOptions.update(v => v.filter(item => item !== value));
+    } else {
+      this.colours.update(v => v.filter(item => item !== value));
+    }
+    this.form.markAsDirty();
+  }
+
+  onDragOver(event: DragEvent, type: 'primary' | 'gallery') {
+    event.preventDefault();
+    this.dragActive.set(type);
+  }
+
+  onDragLeave(event: DragEvent) {
+    event.preventDefault();
+    this.dragActive.set(null);
+  }
+
+  onDrop(event: DragEvent, type: 'primary' | 'gallery') {
+    event.preventDefault();
+    this.dragActive.set(null);
+    if (event.dataTransfer?.files) {
+      this.handleFiles(Array.from(event.dataTransfer.files), type);
+    }
+  }
+
+  onFileSelected(event: Event, type: 'primary' | 'gallery') {
+    const input = event.target as HTMLInputElement;
+    if (input.files) {
+      this.handleFiles(Array.from(input.files), type);
+    }
+  }
+
+  private handleFiles(files: File[], type: 'primary' | 'gallery') {
+    if (!files.length) return;
+
+    const filesToUpload = type === 'primary' ? [files[0]] : files.slice(0, 6 - this.galleryImages().length);
+    if (!filesToUpload.length) return;
+
+    this.isUploading.set(true);
+
+    void (async () => {
+      try {
+        for (const file of filesToUpload) {
+          await this.uploadProductImage(file, type);
+        }
+      } catch {
+        alert('One or more images failed to upload. Please try again.');
+      } finally {
+        this.isUploading.set(false);
+      }
+    })();
+  }
+
+  /**
+   * 1. Request presigned URL + publicUrl from Worker
+   * 2. PUT file directly to R2 (production) OR POST via Worker (local dev fallback)
+   * 3. Save publicUrl (NOT uploadUrl) into the form / gallery
+   */
+  private async uploadProductImage(file: File, type: 'primary' | 'gallery'): Promise<void> {
+    const contentType = file.type || 'application/octet-stream';
+
+    const presignRes = await firstValueFrom(
+      this.api.post<{
+        success: boolean;
+        data: {
+          uploadUrl: string | null;
+          publicUrl: string;
+          filename: string;
+          useDirectUpload?: boolean;
+        };
+      }>('/api/admin/upload-url', {
+        filename: file.name,
+        contentType,
+      })
+    );
+
+    const { uploadUrl, publicUrl, filename, useDirectUpload } = presignRes.data;
+
+    if (useDirectUpload || !uploadUrl) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('key', filename);
+      await firstValueFrom(
+        this.api.post<{ success: boolean; data: { publicUrl: string } }>('/api/admin/upload', formData)
+      );
+    } else {
+      const putRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': contentType },
+      });
+      if (!putRes.ok) {
+        throw new Error(`R2 PUT failed: ${putRes.status}`);
+      }
+    }
+
+    if (type === 'primary') {
+      this.form.patchValue({ primary_image_url: publicUrl });
+    } else {
+      this.galleryImages.update(v => [...v, publicUrl]);
+    }
+    this.form.markAsDirty();
+  }
+
+  removePrimaryImage() {
+    this.form.patchValue({ primary_image_url: '' });
+    this.form.markAsDirty();
+  }
+
+  removeGalleryImage(index: number) {
+    this.galleryImages.update(v => v.filter((_, i) => i !== index));
+    this.form.markAsDirty();
+  }
+
+  onSubmit() {
+    this.submitted = true;
+    this.submitError.set(null);
+    
+    Object.keys(this.form.controls).forEach(key => {
+      this.form.get(key)?.markAsTouched();
+    });
+
+    if (this.form.invalid) {
+      this.submitError.set('Please fill out all required fields correctly.');
+      this.submitted = false;
+      return;
+    }
+
+    this.isSubmitting.set(true);
+    
+    const payload = {
+      ...this.form.value,
+      storage_options: this.storageOptions(),
+      colours: this.colours(),
+      gallery_images: this.galleryImages()
+    };
+
+    const request = this.isEditMode() 
+      ? this.api.put(`/api/admin/products/${this.productId()}`, payload)
+      : this.api.post('/api/admin/products', payload);
+
+    request.subscribe({
+      next: () => {
+        alert(this.isEditMode() ? 'Product updated successfully!' : 'Product saved successfully!');
+        this.router.navigate(['/xk92-admin/products']);
+      },
+      error: (err: Error) => {
+        this.submitError.set(err.message || 'Failed to save product. Please try again.');
+        this.isSubmitting.set(false);
+        this.submitted = false; 
+      }
+    });
+  }
+}
