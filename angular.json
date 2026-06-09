@@ -38,7 +38,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/phonedeals-uk/browser",
+            "outputPath": "dist/phonedeals-uk",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
