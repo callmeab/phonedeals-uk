@@ -67,7 +67,7 @@ async function run() {
   console.log(`Run: npx wrangler secret put JWT_SECRET`);
   
   console.log('\n--- RUN THIS SQL TO SEED D1 (Local Dev) ---');
-  const sql = `UPDATE admins SET password_hash = '${hash}' WHERE email = '${email}';`;
+  const sql = `INSERT OR REPLACE INTO admins (email, password_hash) VALUES ('${email}', '${hash}');`;
   console.log(`npx wrangler d1 execute phonedeals-uk-db --local --command="${sql}"`);
   
   console.log('\n--- RUN THIS SQL TO SEED D1 (Production) ---');
