@@ -1,0 +1,226 @@
+<!-- ============================================================
+     HERO SECTION (Samsung Style: Edge-to-edge, Tech-focus, Bold)
+     ============================================================ -->
+<section class="relative bg-[#000000] text-white pt-24 pb-28 md:pt-36 md:pb-40 overflow-hidden font-sans border-b-8 border-[#1428A0]">
+  <!-- Immersive tech background gradient -->
+  <div class="absolute inset-0 bg-gradient-to-r from-black via-[#0B1530] to-black opacity-80 z-0"></div>
+  
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left flex flex-col md:flex-row items-center gap-12 lg:gap-24">
+    
+    <div class="flex-1">
+      <app-breadcrumb [items]="[{ label: 'Samsung', route: '/samsung' }]" class="opacity-80"></app-breadcrumb>
+
+      <div class="mt-6 inline-block bg-[#1428A0] text-white text-xs font-bold uppercase tracking-[0.2em] px-4 py-1.5 rounded-sm">
+        Galaxy AI is here
+      </div>
+
+      <h1 class="text-5xl sm:text-7xl lg:text-[5.5rem] font-bold leading-[1.05] tracking-tight mt-6">
+        Samsung<br>Galaxy
+      </h1>
+
+      <p class="mt-6 text-lg md:text-2xl text-gray-300 font-normal leading-relaxed max-w-2xl">
+        Immerse yourself in the ultimate Galaxy experience. Compare unparalleled contract deals for the S, A, and Z series today.
+      </p>
+
+      <!-- Bold stat blocks -->
+      <div class="mt-12 flex flex-wrap justify-center md:justify-start gap-8 md:gap-14">
+        <div>
+          <p class="text-4xl font-bold text-white">{{ totalCount() }}+</p>
+          <p class="text-xs text-[#93B4FF] font-bold tracking-widest uppercase mt-2">Galaxy Models</p>
+        </div>
+        <div class="w-px bg-white/20"></div>
+        <div>
+          <p class="text-4xl font-bold text-white">7</p>
+          <p class="text-xs text-[#93B4FF] font-bold tracking-widest uppercase mt-2">UK Networks</p>
+        </div>
+        <div class="w-px bg-white/20"></div>
+        <div>
+          <p class="text-4xl font-bold text-white">Daily</p>
+          <p class="text-xs text-[#93B4FF] font-bold tracking-widest uppercase mt-2">Price Updates</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tech-focused geometric abstract representation -->
+    <div class="flex-shrink-0 w-64 md:w-80 lg:w-[400px]">
+      <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full drop-shadow-2xl">
+        <circle cx="200" cy="200" r="180" stroke="#1428A0" stroke-width="40" stroke-dasharray="10 20" opacity="0.3"/>
+        <circle cx="200" cy="200" r="140" fill="url(#samsungHeroDef)" opacity="0.8"/>
+        <!-- Abstract phone shapes overlapping -->
+        <rect x="150" y="80" width="120" height="260" rx="16" fill="#0D1F5C" stroke="#4B70F5" stroke-width="2"/>
+        <rect x="110" y="120" width="120" height="260" rx="16" fill="#1428A0" stroke="#93B4FF" stroke-width="2" class="opacity-90"/>
+        <!-- Screen glare -->
+        <path d="M110 140 Q 170 120 230 140 L 230 380 Q 170 360 110 380 Z" fill="white" opacity="0.05"/>
+        <!-- Star / Sparkle for Galaxy AI -->
+        <path d="M80 100 L 90 90 L 100 100 L 90 110 Z" fill="#93B4FF" class="animate-pulse"/>
+        <path d="M280 80 L 285 75 L 290 80 L 285 85 Z" fill="#93B4FF" class="animate-pulse" style="animation-delay: 400ms"/>
+        <path d="M260 280 L 270 270 L 280 280 L 270 290 Z" fill="#93B4FF" class="animate-pulse" style="animation-delay: 800ms"/>
+        <defs>
+          <radialGradient id="samsungHeroDef" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(200 200) rotate(90) scale(140)">
+             <stop stop-color="#1428A0"/>
+             <stop offset="1" stop-color="#000000"/>
+          </radialGradient>
+        </defs>
+      </svg>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     FILTER & SORT BAR (Samsung Style: Sharp, High Contrast)
+     ============================================================ -->
+<div class="sticky top-0 z-30 bg-white border-b-2 border-gray-100 shadow-md">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-4 py-4">
+
+      <!-- Model chips: slightly rounded edges, bold blue for active -->
+      <div class="w-full md:flex-1 overflow-x-auto scrollbar-hide -mx-2 px-2">
+        <div class="flex items-center gap-2 w-max">
+          <button
+            (click)="setModelFilter('all')"
+            class="px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-[#1428A0]"
+            [ngClass]="activeModel() === 'all'
+              ? 'bg-[#1428A0] text-white shadow-lg shadow-blue-900/20'
+              : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#1428A0] hover:text-[#1428A0]'"
+          >
+            All Models
+          </button>
+
+          @for (model of dynamicModels(); track model) {
+            <button
+              (click)="setModelFilter(model)"
+              class="px-5 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wider whitespace-nowrap transition-all focus:outline-none focus:ring-2 focus:ring-[#1428A0]"
+              [ngClass]="activeModel() === model
+                ? 'bg-[#1428A0] text-white shadow-lg shadow-blue-900/20'
+                : 'bg-white border-2 border-gray-200 text-gray-700 hover:border-[#1428A0] hover:text-[#1428A0]'"
+            >
+              {{ model }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Sort dropdown: squared off -->
+      <div class="flex-shrink-0 w-full md:w-auto relative">
+        <select
+          [value]="sortKey()"
+          (change)="onSortChange($event)"
+          class="w-full md:w-auto appearance-none bg-gray-50 border-2 border-gray-200 text-sm font-bold text-gray-900 rounded-lg py-3 pl-4 pr-10 focus:outline-none focus:border-[#1428A0] cursor-pointer uppercase tracking-wider transition-colors"
+        >
+          <option value="featured">Featured First</option>
+          <option value="newest">Newest Models</option>
+          <option value="monthly_asc">Lowest Price</option>
+          <option value="monthly_desc">Highest Price</option>
+        </select>
+        <svg class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PRODUCT GRID (Samsung light grey #f4f5f7)
+     ============================================================ -->
+<section class="bg-[#f4f5f7] min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+
+    <!-- Results count -->
+    @if (!isLoading() && displayedProducts().length > 0) {
+      <div class="mb-8 flex items-center justify-between bg-white px-6 py-4 rounded-xl shadow-sm border border-gray-100">
+        <p class="text-sm font-bold text-gray-700 uppercase tracking-widest">
+          {{ displayedProducts().length }} of {{ filteredProducts().length }} <span class="text-gray-400 font-medium">Found</span>
+        </p>
+        @if (activeModel() !== 'all') {
+          <button (click)="setModelFilter('all')" class="text-sm font-bold text-[#1428A0] hover:underline uppercase tracking-wide">
+            Reset Filters
+          </button>
+        }
+      </div>
+    }
+
+    <!-- Loading state -->
+    @if (isLoading()) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+        @for (i of [1,2,3,4,5,6,7,8]; track i) {
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <app-product-card-skeleton></app-product-card-skeleton>
+          </div>
+        }
+      </div>
+
+    <!-- Error state -->
+    } @else if (error()) {
+      <div class="flex flex-col items-center justify-center py-24 text-center">
+        <div class="w-20 h-20 bg-red-50 text-red-600 rounded-full flex items-center justify-center mb-6">
+           <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900">An Error Occurred.</h3>
+        <p class="mt-2 text-gray-600">{{ error() }}</p>
+        <button (click)="load()" class="mt-8 px-8 py-3 bg-[#1428A0] text-white text-sm font-bold uppercase tracking-widest rounded-lg hover:bg-blue-900 transition-colors shadow-lg">
+          Reload Data
+        </button>
+      </div>
+
+    <!-- Empty state -->
+    } @else if (filteredProducts().length === 0) {
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 py-24 px-4 text-center">
+        <app-empty-state
+          icon='<svg class="w-16 h-16 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>'
+          heading="No Galaxy deals match."
+          subheading="Try expanding your search criteria."
+        ></app-empty-state>
+      </div>
+
+    <!-- Grid -->
+    } @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+        @for (product of displayedProducts(); track product.id) {
+          <!-- Samsung styled container: crisper shadows, slightly less rounded -->
+          <div class="bg-white rounded-2xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 p-3 overflow-hidden border border-gray-100">
+             <app-product-card [product]="product" variant="grid"></app-product-card>
+          </div>
+        }
+      </div>
+
+      <!-- Load More -->
+      @if (canLoadMore()) {
+        <div class="mt-16 flex justify-center">
+          <button
+            (click)="loadMore()"
+            [disabled]="isLoadingMore()"
+            class="px-10 py-4 bg-white border-2 border-[#1428A0] text-[#1428A0] text-sm font-bold uppercase tracking-widest hover:bg-[#1428A0] hover:text-white transition-colors duration-300 disabled:opacity-50 flex items-center justify-center min-w-[240px] rounded-lg"
+          >
+            @if (isLoadingMore()) {
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              Updating...
+            } @else {
+              Load More Models
+            }
+          </button>
+        </div>
+      }
+    }
+
+  </div>
+</section>
+
+<!-- ============================================================
+     TRUST STRIP
+     ============================================================ -->
+<section class="bg-white py-14 border-t border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-wrap justify-center items-center gap-10 md:gap-20">
+      @for (item of trustItems; track item.label) {
+        <div class="flex flex-col items-center gap-3 text-center text-gray-600 hover:text-[#1428A0] transition-colors group">
+          <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-blue-50 group-hover:text-[#1428A0] transition-colors shadow-sm border border-gray-100"
+               [innerHTML]="item.icon"></div>
+          <span class="text-xs font-bold uppercase tracking-widest">{{ item.label }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</section>
