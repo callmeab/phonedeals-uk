@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, PLATFORM_ID
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -37,7 +37,7 @@ export class SamsungComponent implements OnInit {
   sortKey = signal<SortKey>('featured');
   visibleCount = signal(PAGE_SIZE);
 
-  /** Keyword list ordered by recency — newest models first so chips appear left-to-right */
+  /** Keyword list ordered by recency â€” newest models first so chips appear left-to-right */
   private readonly modelKeywords = [
     'Galaxy S26 Ultra', 'Galaxy S26+', 'Galaxy S26',
     'Galaxy S25 Ultra', 'Galaxy S25+', 'Galaxy S25',
@@ -97,14 +97,14 @@ export class SamsungComponent implements OnInit {
     this.seo.setMetaTags({
       description: 'Compare the best Samsung Galaxy contract deals in the UK. Find cheap monthly plans for Galaxy S, A and Z Fold series from EE, O2, Vodafone, Three and more.',
       keywords: 'Samsung Galaxy deals, Samsung contracts, cheap Samsung plans, Galaxy S deals, Galaxy Z Fold deals, UK Samsung deals',
-      ogImage: 'https://www.phonedealsuk.co.uk/og-samsung.png',
+      ogImage: 'https://www.Mobello.uk.co.uk/og-samsung.png',
     });
     this.seo.setStructuredData({
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      name: 'Samsung Galaxy Deals | PhoneDeals UK',
+      name: 'Samsung Galaxy Deals | Mobello.uk',
       description: 'Compare the best Samsung Galaxy contract deals from all UK networks.',
-      url: 'https://www.phonedealsuk.co.uk/samsung',
+      url: 'https://www.Mobello.uk.co.uk/samsung',
     });
     if (isPlatformBrowser(this.platformId)) {
       this.load();

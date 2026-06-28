@@ -66,3 +66,40 @@ export interface Deal {
   sort_order: number;
   product_name?: string; // Hydrated via JOIN
 }
+
+export interface Customer {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  created_at: string;
+  updated_at: string;
+  dateOfBirth: string; // ISO date
+  title?: string;
+  marketingOptIn: number;
+}
+
+export interface Order {
+  id: number;
+  customer_id: number;
+  deal_id: number;
+  status: string;
+  total_price: number;
+  created_at: string;
+  updated_at: string;
+  billing_address_line1?: string;
+  billing_address_line2?: string;
+  billing_city?: string;
+  billing_county?: string;
+  billing_postcode?: string;
+  delivery_address_line1: string;
+  delivery_address_line2?: string;
+  delivery_city: string;
+  delivery_county?: string;
+  delivery_postcode: string;
+  same_as_delivery: number;
+  network_provider: string;
+  contract_summary_accepted: number;
+  contract_summary_accepted_at?: string;
+}

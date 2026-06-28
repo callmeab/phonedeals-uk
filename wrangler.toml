@@ -5,6 +5,10 @@ main = "worker/src/index.ts"
 # This routes all /api/* requests to this worker if deploying to a custom domain
 # Update zone_name to your actual domain name when ready to deploy
 
+routes = [
+  { pattern = "mobello.uk/api/*", zone_name = "mobello.uk" }
+]
+
 
 [[d1_databases]]
 binding = "DB"
@@ -21,7 +25,7 @@ id = "fff098953b324e2ab262f1a249727aa9" # REPLACE with output of: wrangler kv:na
 
 [vars]
 JWT_SECRET = "local-dev-placeholder-secret-change-me"
-R2_PUBLIC_URL = "https://pub-5dd1d3d0c28a496fade1529ff89a1222.r2.dev"
+# R2_PUBLIC_URL = "https://pub-5dd1d3d0c28a496fade1529ff89a1222.r2.dev"
 # Set after enabling R2 public access in Cloudflare Dashboard:
 # R2_PUBLIC_URL = "https://pub-XXXXXXXX.r2.dev"
 # Or use a custom domain:

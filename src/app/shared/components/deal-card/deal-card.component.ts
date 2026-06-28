@@ -1,8 +1,10 @@
 import {
-  Component, Input, Output, EventEmitter, ChangeDetectionStrategy
+  Component, Input, Output, EventEmitter, ChangeDetectionStrategy, inject
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { Deal, NETWORK_COLOURS } from '../../../core/models/deal.model';
+import { CartService } from '../../../core/services/cart.service';
 
 @Component({
   selector: 'app-deal-card',
@@ -129,16 +131,22 @@ import { Deal, NETWORK_COLOURS } from '../../../core/models/deal.model';
       <div class="px-5 pb-5 pt-4 mt-auto">
         <button
           (click)="onGetDeal()"
-          class="w-full py-3 rounded-xl text-sm font-bold tracking-wide text-white transition-all duration-200 ease-out
-                 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-          [ngClass]="isHighlighted
-            ? 'bg-accent hover:bg-blue-600 shadow-md shadow-blue-200 active:scale-[0.98]'
-            : 'bg-primary hover:bg-slate-700 active:scale-[0.98]'"
+           class="w-full py-3 rounded-xl text-sm font-bold tracking-wide text-white transition-all duration-200 ease-out
+                  focus:outline-none focus:ring-2 focus:ring-offset-2"
+           [ngClass]="cartService.isInCart(deal.id)
+             ? 'bg-green-600 hover:bg-green-700 shadow-md shadow-green-200 active:scale-[0.98] focus:ring-green-600'
+             : isHighlighted
+               ? 'bg-accent hover:bg-blue-600 shadow-md shadow-blue-200 active:scale-[0.98] focus:ring-accent'
+               : 'bg-primary hover:bg-slate-700 active:scale-[0.98] focus:ring-primary'"
         >
-          Get this deal
-          <svg class="inline-block w-4 h-4 ml-1.5 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-          </svg>
+          @if (cartService.isInCart(deal.id)) {
+            In Cart ✓
+          } @else {
+            Get this deal
+            <svg class="inline-block w-4 h-4 ml-1.5 -mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+          }
         </button>
       </div>
 
@@ -147,12 +155,19 @@ import { Deal, NETWORK_COLOURS } from '../../../core/models/deal.model';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DealCardComponent {
+  public cartService = inject(CartService);
+  private router = inject(Router);
+
   @Input({ required: true }) deal!: Deal;
   @Input() isHighlighted = false;
   @Output() getDeal = new EventEmitter<Deal>();
 
   onGetDeal(): void {
-    this.getDeal.emit(this.deal);
+    if (this.cartService.isInCart(this.deal.id)) {
+      this.router.navigate(['/cart']);
+    } else {
+      this.getDeal.emit(this.deal);
+    }
   }
 
   /** Split the monthly cost into whole + pence for large typography */

@@ -11,6 +11,7 @@ import sitemapRouter from './routes/sitemap';
 import imagesRouter from './routes/images';
 import adminExtrasRouter from './routes/admin';
 import debugRouter from './routes/debug';
+import checkoutRouter from './routes/checkout';
 
 // Create a new Hono app with our Env bindings
 const app = new Hono<{ Bindings: Env }>();
@@ -35,6 +36,9 @@ api.route('/deals', publicDealsRouter);
 
 // Public image proxy (serves R2 uploads — required for local dev)
 api.route('/images', imagesRouter);
+
+// Checkout flow
+api.route('/checkout', checkoutRouter);
 
 // Temporary debug routes — remove before production deploy
 api.route('/debug', debugRouter);

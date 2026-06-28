@@ -1,0 +1,205 @@
+<div class="checkout-container">
+  <div class="checkout-grid">
+    
+    <!-- Form Section -->
+    <div class="checkout-form-section">
+      <div class="checkout-card">
+        <div class="checkout-card-header">
+          <h2>Checkout</h2>
+          <p>Please enter your details to complete your order.</p>
+        </div>
+        
+        <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()" class="checkout-form">
+          
+          <!-- Billing/Shipping Section -->
+          <div class="mb-10">
+            <h3 class="form-section-title">
+              <span class="step-number">1</span>
+              Billing & Shipping Details
+            </h3>
+            
+            <div class="form-grid">
+              <div class="form-group col-span-full">
+                <label>Full Name</label>
+                <input type="text" formControlName="fullName" placeholder="e.g. John Doe">
+                <div *ngIf="checkoutForm.get('fullName')?.touched && checkoutForm.get('fullName')?.invalid" class="error-message">
+                  Full Name is required.
+                </div>
+              </div>
+              
+              <div class="form-group col-span-full">
+                <label>Email Address</label>
+                <input type="email" formControlName="email" placeholder="e.g. john@example.com">
+                <div *ngIf="checkoutForm.get('email')?.touched && checkoutForm.get('email')?.invalid" class="error-message">
+                  A valid Email Address is required.
+                </div>
+              </div>
+
+              <div class="form-group col-span-full">
+                <label>Phone Number</label>
+                <input type="tel" formControlName="phone" placeholder="e.g. 07700 900000">
+                <div *ngIf="checkoutForm.get('phone')?.touched && checkoutForm.get('phone')?.hasError('required')" class="text-red-500 text-sm mt-1">
+                  Phone Number is required.
+                </div>
+                <div *ngIf="checkoutForm.get('phone')?.touched && checkoutForm.get('phone')?.hasError('pattern')" class="text-red-500 text-sm mt-1">
+                  Please enter a valid UK phone number.
+                </div>
+              </div>
+
+              <div class="form-group col-span-full">
+                <label>Address</label>
+                <input type="text" formControlName="address" placeholder="e.g. 123 Main St">
+                <div *ngIf="checkoutForm.get('address')?.touched && checkoutForm.get('address')?.invalid" class="error-message">
+                  Address is required.
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>City</label>
+                <input type="text" formControlName="city" placeholder="e.g. London">
+                <div *ngIf="checkoutForm.get('city')?.touched && checkoutForm.get('city')?.invalid" class="error-message">
+                  City is required.
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Country</label>
+                <input type="text" formControlName="country" value="United Kingdom" readonly class="bg-gray-100 cursor-not-allowed">
+              </div>
+
+              <div class="form-group col-span-full">
+                <label>Postcode</label>
+                <input type="text" formControlName="postcode" placeholder="e.g. SW1A 1AA" (input)="onPostcodeInput($event)">
+                <div *ngIf="checkoutForm.get('postcode')?.touched && checkoutForm.get('postcode')?.hasError('required')" class="text-red-500 text-sm mt-1">
+                  Postcode is required.
+                </div>
+                <div *ngIf="checkoutForm.get('postcode')?.touched && checkoutForm.get('postcode')?.hasError('pattern')" class="text-red-500 text-sm mt-1">
+                  Please enter a valid UK postcode (e.g., SW1A 1AA).
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <!-- Order Extras Section -->
+          <div class="mb-10">
+            <h3 class="form-section-title">
+              <span class="step-number">2</span>
+              Order Extras
+            </h3>
+            
+            <label class="flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200"
+                   [ngClass]="checkoutForm.get('addCharger')?.value ? 'border-accent bg-accent/5 shadow-sm' : 'border-gray-200 hover:border-gray-300 bg-white'">
+              <input type="checkbox" formControlName="addCharger" class="w-5 h-5 text-accent rounded border-gray-300 focus:ring-accent">
+              <div class="ml-4 flex-1">
+                <p class="font-medium text-gray-900">Add a 20W Fast Charger</p>
+                <p class="text-sm text-gray-500">Essential for your new phone. (+£19.99)</p>
+              </div>
+            </label>
+          </div>
+
+          <hr class="section-divider">
+
+          <!-- Payment Section -->
+          <div class="mb-10">
+            <h3 class="form-section-title">
+              <span class="step-number">3</span>
+              Payment Information
+            </h3>
+            
+            <div class="payment-box">
+              <div class="form-grid">
+                <div class="form-group col-span-full relative">
+                  <label>Card Number</label>
+                  <div class="relative">
+                    <input type="text" formControlName="cardNumber" placeholder="0000 0000 0000 0000" [ngClass]="{'pl-12': detectedCardBrand()}" (input)="onCardNumberInput($event)" maxlength="19">
+                    <div *ngIf="detectedCardBrand()" class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="text-xs font-bold text-gray-500 uppercase px-1 py-0.5 bg-gray-100 rounded border border-gray-200">
+                        {{ detectedCardBrand() }}
+                      </span>
+                    </div>
+                  </div>
+                  <div *ngIf="checkoutForm.get('cardNumber')?.touched && checkoutForm.get('cardNumber')?.hasError('required')" class="text-red-500 text-sm mt-1">
+                    Valid 16-digit card number is required.
+                  </div>
+                  <div *ngIf="checkoutForm.get('cardNumber')?.touched && checkoutForm.get('cardNumber')?.hasError('invalidCard')" class="text-red-500 text-sm mt-1">
+                    Please enter a valid card number.
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Expiry Date (MM/YY)</label>
+                  <input type="text" formControlName="expiryDate" placeholder="MM/YY" (input)="onExpiryInput($event)" maxlength="5">
+                  <div *ngIf="checkoutForm.get('expiryDate')?.touched && checkoutForm.get('expiryDate')?.hasError('required')" class="text-red-500 text-sm mt-1">
+                    Valid Expiry Date (MM/YY) is required.
+                  </div>
+                  <div *ngIf="checkoutForm.get('expiryDate')?.touched && checkoutForm.get('expiryDate')?.hasError('invalidExpiry')" class="text-red-500 text-sm mt-1">
+                    Card has expired or invalid date format.
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>CVV</label>
+                  <input type="text" formControlName="cvv" placeholder="123" (input)="onCvvInput($event)" maxlength="4">
+                  <div *ngIf="checkoutForm.get('cvv')?.touched && checkoutForm.get('cvv')?.hasError('required')" class="text-red-500 text-sm mt-1">
+                    CVV is required.
+                  </div>
+                  <div *ngIf="checkoutForm.get('cvv')?.touched && checkoutForm.get('cvv')?.hasError('invalidCvv')" class="text-red-500 text-sm mt-1">
+                    Valid {{ detectedCardBrand() === 'Amex' ? '4' : '3' }} digit CVV is required.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding-top: 1rem;">
+            <button type="submit" [disabled]="checkoutForm.invalid || isSubmitting" class="btn-submit disabled:opacity-50 disabled:cursor-not-allowed">
+              <span *ngIf="!isSubmitting">Complete Order</span>
+              <span *ngIf="isSubmitting">Processing...</span>
+              <svg *ngIf="isSubmitting" class="spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="checkout-summary-section">
+      <div class="summary-card">
+        <h3>Order Summary</h3>
+        
+        <div class="summary-row">
+          <span>Items in Cart</span>
+          <span class="value">{{ cartService.itemCount() }}</span>
+        </div>
+
+        <div class="summary-totals">
+          <div class="total-row text-sm text-gray-500" *ngIf="checkoutForm.get('addCharger')?.value">
+            <span class="label">Fast Charger</span>
+            <span class="value">£19.99</span>
+          </div>
+          <div class="total-row">
+            <span class="label">Total Upfront</span>
+            <span class="value">£{{ finalUpfrontCost | number:'1.2-2' }}</span>
+          </div>
+          <div class="total-row">
+            <span class="label">Total Monthly</span>
+            <span class="value highlight">£{{ cartService.totalMonthly() | number:'1.2-2' }}/mo</span>
+          </div>
+        </div>
+
+        <div class="notice-box">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p>You won't be charged anything today. This is a secure, simulated checkout process.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

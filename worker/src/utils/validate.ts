@@ -22,5 +22,25 @@ export const validate = {
     if (!value) return false;
     const slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
     return slugRegex.test(value);
+  },
+
+  isAdult: (dateOfBirthISO: string): boolean => {
+    if (!dateOfBirthISO) return false;
+    const dob = new Date(dateOfBirthISO);
+    if (isNaN(dob.getTime())) return false; // Invalid date
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    return age >= 18;
+  },
+
+  isValidUKMobile: (value: string): boolean => {
+    if (!value) return false;
+    const stripped = value.replace(/[\s-]/g, '');
+    const regex = /^(?:0|\+44)7\d{9}$/;
+    return regex.test(stripped);
   }
 };

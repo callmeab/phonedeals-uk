@@ -13,15 +13,16 @@ import { RouterLink } from '@angular/router';
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 lg:gap-8 mb-12">
           
           <!-- Column 1: Brand -->
-          <div class="space-y-4">
-            <a routerLink="/" class="text-2xl font-bold tracking-tight text-white inline-block">
-              PhoneDeals<span class="text-accent">UK</span>
+          <div class="">
+            <a routerLink="/" class="flex items-center  text-2xl font-bold tracking-tight text-white w-fit">
+              <img src="/image-logo/full-logo.png" alt="Mobello.uk Logo" class="h-40  object-contain">
+              <!-- <span>Mobello<span class="text-accent">.uk</span></span> -->
             </a>
             <p class="text-sm font-medium text-gray-400">
               The best iPhone and Samsung deals in the UK
             </p>
             <p class="text-xs text-gray-500 max-w-sm mt-4 leading-relaxed">
-              PhoneDeals UK is an independent comparison site. Prices shown are indicative and subject to change.
+              Mobello.uk is an independent comparison site. Prices shown are indicative and subject to change.
             </p>
           </div>
 
@@ -68,7 +69,7 @@ import { RouterLink } from '@angular/router';
         <!-- Bottom Bar -->
         <div class="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
           <p class="text-xs text-gray-500">
-            &copy; {{ currentYear }} PhoneDeals UK. All rights reserved.
+            &copy; {{ currentYear }} Mobello.uk. All rights reserved.
           </p>
           
           <!-- Network Text Badges -->

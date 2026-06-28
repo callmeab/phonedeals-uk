@@ -28,7 +28,10 @@ import { AuthService } from '../../core/services/auth.service';
       >
         <!-- Sidebar Header -->
         <div class="flex items-center justify-between h-16 px-6 border-b border-white/10 shrink-0">
-          <span class="text-white font-semibold text-lg tracking-tight">PhoneDeals Admin</span>
+          <div class="flex items-center  text-white font-semibold text-lg tracking-tight">
+            <img src="/image-logo/logo.png" alt="Logo" class="h-16 w-auto object-contain">
+            <span>Mobello Admin</span>
+          </div>
           <button (click)="toggleMobileMenu()" class="lg:hidden text-gray-300 hover:text-white focus:outline-none">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -39,7 +42,7 @@ import { AuthService } from '../../core/services/auth.service';
         <!-- Sidebar Links -->
         <nav class="flex-1 px-3 py-6 space-y-1.5 overflow-y-auto">
           <a 
-            routerLink="/xk92-admin/dashboard" 
+            routerLink="/admin/dashboard" 
             routerLinkActive="bg-accent text-white" 
             class="flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors group"
           >
@@ -51,7 +54,19 @@ import { AuthService } from '../../core/services/auth.service';
           </a>
 
           <a 
-            routerLink="/xk92-admin/products" 
+            routerLink="/admin/orders" 
+            routerLinkActive="bg-accent text-white" 
+            class="flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors group"
+          >
+            <!-- Shopping Cart -->
+            <svg class="mr-3 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            Orders
+          </a>
+
+          <a 
+            routerLink="/admin/products" 
             routerLinkActive="bg-accent text-white" 
             class="flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors group"
           >
@@ -63,27 +78,16 @@ import { AuthService } from '../../core/services/auth.service';
           </a>
 
           <a 
-            routerLink="/xk92-admin/deals" 
+            routerLink="/admin/settings" 
             routerLinkActive="bg-accent text-white" 
             class="flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors group"
           >
-            <!-- Currency Pound -->
+            <!-- Cog -->
             <svg class="mr-3 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 9a2 2 0 10-4 0v5a2 2 0 01-2 2h6m-6-4h4m8 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            Deals
-          </a>
-
-          <a 
-            routerLink="/xk92-admin/categories" 
-            routerLinkActive="bg-accent text-white" 
-            class="flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors group"
-          >
-            <!-- Tag -->
-            <svg class="mr-3 h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            Categories
+            Settings
           </a>
         </nav>
 
@@ -109,21 +113,45 @@ import { AuthService } from '../../core/services/auth.service';
       <!-- Main Content Area -->
       <div class="flex-1 flex flex-col overflow-hidden w-full">
         
-        <!-- Mobile Top Bar -->
-        <header class="lg:hidden bg-white shadow-sm border-b border-gray-200 shrink-0">
+        <!-- Top Navbar -->
+        <header class="bg-white shadow-sm border-b border-gray-200 shrink-0 z-10 relative">
           <div class="flex items-center justify-between px-4 sm:px-6 py-3">
-            <button 
-              type="button" 
-              class="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent rounded-md"
-              (click)="toggleMobileMenu()"
-            >
-              <span class="sr-only">Open sidebar</span>
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            <span class="font-semibold text-gray-900">PhoneDeals Admin</span>
-            <div class="w-6"></div> <!-- Spacer for centering -->
+            <div class="flex items-center">
+              <button 
+                type="button" 
+                class="lg:hidden text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-accent rounded-md mr-4"
+                (click)="toggleMobileMenu()"
+              >
+                <span class="sr-only">Open sidebar</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              <h2 class="text-xl font-semibold text-gray-800 hidden sm:block">Welcome, Admin</h2>
+              <span class="font-semibold text-gray-900 sm:hidden">Mobello Admin</span>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+              <!-- Notifications -->
+              <button class="text-gray-400 hover:text-gray-500 relative focus:outline-none">
+                <span class="sr-only">View notifications</span>
+                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <!-- Notification Badge -->
+                <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400 ring-2 ring-white"></span>
+              </button>
+
+              <!-- Profile Dropdown (Simplified for layout) -->
+              <div class="flex items-center space-x-3 border-l pl-4 border-gray-200">
+                <div class="h-8 w-8 rounded-full bg-accent/10 flex items-center justify-center text-accent font-bold text-sm">
+                  A
+                </div>
+                <div class="hidden md:block">
+                  <p class="text-sm font-medium text-gray-700 truncate max-w-[150px]">{{ adminEmail() }}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </header>
 
@@ -146,7 +174,7 @@ export class AdminShellComponent {
   isMobileMenuOpen = signal(false);
 
   // Fallback email just in case, heavily relying on the signal's value
-  adminEmail = signal(this.authService.currentAdmin()?.email || 'admin@phonedeals.co.uk');
+  adminEmail = signal(this.authService.currentAdmin()?.email || 'admin@mobello.uk');
 
   constructor() {
     effect(() => {

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component, ChangeDetectionStrategy, inject, signal, OnInit, PLATFORM_ID
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -72,7 +72,7 @@ export class HomeComponent implements OnInit {
   readonly features = [
     {
       title: 'Compare in seconds',
-      description: 'See every available contract deal for any iPhone or Samsung side-by-side. Monthly cost, data, upfront — all in one place.',
+      description: 'See every available contract deal for any iPhone or Samsung side-by-side. Monthly cost, data, upfront â€” all in one place.',
       icon: inject(DomSanitizer).bypassSecurityTrustHtml('<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>'),
       iconBg: 'bg-blue-100',
       iconColor: 'text-accent',
@@ -88,7 +88,7 @@ export class HomeComponent implements OnInit {
     },
     {
       title: 'UK networks only',
-      description: "We only list deals from networks operating in the UK. EE, O2, Vodafone, Three, Sky Mobile, iD Mobile, and BT Mobile — that's it.",
+      description: "We only list deals from networks operating in the UK. EE, O2, Vodafone, Three, Sky Mobile, iD Mobile, and BT Mobile â€” that's it.",
       icon: inject(DomSanitizer).bypassSecurityTrustHtml('<svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>'),
       iconBg: 'bg-purple-100',
       iconColor: 'text-purple-600',
@@ -107,7 +107,7 @@ export class HomeComponent implements OnInit {
     },
     {
       question: 'Do you add a commission onto the phone price?',
-      answer: 'No! The price you see on PhoneDeals UK is the exact price you pay with the network. We do not inflate the monthly costs or upfront fees.'
+      answer: 'No! The price you see on Mobello.uk is the exact price you pay with the network. We do not inflate the monthly costs or upfront fees.'
     },
     {
       question: 'Can I keep my current phone number?',
@@ -121,17 +121,17 @@ export class HomeComponent implements OnInit {
     this.seo.setMetaTags({
       description: 'Find the best iPhone and Samsung Galaxy contract deals from every major UK network. Compare EE, O2, Vodafone, Three, Sky Mobile and more. Updated daily, free to use.',
       keywords: 'iPhone deals, Samsung deals, phone contracts, UK network deals, cheap phone deals, EE deals, O2 deals, Vodafone deals',
-      ogImage: 'https://www.phonedealsuk.co.uk/og-home.png',
+      ogImage: 'https://www.Mobello.uk.co.uk/og-home.png',
     });
     this.seo.setStructuredData({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: 'PhoneDeals UK',
-      url: 'https://www.phonedealsuk.co.uk',
+      name: 'Mobello.uk',
+      url: 'https://www.Mobello.uk.co.uk',
       description: 'Independent UK comparison site for iPhone and Samsung contract deals.',
       potentialAction: {
         '@type': 'SearchAction',
-        target: 'https://www.phonedealsuk.co.uk/iphone',
+        target: 'https://www.Mobello.uk.co.uk/iphone',
         'query-input': 'required name=search_term_string'
       }
     });

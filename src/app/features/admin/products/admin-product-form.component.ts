@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal, effect, OnInit } from '@angular/core';
+﻿import { Component, ChangeDetectionStrategy, inject, signal, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
@@ -6,6 +6,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { ToastService } from '../../../core/services/toast.service';
 
 function frontendSlugify(text: string): string {
   if (!text) return '';
@@ -86,7 +87,7 @@ function frontendSlugify(text: string): string {
                 <label for="slug" class="block text-sm font-medium text-gray-700">URL Slug <span class="text-red-500">*</span></label>
                 <div class="mt-1 flex rounded-md shadow-sm">
                   <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 sm:text-sm">
-                    phonedeals.co.uk/products/
+                    mobello.uk/products/
                   </span>
                   <input type="text" id="slug" formControlName="slug" (input)="onSlugManuallyEdited()"
                     class="flex-1 min-w-0 block w-full rounded-none rounded-r-md border-gray-300 focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border"
@@ -333,6 +334,7 @@ export class AdminProductFormComponent implements OnInit {
   private api = inject(ApiService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private toast = inject(ToastService);
 
   form = this.fb.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
@@ -422,7 +424,7 @@ export class AdminProductFormComponent implements OnInit {
         this.isPageLoading.set(false);
       },
       error: () => {
-        alert('Failed to load product details.');
+        this.toast.error('Failed to load product details. Returning to products list.');
         this.router.navigate(['/xk92-admin/products']);
       }
     });
@@ -494,7 +496,7 @@ export class AdminProductFormComponent implements OnInit {
           await this.uploadProductImage(file, type);
         }
       } catch {
-        alert('One or more images failed to upload. Please try again.');
+        this.toast.warning('One or more images failed to upload. Please try again.');
       } finally {
         this.isUploading.set(false);
       }
@@ -591,7 +593,7 @@ export class AdminProductFormComponent implements OnInit {
 
     request.subscribe({
       next: () => {
-        alert(this.isEditMode() ? 'Product updated successfully!' : 'Product saved successfully!');
+        this.toast.success(this.isEditMode() ? 'Product updated successfully!' : 'Product saved successfully!');
         this.router.navigate(['/xk92-admin/products']);
       },
       error: (err: Error) => {

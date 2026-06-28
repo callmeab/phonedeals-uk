@@ -7,6 +7,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiService } from '../../../core/services/api.service';
 import { Product } from '../../../core/models/product.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface ApiResponse<T> {
   success: boolean;
@@ -308,6 +309,7 @@ interface ApiResponse<T> {
 })
 export class AdminProductsComponent implements OnInit {
   private api = inject(ApiService);
+  private toast = inject(ToastService);
 
   products = signal<Product[]>([]);
   isLoading = signal(true);
@@ -398,7 +400,7 @@ export class AdminProductsComponent implements OnInit {
           this.loadProducts(); 
         },
         error: () => {
-          alert('Failed to update product status');
+          this.toast.error('Failed to update product status. Please try again.');
         }
       });
   }
@@ -425,7 +427,7 @@ export class AdminProductsComponent implements OnInit {
       },
       error: () => {
         this.isDeleting.set(false);
-        alert('Failed to deactivate product');
+        this.toast.error('Failed to deactivate product. Please try again.');
       }
     });
   }

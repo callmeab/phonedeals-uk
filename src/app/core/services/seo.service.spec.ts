@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { SeoService } from './seo.service';
 import { Title, Meta } from '@angular/platform-browser';
 import { DOCUMENT } from '@angular/common';
@@ -22,7 +22,7 @@ describe('SeoService', () => {
   it('should set page title with suffix', () => {
     spyOn(titleService, 'setTitle');
     service.setPageTitle('Test Page');
-    expect(titleService.setTitle).toHaveBeenCalledWith('Test Page | PhoneDeals UK');
+    expect(titleService.setTitle).toHaveBeenCalledWith('Test Page | Mobello.uk');
   });
 
   it('should update meta tags', () => {
@@ -46,11 +46,11 @@ describe('SeoService', () => {
     // Check canonical link
     const link: HTMLLinkElement | null = document.querySelector('link[rel="canonical"]');
     expect(link).toBeTruthy();
-    expect(link?.href).toBe('https://www.phonedealsuk.co.uk/test-path');
+    expect(link?.href).toBe('https://www.Mobello.uk.co.uk/test-path');
 
     // Check og:url
     const ogUrl = document.querySelector('meta[property="og:url"]');
     expect(ogUrl).toBeTruthy();
-    expect(ogUrl?.getAttribute('content')).toBe('https://www.phonedealsuk.co.uk/test-path');
+    expect(ogUrl?.getAttribute('content')).toBe('https://www.Mobello.uk.co.uk/test-path');
   });
 });

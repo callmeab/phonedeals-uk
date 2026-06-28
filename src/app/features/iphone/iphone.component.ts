@@ -1,4 +1,4 @@
-import {
+﻿import {
   Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, PLATFORM_ID
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -95,14 +95,14 @@ export class IphoneComponent implements OnInit {
     this.seo.setMetaTags({
       description: 'Compare the best iPhone contract deals in the UK. Find cheap monthly plans from EE, O2, Vodafone, Three, Sky Mobile and more. Updated daily.',
       keywords: 'iPhone deals, iPhone contracts, cheap iPhone plans, EE iPhone, O2 iPhone, Vodafone iPhone, UK iPhone deals',
-      ogImage: 'https://www.phonedealsuk.co.uk/og-iphone.png',
+      ogImage: 'https://www.Mobello.uk.co.uk/og-iphone.png',
     });
     this.seo.setStructuredData({
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
-      name: 'iPhone Deals | PhoneDeals UK',
+      name: 'iPhone Deals | Mobello.uk',
       description: 'Compare the best iPhone contract deals from all UK networks.',
-      url: 'https://www.phonedealsuk.co.uk/iphone',
+      url: 'https://www.Mobello.uk.co.uk/iphone',
     });
     if (isPlatformBrowser(this.platformId)) {
       this.load();

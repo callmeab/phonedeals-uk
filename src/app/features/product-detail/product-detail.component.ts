@@ -7,6 +7,9 @@ import { SeoService } from '../../core/services/seo.service';
 import { ApiService } from '../../core/services/api.service';
 import { Product } from '../../core/models/product.model';
 import { Deal } from '../../core/models/deal.model';
+import { CartItem } from '../../core/models/cart.model';
+import { ToastService } from '../../core/services/toast.service';
+import { CartService } from '../../core/services/cart.service';
 import { BreadcrumbComponent, BreadcrumbItem } from '../../shared/components/breadcrumb/breadcrumb.component';
 import { DealCardComponent } from '../../shared/components/deal-card/deal-card.component';
 import { DealCardSkeletonComponent } from '../../shared/components/deal-card/deal-card-skeleton.component';
@@ -286,6 +289,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private seo = inject(SeoService);
+  private toast = inject(ToastService);
+  private cart = inject(CartService);
 
   // --- Data signals ---
   product = signal<Product | null>(null);
@@ -487,10 +492,30 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   onGetDeal(deal: Deal): void {
-    // Placeholder for affiliate redirect / tracking logic
-    // In production: track click event, then redirect to operator checkout URL
-    console.log('Get deal clicked:', deal.network, deal.monthly_cost);
-    window.open(`https://www.${deal.network.toLowerCase().replace(' ', '')}.co.uk`, '_blank', 'noopener');
+    const p = this.product();
+    if (!p) return;
+
+    const item: CartItem = {
+      id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+      dealId: deal.id,
+      productId: p.id,
+      productName: p.name,
+      productSlug: p.slug,
+      primaryImageUrl: this.primaryImageUrl() ?? '',
+      network: deal.network,
+      contractMonths: deal.contract_months,
+      monthlyCost: deal.monthly_cost,
+      upfrontCost: deal.upfront_cost,
+      dataGb: deal.data_gb,
+      addedAt: Date.now()
+    };
+
+    const added = this.cart.addItem(item);
+    if (!added) {
+      this.toast.info('This deal is already in your cart.');
+    }
+
+    this.router.navigate(['/cart']);
   }
 
   /** Maps colour names to approximate hex values for the swatch circles */

@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+﻿import { TestBed } from '@angular/core/testing';
 import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
@@ -44,7 +44,7 @@ describe('AuthService', () => {
   });
 
   it('should set token and return true for valid login', (done) => {
-    service.login('admin@phonedeals.co.uk', 'admin123').subscribe({
+    service.login('admin@mobello.uk', 'admin123').subscribe({
       next: (res) => {
         expect(res.success).toBeTrue();
         expect(service.isAuthenticated()).toBeTrue();

@@ -26,8 +26,9 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
           
           <!-- Logo -->
           <div class="flex-shrink-0">
-            <a routerLink="/" class="text-2xl font-bold tracking-tight">
-              PhoneDeals<span class="text-accent">UK</span>
+            <a routerLink="/" class="flex items-center">
+              <img src="/image-logo/logo.png" alt="Mobello.uk Logo" class="h-20 w-auto object-contain">
+              <span class="text-2xl font-bold tracking-tight hidden sm:block">Mobello<span class="text-accent">.uk</span></span>
             </a>
           </div>
           
