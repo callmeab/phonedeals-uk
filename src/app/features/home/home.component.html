@@ -1,458 +1,768 @@
-﻿
-
-    <!-- ============================================================
+﻿<!-- ============================================================
          SECTION 1 â€” HERO
          ============================================================ -->
-    <section class="relative overflow-hidden bg-primary pt-20 pb-32 lg:pt-28 lg:pb-40">
-      <!-- Layered gradient mesh -->
-      <div class="absolute inset-0"
-        style="background: radial-gradient(ellipse 80% 60% at 60% -10%, rgba(59,130,246,0.35) 0%, transparent 60%),
-                           radial-gradient(ellipse 50% 40% at 100% 80%, rgba(59,130,246,0.15) 0%, transparent 50%);"></div>
+<section
+  class="relative overflow-hidden bg-primary pt-20 pb-32 lg:pt-28 lg:pb-40"
+>
+  <!-- Layered gradient mesh -->
+  <div
+    class="absolute inset-0"
+    style="
+      background:
+        radial-gradient(
+          ellipse 80% 60% at 60% -10%,
+          rgba(59, 130, 246, 0.35) 0%,
+          transparent 60%
+        ),
+        radial-gradient(
+          ellipse 50% 40% at 100% 80%,
+          rgba(59, 130, 246, 0.15) 0%,
+          transparent 50%
+        );
+    "
+  ></div>
 
-      <!-- Subtle dot grid -->
-      <div class="absolute inset-0 opacity-[0.035]"
-        style="background-image: radial-gradient(circle, #fff 1px, transparent 1px); background-size: 36px 36px;"></div>
+  <!-- Subtle dot grid -->
+  <div
+    class="absolute inset-0 opacity-[0.035]"
+    style="
+      background-image: radial-gradient(circle, #fff 1px, transparent 1px);
+      background-size: 36px 36px;
+    "
+  ></div>
 
-      <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
-          
-          <!-- Left Text Content -->
-          <div class="text-center lg:text-left z-10 pt-10">
-            <!-- Pill label -->
-            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/80 text-xs font-bold tracking-widest uppercase mb-8">
-              <span class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"></span>
-              Updated Daily آ· All Major UK Networks
-            </div>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+      <!-- Left Text Content -->
+      <div class="text-center lg:text-left z-10 pt-10">
+        <!-- Pill label -->
+        <div
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/80 text-xs font-bold tracking-widest uppercase mb-8"
+        >
+          <span
+            class="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse"
+          ></span>
+          Updated Daily All Major UK Networks
+        </div>
 
-            <!-- Headline -->
-            <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.02] tracking-tight">
-              Find the Perfect<br class="hidden sm:block">
-              <span class="relative inline-block mt-2">
-                <span class="text-accent">Phone Deal</span>
-                <!-- Underline squiggle accent -->
-                <svg class="absolute -bottom-2 left-0 w-full h-3 text-accent/40" viewBox="0 0 300 12" preserveAspectRatio="none">
-                  <path d="M0 8 Q37.5 0 75 8 Q112.5 16 150 8 Q187.5 0 225 8 Q262.5 16 300 8" stroke="currentColor" stroke-width="3" fill="none" stroke-linecap="round"/>
-                </svg>
-              </span>
-            </h1>
+        <!-- Headline -->
+        <h1
+          class="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-[1.02] tracking-tight"
+        >
+          Find the Perfect<br class="hidden sm:block" />
+          <span class="relative inline-block mt-2">
+            <span class="text-accent">Phone Deal</span>
+            <!-- Underline squiggle accent -->
+            <svg
+              class="absolute -bottom-2 left-0 w-full h-3 text-accent/40"
+              viewBox="0 0 300 12"
+              preserveAspectRatio="none"
+            >
+              <path
+                d="M0 8 Q37.5 0 75 8 Q112.5 16 150 8 Q187.5 0 225 8 Q262.5 16 300 8"
+                stroke="currentColor"
+                stroke-width="3"
+                fill="none"
+                stroke-linecap="round"
+              />
+            </svg>
+          </span>
+        </h1>
 
-            <!-- Subheadline -->
-            <p class="mt-7 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Compare iPhone and Samsung contract deals from <strong class="text-white font-bold">all major UK networks</strong>.
-              No bias. No registration. Just the best price.
-            </p>
+        <!-- Subheadline -->
+        <p
+          class="mt-7 text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-medium"
+        >
+          Compare iPhone and Samsung contract deals from
+          <strong class="text-white font-bold">all major UK networks</strong>.
+          No bias. No registration. Just the best price.
+        </p>
 
-            <!-- CTA buttons -->
-            <div class="mt-10 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4">
-              <a routerLink="/iphone"
-                class="group inline-flex items-center gap-2.5 px-8 py-4 bg-white text-primary rounded-xl text-base font-bold shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary w-full sm:w-auto justify-center"
+        <!-- CTA buttons -->
+        <div
+          class="mt-10 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4"
+        >
+          <a
+            routerLink="/iphone"
+            class="group inline-flex items-center gap-2.5 px-8 py-4 bg-white text-primary rounded-xl text-base font-bold shadow-lg shadow-black/20 hover:shadow-xl hover:shadow-black/30 hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary w-full sm:w-auto justify-center"
+          >
+            <!-- Apple logo SVG -->
+            <svg
+              class="w-5 h-5 flex-shrink-0"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
+              />
+            </svg>
+            Apple Deals
+            <svg
+              class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+
+          <a
+            routerLink="/samsung"
+            class="group inline-flex items-center gap-2.5 px-8 py-4 bg-transparent text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-xl text-base font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary w-full sm:w-auto justify-center"
+          >
+            <!-- Samsung-style icon -->
+            <svg
+              class="w-5 h-5 flex-shrink-0"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
+              <path
+                d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm-1-5h2v2h-2zm0-8h2v6h-2z"
+              />
+            </svg>
+            Samsung Deals
+            <svg
+              class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M9 5l7 7-7 7"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <!-- Trust indicators -->
+        <div
+          class="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-3"
+        >
+          @for (trust of trustIndicators; track trust) {
+            <div
+              class="flex items-center gap-2 text-sm text-slate-300 font-medium"
+            >
+              <svg
+                class="w-4 h-4 text-green-400 flex-shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
               >
-                <!-- Apple logo SVG -->
-                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-                </svg>
-                Apple Deals
-                <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                </svg>
-              </a>
-
-              <a routerLink="/samsung"
-                class="group inline-flex items-center gap-2.5 px-8 py-4 bg-transparent text-white border-2 border-white/40 hover:border-white hover:bg-white/10 rounded-xl text-base font-bold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-primary w-full sm:w-auto justify-center"
-              >
-                <!-- Samsung-style icon -->
-                <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm-1-5h2v2h-2zm0-8h2v6h-2z"/>
-                </svg>
-                Samsung Deals
-                <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                </svg>
-              </a>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              {{ trust }}
             </div>
-
-            <!-- Trust indicators -->
-            <div class="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-x-8 gap-y-3">
-              @for (trust of trustIndicators; track trust) {
-                <div class="flex items-center gap-2 text-sm text-slate-300 font-medium">
-                  <svg class="w-4 h-4 text-green-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
-                  </svg>
-                  {{ trust }}
-                </div>
-              }
-            </div>
-          </div>
-
-          <!-- Right Abstract Graphic (Hidden on mobile) -->
-          <div class="hidden lg:block relative h-[500px]">
-             <!-- Decorative elements -->
-             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-accent/20 rounded-full blur-[100px] pointer-events-none"></div>
-             
-             <!-- Abstract Phone Card 1 (iPhone vibe) -->
-             <div class="absolute right-10 top-10 w-[240px] h-[480px] bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-[2.5rem] shadow-2xl p-4 transform rotate-12 transition-transform duration-700 hover:rotate-6 hover:-translate-y-2 group z-20">
-                <div class="w-full h-full bg-black/40 rounded-[2rem] border border-white/10 p-4 flex flex-col relative overflow-hidden">
-                   <!-- Dynamic notch -->
-                   <div class="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-10 transition-all duration-300 group-hover:w-32 group-hover:h-7"></div>
-                   
-                   <div class="mt-10 flex-1 flex flex-col gap-3">
-                      <div class="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full mx-auto my-4 shadow-[0_0_20px_rgba(99,102,241,0.5)]"></div>
-                      <div class="h-4 bg-white/20 rounded-full w-3/4 mx-auto"></div>
-                      <div class="h-3 bg-white/10 rounded-full w-1/2 mx-auto"></div>
-                      
-                      <div class="mt-auto grid grid-cols-2 gap-2">
-                        <div class="h-10 bg-white/10 rounded-xl"></div>
-                        <div class="h-10 bg-white/10 rounded-xl"></div>
-                      </div>
-                   </div>
-                </div>
-             </div>
-
-             <!-- Abstract Phone Card 2 (Samsung vibe) -->
-             <div class="absolute left-10 top-24 w-[240px] h-[480px] bg-gradient-to-br from-indigo-500/20 to-purple-500/10 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl p-3 transform -rotate-6 transition-transform duration-700 hover:rotate-0 hover:-translate-y-4 z-10">
-                <div class="w-full h-full bg-slate-900/60 rounded-[1.5rem] border border-white/5 p-4 flex flex-col relative">
-                   <div class="mt-4 flex-1 flex flex-col gap-3">
-                      <div class="flex justify-between items-center mb-4">
-                         <div class="w-8 h-8 rounded-full bg-white/20"></div>
-                         <div class="w-12 h-4 rounded-full bg-white/10"></div>
-                      </div>
-                      <div class="h-24 bg-gradient-to-r from-purple-500/40 to-pink-500/40 rounded-xl"></div>
-                      <div class="h-3 bg-white/20 rounded-full w-full mt-4"></div>
-                      <div class="h-3 bg-white/10 rounded-full w-4/5"></div>
-                      <div class="h-3 bg-white/10 rounded-full w-3/4"></div>
-                   </div>
-                </div>
-             </div>
-
-          </div>
-
+          }
         </div>
       </div>
 
-      <!-- Bottom wave divider -->
-      <div class="absolute bottom-0 left-0 right-0 h-16 pointer-events-none translate-y-[1px]">
-        <svg class="w-full h-full" viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0 48L60 40C120 32 240 16 360 12C480 8 600 16 720 22C840 28 960 32 1080 30C1200 28 1320 20 1380 16L1440 12V48H1380C1320 48 1200 48 1080 48C960 48 840 48 720 48C600 48 480 48 360 48C240 48 120 48 60 48H0Z" fill="#F8FAFC"/>
-        </svg>
-      </div>
-    </section>
+      <!-- Right Abstract Graphic (Hidden on mobile) -->
+      <div class="hidden lg:block relative h-[500px]">
+        <!-- Decorative elements -->
+        <div
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[450px] h-[450px] bg-accent/20 rounded-full blur-[100px] pointer-events-none"
+        ></div>
 
-    <!-- ============================================================
+        <!-- Abstract Phone Card 1 (iPhone vibe) -->
+        <div
+          class="absolute right-10 top-10 w-[240px] h-[480px] bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-[2.5rem] shadow-2xl p-4 transform rotate-12 transition-transform duration-700 hover:rotate-6 hover:-translate-y-2 group z-20"
+        >
+          <div
+            class="w-full h-full bg-black/40 rounded-[2rem] border border-white/10 p-4 flex flex-col relative overflow-hidden"
+          >
+            <!-- Dynamic notch -->
+            <div
+              class="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-6 bg-black rounded-full z-10 transition-all duration-300 group-hover:w-32 group-hover:h-7"
+            ></div>
+
+            <div class="mt-10 flex-1 flex flex-col gap-3">
+              <div
+                class="w-16 h-16 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full mx-auto my-4 shadow-[0_0_20px_rgba(99,102,241,0.5)]"
+              ></div>
+              <div class="h-4 bg-white/20 rounded-full w-3/4 mx-auto"></div>
+              <div class="h-3 bg-white/10 rounded-full w-1/2 mx-auto"></div>
+
+              <div class="mt-auto grid grid-cols-2 gap-2">
+                <div class="h-10 bg-white/10 rounded-xl"></div>
+                <div class="h-10 bg-white/10 rounded-xl"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Abstract Phone Card 2 (Samsung vibe) -->
+        <div
+          class="absolute left-10 top-24 w-[240px] h-[480px] bg-gradient-to-br from-indigo-500/20 to-purple-500/10 backdrop-blur-md border border-white/10 rounded-[2rem] shadow-2xl p-3 transform -rotate-6 transition-transform duration-700 hover:rotate-0 hover:-translate-y-4 z-10"
+        >
+          <div
+            class="w-full h-full bg-slate-900/60 rounded-[1.5rem] border border-white/5 p-4 flex flex-col relative"
+          >
+            <div class="mt-4 flex-1 flex flex-col gap-3">
+              <div class="flex justify-between items-center mb-4">
+                <div class="w-8 h-8 rounded-full bg-white/20"></div>
+                <div class="w-12 h-4 rounded-full bg-white/10"></div>
+              </div>
+              <div
+                class="h-24 bg-gradient-to-r from-purple-500/40 to-pink-500/40 rounded-xl"
+              ></div>
+              <div class="h-3 bg-white/20 rounded-full w-full mt-4"></div>
+              <div class="h-3 bg-white/10 rounded-full w-4/5"></div>
+              <div class="h-3 bg-white/10 rounded-full w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom wave divider -->
+  <div
+    class="absolute bottom-0 left-0 right-0 h-16 pointer-events-none translate-y-[1px]"
+  >
+    <svg
+      class="w-full h-full"
+      viewBox="0 0 1440 48"
+      preserveAspectRatio="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M0 48L60 40C120 32 240 16 360 12C480 8 600 16 720 22C840 28 960 32 1080 30C1200 28 1320 20 1380 16L1440 12V48H1380C1320 48 1200 48 1080 48C960 48 840 48 720 48C600 48 480 48 360 48C240 48 120 48 60 48H0Z"
+        fill="#F8FAFC"
+      />
+    </svg>
+  </div>
+</section>
+
+<!-- ============================================================
          SECTION 1B â€” HOW IT WORKS
          ============================================================ -->
-    <section class="bg-gray-50 py-16 border-b border-gray-100">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-          <h2 class="text-2xl sm:text-3xl font-black text-gray-900">How It Works</h2>
-          <p class="mt-3 text-gray-500">Three simple steps to finding your ideal contract.</p>
-        </div>
+<section class="bg-gray-50 py-16 border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-2xl sm:text-3xl font-black text-gray-900">
+        How It Works
+      </h2>
+      <p class="mt-3 text-gray-500">
+        Three simple steps to finding your ideal contract.
+      </p>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-          <!-- Connecting line for desktop -->
-          <div class="hidden md:block absolute top-[45px] left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-blue-100 via-blue-300 to-blue-100 z-0"></div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
+      <!-- Connecting line for desktop -->
+      <div
+        class="hidden md:block absolute top-[45px] left-[15%] right-[15%] h-0.5 bg-gradient-to-r from-blue-100 via-blue-300 to-blue-100 z-0"
+      ></div>
 
-          @for (step of howItWorks; track step.title) {
-            <div class="relative z-10 flex flex-col items-center text-center">
-              <div class="w-24 h-24 rounded-full bg-white border-4 border-gray-50 shadow-xl flex items-center justify-center mb-6 relative group transition-transform duration-300 hover:scale-105">
-                <div class="absolute inset-0 rounded-full bg-accent/5 scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-                <div [innerHTML]="step.icon" class="w-10 h-10 text-accent relative z-10"></div>
-                <div class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary text-white font-black text-sm flex items-center justify-center border-2 border-white shadow-sm">
-                  {{ step.number }}
-                </div>
-              </div>
-              <h3 class="text-xl font-bold text-gray-900 mb-2">{{ step.title }}</h3>
-              <p class="text-gray-500 max-w-xs">{{ step.description }}</p>
+      @for (step of howItWorks; track step.title) {
+        <div class="relative z-10 flex flex-col items-center text-center">
+          <div
+            class="w-24 h-24 rounded-full bg-white border-4 border-gray-50 shadow-xl flex items-center justify-center mb-6 relative group transition-transform duration-300 hover:scale-105"
+          >
+            <div
+              class="absolute inset-0 rounded-full bg-accent/5 scale-0 group-hover:scale-100 transition-transform duration-300"
+            ></div>
+            <div
+              [innerHTML]="step.icon"
+              class="w-10 h-10 text-accent relative z-10"
+            ></div>
+            <div
+              class="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary text-white font-black text-sm flex items-center justify-center border-2 border-white shadow-sm"
+            >
+              {{ step.number }}
             </div>
-          }
+          </div>
+          <h3 class="text-xl font-bold text-gray-900 mb-2">{{ step.title }}</h3>
+          <p class="text-gray-500 max-w-xs">{{ step.description }}</p>
         </div>
-      </div>
-    </section>
+      }
+    </div>
+  </div>
+</section>
 
-    <!-- ============================================================
+<!-- ============================================================
          SECTION 2 â€” FEATURED iPHONE DEALS
          ============================================================ -->
-    <section class="bg-white py-16 lg:py-20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section class="bg-white py-16 lg:py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Heading row -->
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <p class="text-xs font-bold text-accent uppercase tracking-widest mb-1">
+          Apple
+        </p>
+        <h2 class="text-2xl sm:text-3xl font-black text-gray-900">
+          Latest iPhone Deals
+        </h2>
+      </div>
+      <a
+        routerLink="/iphone"
+        class="inline-flex items-center gap-1.5 text-sm font-bold text-accent hover:text-blue-700 transition-colors focus:outline-none focus:underline flex-shrink-0"
+      >
+        View All
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </a>
+    </div>
 
-        <!-- Heading row -->
-        <div class="flex items-end justify-between mb-8">
-          <div>
-            <p class="text-xs font-bold text-accent uppercase tracking-widest mb-1">Apple</p>
-            <h2 class="text-2xl sm:text-3xl font-black text-gray-900">Latest iPhone Deals</h2>
-          </div>
-          <a routerLink="/iphone"
-            class="inline-flex items-center gap-1.5 text-sm font-bold text-accent hover:text-blue-700 transition-colors focus:outline-none focus:underline flex-shrink-0"
-          >
-            View All
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-            </svg>
-          </a>
-        </div>
-
-        <!-- Product row: horizontally scrollable with peek effect -->
-        @if (isLoading()) {
-          <!-- Shimmer skeleton -->
-          <div class="flex gap-5 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-            @for (i of skeletons; track i) {
-              <div class="flex-shrink-0 w-[220px] sm:w-[240px]">
-                <app-product-card-skeleton></app-product-card-skeleton>
-              </div>
-            }
-          </div>
-
-        } @else if (iphoneProducts().length === 0) {
-          <div class="text-center py-10 text-gray-400 text-sm">No iPhone deals available right now.</div>
-
-        } @else {
-          <div class="flex gap-5 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory">
-            @for (product of iphoneProducts(); track product.id) {
-              <div class="flex-shrink-0 w-[220px] sm:w-[240px] snap-start">
-                <app-product-card [product]="product" variant="grid"></app-product-card>
-              </div>
-            }
-            <!-- "View All" trailing card -->
-            <div class="flex-shrink-0 w-[180px] sm:w-[200px] snap-start flex items-stretch">
-              <a routerLink="/iphone"
-                class="flex flex-col items-center justify-center gap-3 w-full rounded-2xl border-2 border-dashed border-accent/30 text-accent font-bold text-sm hover:bg-accent/5 hover:border-accent transition-all duration-200 text-center px-4 py-8 group"
-              >
-                <div class="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
-                  <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </div>
-                View all iPhone deals
-              </a>
-            </div>
+    <!-- Product row: horizontally scrollable with peek effect -->
+    @if (isLoading()) {
+      <!-- Shimmer skeleton -->
+      <div
+        class="flex gap-5 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0"
+      >
+        @for (i of skeletons; track i) {
+          <div class="flex-shrink-0 w-[220px] sm:w-[240px]">
+            <app-product-card-skeleton></app-product-card-skeleton>
           </div>
         }
-
       </div>
-    </section>
+    } @else if (iphoneProducts().length === 0) {
+      <div class="text-center py-10 text-gray-400 text-sm">
+        No iPhone deals available right now.
+      </div>
+    } @else {
+      <div
+        class="flex gap-5 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory"
+      >
+        @for (product of iphoneProducts(); track product.id) {
+          <div class="flex-shrink-0 w-[220px] sm:w-[240px] snap-start">
+            <app-product-card
+              [product]="product"
+              variant="grid"
+            ></app-product-card>
+          </div>
+        }
+        <!-- "View All" trailing card -->
+        <div
+          class="flex-shrink-0 w-[180px] sm:w-[200px] snap-start flex items-stretch"
+        >
+          <a
+            routerLink="/iphone"
+            class="flex flex-col items-center justify-center gap-3 w-full rounded-2xl border-2 border-dashed border-accent/30 text-accent font-bold text-sm hover:bg-accent/5 hover:border-accent transition-all duration-200 text-center px-4 py-8 group"
+          >
+            <div
+              class="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
+            View all iPhone deals
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+</section>
 
-    <!-- ============================================================
+<!-- ============================================================
          SECTION 3 â€” FEATURED SAMSUNG DEALS
          ============================================================ -->
-    <section class="bg-surface py-16 lg:py-20 border-t border-gray-100">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section class="bg-surface py-16 lg:py-20 border-t border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <p
+          class="text-xs font-bold uppercase tracking-widest mb-1"
+          style="color: #1428a0"
+        >
+          Samsung
+        </p>
+        <h2 class="text-2xl sm:text-3xl font-black text-gray-900">
+          Latest Samsung Galaxy Deals
+        </h2>
+      </div>
+      <a
+        routerLink="/samsung"
+        class="inline-flex items-center gap-1.5 text-sm font-bold transition-colors focus:outline-none focus:underline flex-shrink-0"
+        style="color: #1428a0"
+      >
+        View All
+        <svg
+          class="w-4 h-4"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </a>
+    </div>
 
-        <div class="flex items-end justify-between mb-8">
-          <div>
-            <p class="text-xs font-bold uppercase tracking-widest mb-1" style="color: #1428A0;">Samsung</p>
-            <h2 class="text-2xl sm:text-3xl font-black text-gray-900">Latest Samsung Galaxy Deals</h2>
-          </div>
-          <a routerLink="/samsung"
-            class="inline-flex items-center gap-1.5 text-sm font-bold transition-colors focus:outline-none focus:underline flex-shrink-0"
-            style="color: #1428A0;"
-          >
-            View All
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-            </svg>
-          </a>
-        </div>
-
-        @if (isLoading()) {
-          <div class="flex gap-5 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0">
-            @for (i of skeletons; track i) {
-              <div class="flex-shrink-0 w-[220px] sm:w-[240px]">
-                <app-product-card-skeleton></app-product-card-skeleton>
-              </div>
-            }
-          </div>
-
-        } @else if (samsungProducts().length === 0) {
-          <div class="text-center py-10 text-gray-400 text-sm">No Samsung deals available right now.</div>
-
-        } @else {
-          <div class="flex gap-5 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory">
-            @for (product of samsungProducts(); track product.id) {
-              <div class="flex-shrink-0 w-[220px] sm:w-[240px] snap-start">
-                <app-product-card [product]="product" variant="grid"></app-product-card>
-              </div>
-            }
-            <div class="flex-shrink-0 w-[180px] sm:w-[200px] snap-start flex items-stretch">
-              <a routerLink="/samsung"
-                class="flex flex-col items-center justify-center gap-3 w-full rounded-2xl border-2 border-dashed text-sm font-bold hover:opacity-80 transition-all duration-200 text-center px-4 py-8 group"
-                style="border-color: rgba(20,40,160,0.3); color: #1428A0;"
-              >
-                <div class="w-14 h-14 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200" style="background: rgba(20,40,160,0.1);">
-                  <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                  </svg>
-                </div>
-                View all Samsung deals
-              </a>
-            </div>
+    @if (isLoading()) {
+      <div
+        class="flex gap-5 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:mx-0 sm:px-0"
+      >
+        @for (i of skeletons; track i) {
+          <div class="flex-shrink-0 w-[220px] sm:w-[240px]">
+            <app-product-card-skeleton></app-product-card-skeleton>
           </div>
         }
-
       </div>
-    </section>
+    } @else if (samsungProducts().length === 0) {
+      <div class="text-center py-10 text-gray-400 text-sm">
+        No Samsung deals available right now.
+      </div>
+    } @else {
+      <div
+        class="flex gap-5 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 sm:mx-0 sm:px-0 snap-x snap-mandatory"
+      >
+        @for (product of samsungProducts(); track product.id) {
+          <div class="flex-shrink-0 w-[220px] sm:w-[240px] snap-start">
+            <app-product-card
+              [product]="product"
+              variant="grid"
+            ></app-product-card>
+          </div>
+        }
+        <div
+          class="flex-shrink-0 w-[180px] sm:w-[200px] snap-start flex items-stretch"
+        >
+          <a
+            routerLink="/samsung"
+            class="flex flex-col items-center justify-center gap-3 w-full rounded-2xl border-2 border-dashed text-sm font-bold hover:opacity-80 transition-all duration-200 text-center px-4 py-8 group"
+            style="border-color: rgba(20, 40, 160, 0.3); color: #1428a0"
+          >
+            <div
+              class="w-14 h-14 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-200"
+              style="background: rgba(20, 40, 160, 0.1)"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </div>
+            View all Samsung deals
+          </a>
+        </div>
+      </div>
+    }
+  </div>
+</section>
 
-    <!-- ============================================================
+<!-- ============================================================
          SECTION 4 â€” NETWORK LOGOS STRIP
          ============================================================ -->
-    <section class="bg-white py-12 border-y border-gray-100">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p class="text-center text-xs font-bold text-gray-400 uppercase tracking-widest mb-7">
-          Available on all major UK networks
-        </p>
-        <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          @for (network of networks; track network.name) {
-            <span
-              class="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-extrabold tracking-wide shadow-sm border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-default"
-              [ngClass]="network.classes"
-            >
-              {{ network.name }}
-            </span>
-          }
-        </div>
-      </div>
-    </section>
+<section class="bg-white py-12 border-y border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <p
+      class="text-center text-xs font-bold text-gray-400 uppercase tracking-widest mb-7"
+    >
+      Available on all major UK networks
+    </p>
+    <div class="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+      @for (network of networks; track network.name) {
+        <span
+          class="inline-flex items-center px-5 py-2.5 rounded-xl text-sm font-extrabold tracking-wide shadow-sm border transition-all duration-300 hover:-translate-y-1 hover:shadow-lg cursor-default"
+          [ngClass]="network.classes"
+        >
+          {{ network.name }}
+        </span>
+      }
+    </div>
+  </div>
+</section>
 
-    <!-- ============================================================
+<!-- ============================================================
          SECTION 5 â€” WHY USE Mobello.uk
          ============================================================ -->
-    <section class="bg-gray-50 py-16 lg:py-24">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<section class="bg-gray-50 py-16 lg:py-24">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Section title -->
+    <div class="text-center mb-16">
+      <p class="text-xs font-bold text-accent uppercase tracking-widest mb-2">
+        Why Mobello.uk?
+      </p>
+      <h2
+        class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight"
+      >
+        The smarter way to compare
+      </h2>
+      <p class="mt-4 text-base sm:text-lg text-gray-500 max-w-2xl mx-auto">
+        We do the hard work so you don't have to. Find the best deal in seconds
+        without any hidden fees or confusing jargon.
+      </p>
+    </div>
 
-        <!-- Section title -->
-        <div class="text-center mb-16">
-          <p class="text-xs font-bold text-accent uppercase tracking-widest mb-2">Why Mobello.uk?</p>
-          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight">The smarter way to compare</h2>
-          <p class="mt-4 text-base sm:text-lg text-gray-500 max-w-2xl mx-auto">
-            We do the hard work so you don't have to. Find the best deal in seconds without any hidden fees or confusing jargon.
+    <!-- Feature cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+      @for (feature of features; track feature.title) {
+        <div
+          class="relative group bg-white rounded-3xl border border-gray-100 p-8 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 transition-all duration-500 overflow-hidden"
+        >
+          <!-- Background gradient glow -->
+          <div
+            class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none"
+            [ngClass]="feature.gradientStyle"
+          ></div>
+
+          <!-- Icon -->
+          <div
+            class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+            [ngClass]="feature.iconBg"
+          >
+            <div
+              [innerHTML]="feature.icon"
+              class="w-8 h-8"
+              [ngClass]="feature.iconColor"
+            ></div>
+          </div>
+          <!-- Text -->
+          <h3 class="text-xl font-black text-gray-900 mb-3 relative z-10">
+            {{ feature.title }}
+          </h3>
+          <p class="text-gray-500 leading-relaxed relative z-10">
+            {{ feature.description }}
           </p>
         </div>
+      }
+    </div>
+  </div>
+</section>
 
-        <!-- Feature cards -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-          @for (feature of features; track feature.title) {
-            <div class="relative group bg-white rounded-3xl border border-gray-100 p-8 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-2 transition-all duration-500 overflow-hidden">
-              <!-- Background gradient glow -->
-              <div class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none" [ngClass]="feature.gradientStyle"></div>
-              
-              <!-- Icon -->
-              <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-sm relative z-10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
-                   [ngClass]="feature.iconBg">
-                <div [innerHTML]="feature.icon" class="w-8 h-8" [ngClass]="feature.iconColor"></div>
-              </div>
-              <!-- Text -->
-              <h3 class="text-xl font-black text-gray-900 mb-3 relative z-10">{{ feature.title }}</h3>
-              <p class="text-gray-500 leading-relaxed relative z-10">{{ feature.description }}</p>
-            </div>
-          }
-        </div>
-
-      </div>
-    </section>
-
-    <!-- ============================================================
+<!-- ============================================================
          SECTION 6 â€” FAQ SECTION
          ============================================================ -->
-    <section class="bg-white py-16 lg:py-24 border-t border-gray-100">
-      <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-12">
-          <h2 class="text-3xl sm:text-4xl font-black text-gray-900">Frequently Asked Questions</h2>
-          <p class="mt-4 text-gray-500">Everything you need to know about our comparison service.</p>
-        </div>
+<section class="bg-white py-16 lg:py-24 border-t border-gray-100">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl sm:text-4xl font-black text-gray-900">
+        Frequently Asked Questions
+      </h2>
+      <p class="mt-4 text-gray-500">
+        Everything you need to know about our comparison service.
+      </p>
+    </div>
 
-        <div class="space-y-4">
-          @for (faq of faqItems; track faq.question; let i = $index) {
-            <div tabindex="0" class="group outline-none rounded-2xl border border-gray-200 bg-white overflow-hidden transition-all duration-300 hover:border-gray-300 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent">
-              <div class="flex justify-between items-center px-6 py-5 cursor-pointer">
-                 <h3 class="font-bold text-gray-900 text-lg">{{ faq.question }}</h3>
-                 <span class="text-accent transition-transform duration-300 group-focus-within:-rotate-180">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                 </span>
-              </div>
-              <div class="px-6 pb-5 text-gray-500 max-h-0 opacity-0 overflow-hidden transition-all duration-300 group-focus-within:max-h-[500px] group-focus-within:opacity-100">
-                 <p class="mt-2">{{ faq.answer }}</p>
-              </div>
-            </div>
-          }
+    <div class="space-y-4">
+      @for (faq of faqItems; track faq.question; let i = $index) {
+        <div
+          tabindex="0"
+          class="group outline-none rounded-2xl border border-gray-200 bg-white overflow-hidden transition-all duration-300 hover:border-gray-300 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent"
+        >
+          <div
+            class="flex justify-between items-center px-6 py-5 cursor-pointer"
+          >
+            <h3 class="font-bold text-gray-900 text-lg">{{ faq.question }}</h3>
+            <span
+              class="text-accent transition-transform duration-300 group-focus-within:-rotate-180"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </span>
+          </div>
+          <div
+            class="px-6 pb-5 text-gray-500 max-h-0 opacity-0 overflow-hidden transition-all duration-300 group-focus-within:max-h-[500px] group-focus-within:opacity-100"
+          >
+            <p class="mt-2">{{ faq.answer }}</p>
+          </div>
         </div>
-      </div>
-    </section>
+      }
+    </div>
+  </div>
+</section>
 
-    <!-- ============================================================
+<!-- ============================================================
          SECTION 7 â€” NEWSLETTER / ALERTS
          ============================================================ -->
-    <section class="py-16 bg-white shrink-0">
-       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <!-- Banner Container -->
-          <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-blue-800 to-indigo-900 shadow-2xl py-12 px-6 sm:px-12 lg:px-20 flex flex-col md:flex-row items-center justify-between gap-10">
-             
-             <!-- Decorative Orbs -->
-             <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-blue-400 opacity-20 blur-3xl mix-blend-screen pointer-events-none"></div>
-             <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 rounded-full bg-indigo-500 opacity-20 blur-3xl mix-blend-screen pointer-events-none"></div>
+<section class="py-16 bg-white shrink-0">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <!-- Banner Container -->
+    <div
+      class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-blue-800 to-indigo-900 shadow-2xl py-12 px-6 sm:px-12 lg:px-20 flex flex-col md:flex-row items-center justify-between gap-10"
+    >
+      <!-- Decorative Orbs -->
+      <div
+        class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-blue-400 opacity-20 blur-3xl mix-blend-screen pointer-events-none"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 -ml-20 -mb-20 w-64 h-64 rounded-full bg-indigo-500 opacity-20 blur-3xl mix-blend-screen pointer-events-none"
+      ></div>
 
-             <div class="relative z-10 md:max-w-xl text-center md:text-left">
-                <h3 class="text-2xl sm:text-3xl font-black text-white mb-3 tracking-tight">Never miss a flash deal again.</h3>
-                <p class="text-blue-100 text-sm sm:text-base leading-relaxed">
-                   Networks drop prices unexpectedly. Join our free mailing list and we'll alert you the moment a flagship phone's contract price drops. No spam, ever.
-                </p>
-             </div>
+      <div class="relative z-10 md:max-w-xl text-center md:text-left">
+        <h3
+          class="text-2xl sm:text-3xl font-black text-white mb-3 tracking-tight"
+        >
+          Never miss a flash deal again.
+        </h3>
+        <p class="text-blue-100 text-sm sm:text-base leading-relaxed">
+          Networks drop prices unexpectedly. Join our free mailing list and
+          we'll alert you the moment a flagship phone's contract price drops. No
+          spam, ever.
+        </p>
+      </div>
 
-             <div class="relative z-10 w-full md:max-w-md">
-                <form class="flex flex-col sm:flex-row gap-3">
-                   <input type="email" placeholder="Enter your email address" class="flex-1 bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-blue-200 outline-none focus:bg-white/20 focus:border-white/40 transition-colors" required>
-                   <button type="submit" class="bg-white text-primary font-bold px-7 py-4 rounded-xl hover:bg-gray-100 transition-colors shadow-lg active:scale-95 duration-150">
-                      Notify Me
-                   </button>
-                </form>
-                <p class="mt-3 text-xs text-blue-200/60 text-center md:text-left">By subscribing you agree to our Privacy Policy.</p>
-             </div>
+      <div class="relative z-10 w-full md:max-w-md">
+        <form class="flex flex-col sm:flex-row gap-3">
+          <input
+            type="email"
+            placeholder="Enter your email address"
+            class="flex-1 bg-white/10 border border-white/20 rounded-xl px-5 py-4 text-white placeholder-blue-200 outline-none focus:bg-white/20 focus:border-white/40 transition-colors"
+            required
+          />
+          <button
+            type="submit"
+            class="bg-white text-primary font-bold px-7 py-4 rounded-xl hover:bg-gray-100 transition-colors shadow-lg active:scale-95 duration-150"
+          >
+            Notify Me
+          </button>
+        </form>
+        <p class="mt-3 text-xs text-blue-200/60 text-center md:text-left">
+          By subscribing you agree to our Privacy Policy.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
 
-          </div>
-       </div>
-    </section>
-
-    <!-- ============================================================
+<!-- ============================================================
          SECTION 8 â€” CTA BANNER
          ============================================================ -->
-    <section class="relative overflow-hidden bg-accent mt-4">
-      <!-- Background pattern -->
-      <div class="absolute inset-0 opacity-10"
-        style="background-image: radial-gradient(circle, #fff 1.5px, transparent 1.5px); background-size: 28px 28px;"></div>
-      
-      <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center">
+<section class="relative overflow-hidden bg-accent mt-4">
+  <!-- Background pattern -->
+  <div
+    class="absolute inset-0 opacity-10"
+    style="
+      background-image: radial-gradient(circle, #fff 1.5px, transparent 1.5px);
+      background-size: 28px 28px;
+    "
+  ></div>
 
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">
-          Ready to find your<br class="hidden sm:block"> perfect deal?
-        </h2>
-        <p class="mt-4 text-base sm:text-lg text-blue-100 font-medium max-w-xl mx-auto">
-          Thousands of deals compared. Zero cost to you. Updated daily.
-        </p>
+  <div
+    class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20 text-center"
+  >
+    <h2
+      class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight"
+    >
+      Ready to find your<br class="hidden sm:block" />
+      perfect deal?
+    </h2>
+    <p
+      class="mt-4 text-base sm:text-lg text-blue-100 font-medium max-w-xl mx-auto"
+    >
+      Thousands of deals compared. Zero cost to you. Updated daily.
+    </p>
 
-        <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a routerLink="/iphone"
-            class="group inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-xl text-base font-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent"
-          >
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-            </svg>
-            Compare iPhone Deals
-            <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-            </svg>
-          </a>
+    <div
+      class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4"
+    >
+      <a
+        routerLink="/iphone"
+        class="group inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-xl text-base font-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent"
+      >
+        <svg
+          class="w-5 h-5 flex-shrink-0"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path
+            d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
+          />
+        </svg>
+        Compare iPhone Deals
+        <svg
+          class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </a>
 
-          <a routerLink="/samsung"
-            class="group inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-xl text-base font-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent"
-          >
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm-1-5h2v2h-2zm0-8h2v6h-2z"/>
-            </svg>
-            Compare Samsung Deals
-            <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </section>
-  
+      <a
+        routerLink="/samsung"
+        class="group inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-xl text-base font-black shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-accent"
+      >
+        <svg
+          class="w-5 h-5 flex-shrink-0"
+          viewBox="0 0 24 24"
+          fill="currentColor"
+        >
+          <path
+            d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm-1-5h2v2h-2zm0-8h2v6h-2z"
+          />
+        </svg>
+        Compare Samsung Deals
+        <svg
+          class="w-4 h-4 group-hover:translate-x-0.5 transition-transform"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>

@@ -1,73 +1,48 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+  ValidatorFn
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
+import { CanDeactivateCheckout } from './checkout.guard';
 
-export function creditCardValidator(): ValidatorFn {
+// ── Validators ──────────────────────────────────────────────────────────────
+
+export function ukPhoneValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) return null;
-    const value = control.value.replace(/[\s-]/g, '');
-    if (!/^\d+$/.test(value)) return { invalidCard: true };
-
-    let sum = 0;
-    let shouldDouble = false;
-    for (let i = value.length - 1; i >= 0; i--) {
-      let digit = parseInt(value.charAt(i), 10);
-      if (shouldDouble) {
-        if ((digit *= 2) > 9) digit -= 9;
-      }
-      sum += digit;
-      shouldDouble = !shouldDouble;
-    }
-    return (sum % 10 === 0) ? null : { invalidCard: true };
+    // Accepts: 07xxxxxxxxx or +447xxxxxxxxx
+    const isValid = /^(\+44\s?7|07)\d{9}$/.test(control.value.replace(/\s+/g, ''));
+    return isValid ? null : { invalidUkPhone: true };
   };
 }
 
-export function expiryDateValidator(): ValidatorFn {
+export function sortCodeValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) return null;
-    const value = control.value.trim();
-    const match = value.match(/^(0[1-9]|1[0-2])\/?([0-9]{2}|[0-9]{4})$/);
-    if (!match) return { invalidExpiry: true };
-
-    const month = parseInt(match[1], 10);
-    let year = parseInt(match[2], 10);
-    
-    if (year < 100) {
-      year += 2000;
-    }
-
-    const today = new Date();
-    const currentMonth = today.getMonth() + 1;
-    const currentYear = today.getFullYear();
-
-    if (year < currentYear || (year === currentYear && month < currentMonth)) {
-      return { invalidExpiry: true };
-    }
-
-    return null;
+    const isValid = /^[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(control.value);
+    return isValid ? null : { invalidSortCode: true };
   };
 }
 
-export function cvvValidator(getBrand: () => string | null): ValidatorFn {
+export function accountNumberValidator(): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (!control.value) return null;
-    const value = control.value.trim();
-    if (!/^\d+$/.test(value)) return { invalidCvv: true };
-
-    const brand = getBrand();
-    const requiredLength = brand === 'Amex' ? 4 : 3;
-
-    if (value.length !== requiredLength) {
-      return { invalidCvv: true };
-    }
-
-    return null;
+    const isValid = /^[0-9]{8}$/.test(control.value);
+    return isValid ? null : { invalidAccountNumber: true };
   };
 }
+
+// ── Component ────────────────────────────────────────────────────────────────
 
 @Component({
   selector: 'app-checkout',
@@ -76,72 +51,236 @@ export function cvvValidator(getBrand: () => string | null): ValidatorFn {
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss'
 })
-export class CheckoutComponent {
-  private fb = inject(FormBuilder);
-  public cartService = inject(CartService);
+export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
+  private fb     = inject(FormBuilder);
+  public  cartService = inject(CartService);
   private orderService = inject(OrderService);
   private router = inject(Router);
-  private toast = inject(ToastService);
+  private toast  = inject(ToastService);
 
-  checkoutForm: FormGroup;
+  checkoutForm!: FormGroup;
+  currentStep: 1 | 2 | 3 = 1;
   isSubmitting = false;
-  detectedCardBrand = signal<string | null>(null);
+  /** Flips to true after a successful order submission so the guard never
+   *  blocks the automatic redirect to /order-confirmation. */
+  isSubmitted = false;
+  stepAnimating = false;
 
-  constructor() {
+  readonly timeAtAddressOptions = ['<1 Year', '1-2 Years', '2-5 Years', '5+ Years'];
+  readonly timeWithBankOptions   = ['<1 Year', '1-2 Years', '2-5 Years', '5-10 Years', '10+ Years'];
+
+  // Insurance feature lists
+  readonly liteIncluded  = ['Accidental Damage', 'Breakdown', 'Accessories up to £300', 'Worldwide Cover', '24/7 Expert Support'];
+  readonly liteExcluded  = ['Excess Pay', 'Unpaid Premium Claims', 'Cosmetic Damage', 'Theft', 'Loss'];
+  readonly completeIncluded = ['Accidental Damage', 'Breakdown', 'Accessories up to £300', 'Worldwide Cover', '24/7 Expert Support', 'Theft', 'Loss'];
+  readonly completeExcluded = ['Excess Pay', 'Cosmetic Damage', 'Theft/Loss While Unattended'];
+
+  // ── Lifecycle ──────────────────────────────────────────────────────────────
+
+  ngOnInit() {
+    this.initForm();
+  }
+
+  // ── Form initialisation ───────────────────────────────────────────────────
+
+  private initForm() {
     this.checkoutForm = this.fb.group({
-      // Billing/Shipping Info
-      fullName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern(/^(?:0|\+44)[\d\s-]{9,13}$/)]],
-      address: ['', Validators.required],
-      city: ['', Validators.required],
-      postcode: ['', [Validators.required, Validators.pattern(/^[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][A-Z]{2}$/)]],
-      country: [{ value: 'United Kingdom', disabled: true }],
-      
-      // Payment Info
-      cardNumber: ['', [Validators.required, creditCardValidator()]],
-      expiryDate: ['', [Validators.required, expiryDateValidator()]],
-      cvv: ['', [Validators.required, cvvValidator(() => this.detectedCardBrand())]],
-      
-      // Upsell
-      addCharger: [false]
-    });
+      personalDetails: this.fb.group({
+        firstName: ['', [Validators.required, Validators.minLength(2)]],
+        lastName:  ['', [Validators.required, Validators.minLength(2)]],
+        phone:     ['', [Validators.required, ukPhoneValidator()]],
+        dob:       ['', Validators.required]
+      }),
 
-    this.checkoutForm.get('cardNumber')?.valueChanges.subscribe(value => {
-      if (!value) {
-        this.detectedCardBrand.set(null);
-      } else {
-        const cleanValue = value.replace(/[\s-]/g, '');
-        if (cleanValue.startsWith('4')) {
-          this.detectedCardBrand.set('Visa');
-        } else if (/^5[1-5]/.test(cleanValue) || /^2(?:22[1-9]|2[3-9][0-9]|[3-6][0-9]{2}|7[01][0-9]|720)/.test(cleanValue)) {
-          this.detectedCardBrand.set('Mastercard');
-        } else if (/^3[47]/.test(cleanValue)) {
-          this.detectedCardBrand.set('Amex');
-        } else if (/^6(?:011|5[0-9]{2})/.test(cleanValue)) {
-          this.detectedCardBrand.set('Discover');
-        } else {
-          this.detectedCardBrand.set(null);
-        }
-      }
-      // Re-validate CVV when brand changes
-      this.checkoutForm.get('cvv')?.updateValueAndValidity({ emitEvent: false });
+      addressAndInsurance: this.fb.group({
+        postcode:       ['', Validators.required],
+        currentAddress: ['', Validators.required],
+        timeAtAddress:  ['1-2 Years', Validators.required],
+        insurancePlan:  ['none'],       // 'none' | 'lite' | 'complete'
+        insuranceBilling: ['monthly']  // 'monthly' | 'annual'
+      }),
+
+      paymentAndExtras: this.fb.group({
+        accountName:   ['', Validators.required],
+        sortCode:      ['', [Validators.required, sortCodeValidator()]],
+        accountNumber: ['', [Validators.required, accountNumberValidator()]],
+        timeWithBank:  ['1-2 Years', Validators.required],
+        addCharger:    [false],
+        addCover:      [false]
+      })
     });
+  }
+
+  // ── Step helpers ──────────────────────────────────────────────────────────
+
+  get stepGroup(): FormGroup {
+    const names: Record<number, string> = {
+      1: 'personalDetails',
+      2: 'addressAndInsurance',
+      3: 'paymentAndExtras'
+    };
+    return this.checkoutForm.get(names[this.currentStep]) as FormGroup;
+  }
+
+  nextStep() {
+    if (this.stepGroup.invalid) {
+      this.stepGroup.markAllAsTouched();
+      this.toast.error('Please complete all highlighted fields correctly.');
+      return;
+    }
+    if (this.currentStep < 3) {
+      this.animateStep(() => {
+        this.currentStep = (this.currentStep + 1) as 1 | 2 | 3;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+  }
+
+  prevStep() {
+    if (this.currentStep > 1) {
+      this.animateStep(() => {
+        this.currentStep = (this.currentStep - 1) as 1 | 2 | 3;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    }
+  }
+
+  private animateStep(callback: () => void) {
+    this.stepAnimating = true;
+    setTimeout(() => {
+      callback();
+      this.stepAnimating = false;
+    }, 200);
+  }
+
+  isStepComplete(step: number): boolean {
+    const names: Record<number, string> = {
+      1: 'personalDetails',
+      2: 'addressAndInsurance',
+      3: 'paymentAndExtras'
+    };
+    return (this.checkoutForm.get(names[step]) as FormGroup)?.valid ?? false;
+  }
+
+  // ── Form value setters ────────────────────────────────────────────────────
+
+  setTimeControl(controlPath: string, value: string) {
+    this.checkoutForm.get(controlPath)?.setValue(value);
+    this.checkoutForm.get(controlPath)?.markAsTouched();
+  }
+
+  setInsurancePlan(plan: 'none' | 'lite' | 'complete') {
+    this.checkoutForm.get('addressAndInsurance.insurancePlan')?.setValue(plan);
+    // Reset billing to monthly when switching plan
+    this.checkoutForm.get('addressAndInsurance.insuranceBilling')?.setValue('monthly');
+  }
+
+  setInsuranceBilling(billing: 'monthly' | 'annual') {
+    this.checkoutForm.get('addressAndInsurance.insuranceBilling')?.setValue(billing);
+  }
+
+  // ── Sort code auto-format ─────────────────────────────────────────────────
+
+  onSortCodeInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const inputEvent = event as InputEvent;
+    if (inputEvent.inputType === 'deleteContentBackward') return;
+
+    let digits = input.value.replace(/\D/g, '').substring(0, 6);
+    let formatted = '';
+    for (let i = 0; i < digits.length; i++) {
+      if (i > 0 && i % 2 === 0) formatted += '-';
+      formatted += digits[i];
+    }
+    this.checkoutForm.get('paymentAndExtras.sortCode')?.setValue(formatted, { emitEvent: false });
+    // Move cursor to end
+    setTimeout(() => { input.setSelectionRange(formatted.length, formatted.length); }, 0);
+  }
+
+  onAccountNumberInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    let val = input.value.replace(/\D/g, '').substring(0, 8);
+    this.checkoutForm.get('paymentAndExtras.accountNumber')?.setValue(val, { emitEvent: false });
+  }
+
+  // ── Dynamic pricing ───────────────────────────────────────────────────────
+
+  get insuranceMonthlyCost(): number {
+    const plan    = this.checkoutForm?.get('addressAndInsurance.insurancePlan')?.value ?? 'none';
+    const billing = this.checkoutForm?.get('addressAndInsurance.insuranceBilling')?.value ?? 'monthly';
+
+    if (plan === 'none') return 0;
+
+    if (plan === 'lite') {
+      return billing === 'monthly' ? 12.00 : parseFloat((130 / 12).toFixed(2));
+    }
+    if (plan === 'complete') {
+      return billing === 'monthly' ? 16.00 : parseFloat((180 / 12).toFixed(2));
+    }
+    return 0;
+  }
+
+  get insuranceLabel(): string {
+    const plan    = this.checkoutForm?.get('addressAndInsurance.insurancePlan')?.value ?? 'none';
+    const billing = this.checkoutForm?.get('addressAndInsurance.insuranceBilling')?.value ?? 'monthly';
+    if (plan === 'none') return '';
+    const name = plan === 'lite' ? 'Insurance Lite' : 'Insurance Complete';
+    const suffix = billing === 'annual' ? '/mo (annual)' : '/mo';
+    return `${name} — £${this.insuranceMonthlyCost.toFixed(2)}${suffix}`;
+  }
+
+  get extrasUpfrontCost(): number {
+    let cost = 0;
+    if (this.checkoutForm?.get('paymentAndExtras.addCharger')?.value) cost += 19.99;
+    if (this.checkoutForm?.get('paymentAndExtras.addCover')?.value)   cost += 14.99;
+    return cost;
   }
 
   get finalUpfrontCost(): number {
-    const base = this.cartService.totalUpfront();
-    const chargerCost = this.checkoutForm.get('addCharger')?.value ? 19.99 : 0;
-    return base + chargerCost;
+    return this.cartService.totalUpfront() + this.extrasUpfrontCost;
   }
 
+  get finalMonthlyCost(): number {
+    return this.cartService.totalMonthly() + this.insuranceMonthlyCost;
+  }
+
+  // ── Guard interface ────────────────────────────────────────────────────────
+
+  /**
+   * Called by `checkoutGuard` (CanDeactivate) when the user tries to navigate
+   * away from the checkout page.
+   *
+   * Returns `true` (dirty form + not yet submitted) to trigger the confirm
+   * dialog, or `false` to let navigation proceed silently.
+   */
+  hasUnsavedChanges(): boolean {
+    // Warn if the user has either typed anything (dirty) OR progressed
+    // past step 1 — both are strong signals they have work in progress.
+    return (this.checkoutForm.dirty || this.currentStep > 1) && !this.isSubmitted;
+  }
+
+  /**
+   * Catches browser tab close / hard refresh events.
+   * The browser will show its own generic leave prompt when returnValue is set.
+   */
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (this.hasUnsavedChanges()) {
+      event.preventDefault();
+      // Required for cross-browser support (Chrome ignores the string value
+      // but still shows the native prompt when returnValue is set).
+      event.returnValue = 'Are you sure you want to leave? Your checkout data will be lost.';
+    }
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+
   onSubmit() {
+    this.checkoutForm.markAllAsTouched();
     if (this.checkoutForm.invalid) {
-      this.checkoutForm.markAllAsTouched();
-      this.toast.error('Please fill in all required fields correctly.');
+      this.toast.error('Please complete all required fields correctly.');
       return;
     }
-
     if (this.cartService.items().length === 0) {
       this.toast.error('Your cart is empty.');
       return;
@@ -149,100 +288,41 @@ export class CheckoutComponent {
 
     this.isSubmitting = true;
 
-    // Simulate Processing
     setTimeout(() => {
-      const val = this.checkoutForm.value;
+      const val     = this.checkoutForm.value;
       const orderId = 'MOB-' + Math.floor(10000 + Math.random() * 90000);
+      const email   = 'user@example.com';
 
-      // Generate mock details
-      const orderDetails = {
+      const orderDetails: any = {
         orderId,
-        fullName: val.fullName,
-        email: val.email,
-        phone: val.phone,
-        address: val.address,
-        city: val.city,
-        postcode: val.postcode,
+        fullName:     `${val.personalDetails.firstName} ${val.personalDetails.lastName}`,
+        email,
+        address:      val.addressAndInsurance.currentAddress,
+        city:         '',
+        postcode:     val.addressAndInsurance.postcode,
+        phone:        val.personalDetails.phone,
         totalUpfront: this.finalUpfrontCost,
-        totalMonthly: this.cartService.totalMonthly(),
-        status: 'Pending' as const,
-        date: new Date().toISOString(),
+        totalMonthly: this.finalMonthlyCost,
+        status:       'Pending',
+        date:         new Date().toISOString(),
         paymentInfo: {
-          cardNumber: val.cardNumber,
-          expiryDate: val.expiryDate,
-          cvv: val.cvv
+          cardNumber:  val.paymentAndExtras.accountNumber,
+          expiryDate:  '',
+          cvv:         ''
         },
-        items: this.cartService.items(),
-        addedCharger: val.addCharger
+        items:         this.cartService.items(),
+        insurance:     val.addressAndInsurance.insurancePlan,
+        addedCharger:  val.paymentAndExtras.addCharger,
+        addedCover:    val.paymentAndExtras.addCover
       };
 
-      // Call Mock Service
+      // Mark as submitted BEFORE navigation so the guard allows the redirect.
+      this.isSubmitted = true;
       this.orderService.placeOrder(orderDetails);
-
-      // Clear Cart
       this.cartService.clearCart();
 
-      // Navigate to success
-      this.router.navigate(['/order-confirmation'], {
-        state: { orderId, email: val.email }
-      });
-
+      this.router.navigate(['/order-confirmation'], { state: { orderId, email } });
       this.isSubmitting = false;
     }, 1500);
-  }
-
-  onCardNumberInput(event: any) {
-    const input = event.target as HTMLInputElement;
-    if (event.inputType === 'deleteContentBackward') {
-      return;
-    }
-    let trimmed = input.value.replace(/\D/g, '');
-    let formatted = '';
-    for (let i = 0; i < trimmed.length; i++) {
-      if (i > 0 && i % 4 === 0) {
-        formatted += ' ';
-      }
-      formatted += trimmed[i];
-    }
-    this.checkoutForm.get('cardNumber')?.setValue(formatted);
-  }
-
-  onExpiryInput(event: any) {
-    const input = event.target as HTMLInputElement;
-    if (event.inputType === 'deleteContentBackward') {
-      return;
-    }
-    let val = input.value.replace(/\D/g, '');
-    if (val.length > 2) {
-      val = val.substring(0, 2) + '/' + val.substring(2, 4);
-    } else if (val.length === 2) {
-      val += '/';
-    }
-    this.checkoutForm.get('expiryDate')?.setValue(val);
-  }
-
-  onCvvInput(event: any) {
-    const input = event.target as HTMLInputElement;
-    let val = input.value.replace(/\D/g, '');
-    const maxLen = this.detectedCardBrand() === 'Amex' ? 4 : 3;
-    if (val.length > maxLen) {
-      val = val.substring(0, maxLen);
-    }
-    this.checkoutForm.get('cvv')?.setValue(val);
-  }
-
-  onPostcodeInput(event: any) {
-    const input = event.target as HTMLInputElement;
-    if (event.inputType === 'deleteContentBackward') {
-      return;
-    }
-    let val = input.value.toUpperCase();
-    let clean = val.replace(/[^A-Z0-9]/g, '');
-    
-    if (clean.length > 3) {
-      clean = clean.slice(0, clean.length - 3) + ' ' + clean.slice(-3);
-    }
-    
-    this.checkoutForm.get('postcode')?.setValue(clean);
   }
 }
