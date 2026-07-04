@@ -85,6 +85,22 @@ export const routes: Routes = [
         path: 'order-confirmation',
         loadComponent: () => import('./features/checkout/confirmation/order-confirmation.component').then(m => m.OrderConfirmationComponent),
       },
+      {
+        path: 'privacy-policy',
+        loadComponent: () => import('./features/pages/privacy-policy/privacy-policy.component').then(m => m.PrivacyPolicyComponent),
+      },
+      {
+        path: 'terms-and-conditions',
+        loadComponent: () => import('./features/pages/terms-conditions/terms-conditions.component').then(m => m.TermsConditionsComponent),
+      },
+      {
+        path: 'cookie-policy',
+        loadComponent: () => import('./features/pages/cookie-policy/cookie-policy.component').then(m => m.CookiePolicyComponent),
+      },
+      {
+        path: 'contact-us',
+        loadComponent: () => import('./features/pages/contact-us/contact-us.component').then(m => m.ContactUsComponent),
+      },
       { 
         path: '**', 
         loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent) 

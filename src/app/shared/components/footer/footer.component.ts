@@ -50,16 +50,16 @@ import { RouterLink } from '@angular/router';
             <h3 class="text-white font-semibold mb-4 tracking-wider uppercase text-sm">Legal & Info</h3>
             <ul class="space-y-3">
               <li>
-                <a href="#" class="text-sm hover:text-white hover:text-accent transition-colors duration-200">Privacy Policy</a>
+                <a routerLink="/privacy-policy" class="text-sm hover:text-white hover:text-accent transition-colors duration-200">Privacy Policy</a>
               </li>
               <li>
-                <a href="#" class="text-sm hover:text-white hover:text-accent transition-colors duration-200">Terms & Conditions</a>
+                <a routerLink="/terms-and-conditions" class="text-sm hover:text-white hover:text-accent transition-colors duration-200">Terms & Conditions</a>
               </li>
               <li>
-                <a href="#" class="text-sm hover:text-white hover:text-accent transition-colors duration-200">Cookie Policy</a>
+                <a routerLink="/cookie-policy" class="text-sm hover:text-white hover:text-accent transition-colors duration-200">Cookie Policy</a>
               </li>
               <li>
-                <a href="#" class="text-sm hover:text-white hover:text-accent transition-colors duration-200">Contact Us</a>
+                <a routerLink="/contact-us" class="text-sm hover:text-white hover:text-accent transition-colors duration-200">Contact Us</a>
               </li>
             </ul>
           </div>
