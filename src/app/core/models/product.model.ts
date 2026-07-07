@@ -7,6 +7,7 @@ export interface ProductVariant {
   sku?: string | null;
   isActive?: boolean;
   images: string[];
+  simType?: string;
 }
 
 export interface Product {
@@ -17,6 +18,7 @@ export interface Product {
   description: string | null;
   storage_options: string | null; // JSON
   colours: string | null; // JSON
+  sim_types?: string | null; // JSON
   primary_image_url: string | null;
   gallery_images: string | null; // JSON
   variants: string | null; // JSON string of ProductVariant[]

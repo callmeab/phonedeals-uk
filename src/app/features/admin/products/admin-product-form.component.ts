@@ -133,7 +133,7 @@ function frontendSlugify(text: string): string {
               <h3 class="text-lg font-semibold text-gray-900">Step 1 — Colours &amp; Storage Options</h3>
               <p class="text-sm text-gray-500 mt-1">Define all available colours and storage sizes. The variant matrix will be auto-generated below.</p>
             </div>
-            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
               
               <!-- Storage Options -->
               <div>
@@ -185,6 +185,31 @@ function frontendSlugify(text: string): string {
                 >
               </div>
 
+              <!-- SIM Types -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">SIM Types (Optional)</label>
+                <p class="text-xs text-gray-500 mb-3">Press Enter or comma to add (e.g., Physical SIM, eSIM).</p>
+                
+                <div class="flex flex-wrap gap-2 mb-3">
+                  @for (sim of simTypes(); track sim) {
+                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                      {{ sim }}
+                      <button type="button" (click)="removeChip('simType', sim)" class="flex-shrink-0 ml-1.5 h-4 w-4 rounded-full inline-flex items-center justify-center text-green-400 hover:bg-green-200 hover:text-green-500 focus:outline-none focus:bg-green-500 focus:text-white">
+                        <span class="sr-only">Remove option</span>
+                        <svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+                          <path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7" />
+                        </svg>
+                      </button>
+                    </span>
+                  }
+                </div>
+                
+                <input type="text" placeholder="Add SIM type..." 
+                  (keydown)="onChipInput($event, 'simType')"
+                  class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border"
+                >
+              </div>
+
             </div>
             
             <!-- Generate Button -->
@@ -195,7 +220,7 @@ function frontendSlugify(text: string): string {
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                   </svg>
-                  Generate Variant Matrix ({{ colours().length }} × {{ storageOptions().length }} = {{ colours().length * storageOptions().length }} variants)
+                  Generate Variant Matrix ({{ colours().length }} × {{ storageOptions().length }} × {{ Math.max(1, simTypes().length) }} = {{ colours().length * storageOptions().length * Math.max(1, simTypes().length) }} variants)
                 </button>
                 <p class="text-xs text-gray-400 mt-1">Existing variant data will be preserved when regenerating.</p>
               </div>
@@ -230,7 +255,7 @@ function frontendSlugify(text: string): string {
                       <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800">
                         {{ colorGroup.color }}
                       </span>
-                      <span class="text-sm text-gray-500">{{ colorGroup.variants.length }} storage option{{ colorGroup.variants.length === 1 ? '' : 's' }}</span>
+                      <span class="text-sm text-gray-500">{{ colorGroup.variants.length }} variant{{ colorGroup.variants.length === 1 ? '' : 's' }}</span>
                     </div>
                     <!-- Per-color image upload -->
                     <div class="flex items-center gap-2">
@@ -262,6 +287,7 @@ function frontendSlugify(text: string): string {
                       <thead>
                         <tr class="bg-gray-50 border-b border-gray-100">
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Storage</th>
+                          <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">SIM Type</th>
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Price (£)</th>
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Sale Price (£)</th>
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Stock</th>
@@ -270,43 +296,50 @@ function frontendSlugify(text: string): string {
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-50">
-                        @for (variant of colorGroup.variants; track variant.storage) {
+                        @for (variant of colorGroup.variants; track variant) {
                           <tr class="hover:bg-gray-50/50 transition-colors" [class.opacity-50]="!(variant.isActive ?? true)">
                             <td class="px-4 py-3">
                               <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800">{{ variant.storage }}</span>
                             </td>
+                            <td class="px-4 py-3 text-sm text-gray-700">
+                              @if (variant.simType) {
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">{{ variant.simType }}</span>
+                              } @else {
+                                <span class="text-gray-400 text-xs">N/A</span>
+                              }
+                            </td>
                             <td class="px-4 py-3">
                               <input type="number" placeholder="0.00" min="0" step="0.01"
                                 [value]="variant.price || ''"
-                                (change)="updateVariantField(colorGroup.color, variant.storage, 'price', +$any($event.target).value)"
+                                (change)="updateVariantField(variant, 'price', +$any($event.target).value)"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-1.5 px-2 border"
                               >
                             </td>
                             <td class="px-4 py-3">
                               <input type="number" placeholder="Optional" min="0" step="0.01"
                                 [value]="variant.salePrice ?? ''"
-                                (change)="onSalePriceChange($event, colorGroup.color, variant.storage)"
+                                (change)="onSalePriceChange($event, variant)"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-1.5 px-2 border"
                               >
                             </td>
                             <td class="px-4 py-3">
                               <input type="number" placeholder="0" min="0" step="1"
                                 [value]="variant.stock ?? 0"
-                                (change)="updateVariantField(colorGroup.color, variant.storage, 'stock', +$any($event.target).value)"
+                                (change)="updateVariantField(variant, 'stock', +$any($event.target).value)"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-1.5 px-2 border"
                               >
                             </td>
                             <td class="px-4 py-3">
                               <input type="text" placeholder="e.g. IPH15-BLK-128"
                                 [value]="variant.sku ?? ''"
-                                (change)="updateVariantField(colorGroup.color, variant.storage, 'sku', $any($event.target).value || null)"
+                                (change)="updateVariantField(variant, 'sku', $any($event.target).value || null)"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-1.5 px-2 border"
                               >
                             </td>
                             <td class="px-4 py-3 text-center">
                               <input type="checkbox" 
                                 [checked]="variant.isActive ?? true"
-                                (change)="updateVariantField(colorGroup.color, variant.storage, 'isActive', $any($event.target).checked)"
+                                (change)="updateVariantField(variant, 'isActive', $any($event.target).checked)"
                                 class="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded"
                               >
                             </td>
@@ -491,7 +524,9 @@ export class AdminProductFormComponent implements OnInit {
   
   storageOptions = signal<string[]>([]);
   colours = signal<string[]>([]);
+  simTypes = signal<string[]>([]);
   galleryImages = signal<string[]>([]);
+  Math = Math;
 
   /** The variant matrix — one entry per Color×Storage combination */
   variantMatrix = signal<ProductVariant[]>([]);
@@ -571,6 +606,9 @@ export class AdminProductFormComponent implements OnInit {
         if (p.colours) {
           try { this.colours.set(JSON.parse(p.colours)); } catch {}
         }
+        if (p.sim_types) {
+          try { this.simTypes.set(JSON.parse(p.sim_types)); } catch {}
+        }
         if (p.gallery_images) {
           try { this.galleryImages.set(JSON.parse(p.gallery_images)); } catch {}
         }
@@ -595,28 +633,34 @@ export class AdminProductFormComponent implements OnInit {
   generateVariantMatrix() {
     const colors = this.colours();
     const storages = this.storageOptions();
+    const sims = this.simTypes();
+    const simLoop = sims.length > 0 ? sims : [undefined];
     const existing = this.variantMatrix();
 
     const newMatrix: ProductVariant[] = [];
     for (const color of colors) {
       for (const storage of storages) {
-        // Preserve existing data if this combination already exists
-        const prev = existing.find(v =>
-          v.color.toLowerCase() === color.toLowerCase() &&
-          v.storage.toLowerCase() === storage.toLowerCase()
-        );
-        // Get existing images for this color from the variant matrix
-        const colorImages = existing.find(v => v.color.toLowerCase() === color.toLowerCase())?.images ?? [];
-        newMatrix.push({
-          color,
-          storage,
-          price: prev?.price ?? 0,
-          salePrice: prev?.salePrice ?? null,
-          stock: prev?.stock ?? 0,
-          sku: prev?.sku ?? null,
-          isActive: prev?.isActive ?? true,
-          images: colorImages
-        });
+        for (const simType of simLoop) {
+          // Preserve existing data if this combination already exists
+          const prev = existing.find(v =>
+            v.color.toLowerCase() === color.toLowerCase() &&
+            v.storage.toLowerCase() === storage.toLowerCase() &&
+            (v.simType || '').toLowerCase() === (simType || '').toLowerCase()
+          );
+          // Get existing images for this color from the variant matrix
+          const colorImages = existing.find(v => v.color.toLowerCase() === color.toLowerCase())?.images ?? [];
+          newMatrix.push({
+            color,
+            storage,
+            ...(simType ? { simType } : {}),
+            price: prev?.price ?? 0,
+            salePrice: prev?.salePrice ?? null,
+            stock: prev?.stock ?? 0,
+            sku: prev?.sku ?? null,
+            isActive: prev?.isActive ?? true,
+            images: colorImages
+          });
+        }
       }
     }
     this.variantMatrix.set(newMatrix);
@@ -624,22 +668,17 @@ export class AdminProductFormComponent implements OnInit {
   }
 
   /** Update a single field on a variant in the matrix */
-  updateVariantField(color: string, storage: string, field: keyof ProductVariant, value: any) {
+  updateVariantField(variant: ProductVariant, field: keyof ProductVariant, value: any) {
     this.variantMatrix.update(matrix =>
-      matrix.map(v => {
-        if (v.color.toLowerCase() === color.toLowerCase() && v.storage.toLowerCase() === storage.toLowerCase()) {
-          return { ...v, [field]: value };
-        }
-        return v;
-      })
+      matrix.map(v => v === variant ? { ...v, [field]: value } : v)
     );
     this.form.markAsDirty();
   }
 
   /** Handles sale price input separately because of null/empty logic that template can't express */
-  onSalePriceChange(event: Event, color: string, storage: string) {
+  onSalePriceChange(event: Event, variant: ProductVariant) {
     const val = (event.target as HTMLInputElement).value;
-    this.updateVariantField(color, storage, 'salePrice', val ? +val : null);
+    this.updateVariantField(variant, 'salePrice', val ? +val : null);
   }
 
   /** Get images for a specific color from the matrix */
@@ -695,7 +734,7 @@ export class AdminProductFormComponent implements OnInit {
     })();
   }
 
-  onChipInput(event: KeyboardEvent, type: 'storage' | 'colour') {
+  onChipInput(event: KeyboardEvent, type: 'storage' | 'colour' | 'simType') {
     if (event.key === 'Enter' || event.key === ',') {
       event.preventDefault();
       const input = event.target as HTMLInputElement;
@@ -706,6 +745,8 @@ export class AdminProductFormComponent implements OnInit {
           this.storageOptions.update(v => [...v, value]);
         } else if (type === 'colour' && !this.colours().includes(value)) {
           this.colours.update(v => [...v, value]);
+        } else if (type === 'simType' && !this.simTypes().includes(value)) {
+          this.simTypes.update(v => [...v, value]);
         }
         input.value = '';
         this.form.markAsDirty();
@@ -713,15 +754,16 @@ export class AdminProductFormComponent implements OnInit {
     }
   }
 
-  removeChip(type: 'storage' | 'colour', value: string) {
+  removeChip(type: 'storage' | 'colour' | 'simType', value: string) {
     if (type === 'storage') {
       this.storageOptions.update(v => v.filter(item => item !== value));
-      // Remove variants with this storage from matrix
       this.variantMatrix.update(m => m.filter(v => v.storage !== value));
-    } else {
+    } else if (type === 'colour') {
       this.colours.update(v => v.filter(item => item !== value));
-      // Remove variants with this color from matrix
       this.variantMatrix.update(m => m.filter(v => v.color !== value));
+    } else {
+      this.simTypes.update(v => v.filter(item => item !== value));
+      this.variantMatrix.update(m => m.filter(v => v.simType !== value));
     }
     this.form.markAsDirty();
   }
@@ -860,6 +902,7 @@ export class AdminProductFormComponent implements OnInit {
       ...this.form.value,
       storage_options: this.storageOptions(),
       colours: this.colours(),
+      sim_types: this.simTypes(),
       gallery_images: this.galleryImages(),
       variants: this.variantMatrix()
     };

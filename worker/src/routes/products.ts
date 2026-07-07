@@ -173,9 +173,9 @@ adminProductsRouter.post('/', async (c) => {
 
     const result = await db.prepare(`
       INSERT INTO products (
-        category_id, name, slug, description, storage_options, colours, 
+        category_id, name, slug, description, storage_options, colours, sim_types,
         primary_image_url, gallery_images, variants, is_featured, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING *
     `).bind(
       body.category_id,
@@ -184,6 +184,7 @@ adminProductsRouter.post('/', async (c) => {
       body.description || null,
       body.storage_options ? JSON.stringify(body.storage_options) : null,
       body.colours ? JSON.stringify(body.colours) : null,
+      body.sim_types ? JSON.stringify(body.sim_types) : null,
       body.primary_image_url || null,
       body.gallery_images ? JSON.stringify(body.gallery_images) : null,
       body.variants ? JSON.stringify(body.variants) : null,
@@ -241,6 +242,9 @@ adminProductsRouter.put('/:id', async (c) => {
     }
     if (body.colours !== undefined) {
       addUpdate('colours', typeof body.colours === 'string' ? body.colours : JSON.stringify(body.colours));
+    }
+    if (body.sim_types !== undefined) {
+      addUpdate('sim_types', typeof body.sim_types === 'string' ? body.sim_types : JSON.stringify(body.sim_types));
     }
     if (body.primary_image_url !== undefined) addUpdate('primary_image_url', body.primary_image_url);
     if (body.gallery_images !== undefined) {

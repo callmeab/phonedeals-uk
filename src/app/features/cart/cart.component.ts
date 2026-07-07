@@ -39,13 +39,13 @@ import { CartService } from '../../core/services/cart.service';
                 <div class="flex-grow text-center sm:text-left">
                   <h3 class="text-lg font-bold text-gray-900 leading-tight mb-1">{{ item.productName }}</h3>
                   
-                  @if (item.color || item.storage) {
-                    <p class="text-sm font-medium text-gray-500 mb-2">
-                      {{ item.color }} 
-                      @if (item.color && item.storage) {
-                        <span>&middot;</span>
-                      }
-                      {{ item.storage }}
+                  @if (item.color || item.storage || item.simType) {
+                    <p class="text-sm font-medium text-gray-500 mb-2 flex items-center gap-1.5 flex-wrap">
+                      @if (item.color) { <span>{{ item.color }}</span> }
+                      @if (item.color && (item.storage || item.simType)) { <span>&middot;</span> }
+                      @if (item.storage) { <span>{{ item.storage }}</span> }
+                      @if (item.storage && item.simType) { <span>&middot;</span> }
+                      @if (item.simType) { <span>{{ item.simType }}</span> }
                     </p>
                   }
 

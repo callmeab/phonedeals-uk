@@ -255,7 +255,36 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                   </div>
                 }
 
-                <!-- ===== VARIANT PRICING BLOCK ===== -->
+                <!-- SIM Type selector (below storage) -->
+                @if (simTypes().length > 0) {
+                  <div class="mt-5 pt-5 border-t border-gray-100">
+                    <div class="flex items-center justify-between mb-3">
+                      <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">SIM Type</p>
+                      @if (selectedSimType()) {
+                        <span class="text-xs font-semibold text-accent bg-blue-50 px-2 py-0.5 rounded-full">{{ selectedSimType() }}</span>
+                      }
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                      @for (sim of simTypes(); track sim) {
+                        <button
+                          (click)="!isSimTypeUnavailable(sim) && selectedSimType.set(sim)"
+                          class="relative px-4 py-2 rounded-xl border-2 text-sm font-bold transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1"
+                          [ngClass]="simTypeButtonClass(sim)"
+                          [title]="isSimTypeUnavailable(sim) ? 'Out of stock' : sim"
+                        >
+                          {{ sim }}
+                          @if (isSimTypeUnavailable(sim)) {
+                            <span class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <span class="block w-[calc(100%-12px)] h-px bg-red-300 rotate-[-10deg]"></span>
+                            </span>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- Price and availability block -->
                 @if (selectedVariant(); as sv) {
                   <div class="mt-5 pt-5 border-t border-gray-100">
                     <div class="flex items-start justify-between gap-4 flex-wrap">
@@ -411,6 +440,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   selectedImage = signal<string | null>(null);
   selectedStorage = signal<string | null>(null);
   selectedColour = signal<string | null>(null);
+  selectedSimType = signal<string | null>(null);
   dealSort = signal<DealSort>('monthly');
 
   readonly sortTabs: { key: DealSort; label: string }[] = [
@@ -431,15 +461,17 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     try { return JSON.parse(p.variants) as ProductVariant[]; } catch { return []; }
   });
 
-  /** The single variant matching current color+storage selection */
+  /** The single variant matching current color+storage+simType selection */
   selectedVariant = computed<ProductVariant | null>(() => {
     const col = this.selectedColour();
     const sto = this.selectedStorage();
+    const sim = this.selectedSimType();
     const variants = this.productVariants();
     if (!col || !sto || !variants.length) return null;
     return variants.find(v =>
       v.color.toLowerCase() === col.toLowerCase() &&
-      v.storage.toLowerCase() === sto.toLowerCase()
+      v.storage.toLowerCase() === sto.toLowerCase() &&
+      (!sim || (v.simType || '').toLowerCase() === sim.toLowerCase())
     ) ?? null;
   });
 
@@ -508,6 +540,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     try { return JSON.parse(p.storage_options) as string[]; } catch { return []; }
   });
 
+  simTypes = computed<string[]>(() => {
+    const p = this.product();
+    if (!p?.sim_types) return [];
+    try { return JSON.parse(p.sim_types) as string[]; } catch { return []; }
+  });
+
   colours = computed<string[]>(() => {
     const p = this.product();
     if (!p?.colours) return [];
@@ -566,14 +604,16 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     new Set(this.deals().map(d => d.network)).size
   );
 
-  /** Returns true if a storage option has no stock for the currently selected color */
+  /** Returns true if a storage option has no stock for the currently selected color & sim */
   isStorageUnavailable(storage: string): boolean {
     const col = this.selectedColour();
+    const sim = this.selectedSimType();
     const variants = this.productVariants();
     if (!col || !variants.length) return false;
     const v = variants.find(
       vv => vv.color.toLowerCase() === col.toLowerCase() &&
-            vv.storage.toLowerCase() === storage.toLowerCase()
+            vv.storage.toLowerCase() === storage.toLowerCase() &&
+            (!sim || (vv.simType || '').toLowerCase() === sim.toLowerCase())
     );
     if (!v) return false; // variant not defined — assume available
     return (v.isActive === false) || (v.stock <= 0);
@@ -583,6 +623,34 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   storageButtonClass(opt: string): string {
     const selected = this.selectedStorage() === opt;
     const unavailable = this.isStorageUnavailable(opt);
+    if (unavailable) {
+      return 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50';
+    }
+    if (selected) {
+      return 'border-accent bg-accent/5 text-accent';
+    }
+    return 'border-gray-200 text-gray-600 hover:border-gray-400';
+  }
+
+  /** Returns true if a SIM Type has no stock for the currently selected color & storage */
+  isSimTypeUnavailable(sim: string): boolean {
+    const col = this.selectedColour();
+    const sto = this.selectedStorage();
+    const variants = this.productVariants();
+    if (!col || !sto || !variants.length) return false;
+    const v = variants.find(
+      vv => vv.color.toLowerCase() === col.toLowerCase() &&
+            vv.storage.toLowerCase() === sto.toLowerCase() &&
+            (vv.simType || '').toLowerCase() === sim.toLowerCase()
+    );
+    if (!v) return false;
+    return (v.isActive === false) || (v.stock <= 0);
+  }
+
+  /** Returns Tailwind classes for a SIM Type button based on availability + selection */
+  simTypeButtonClass(sim: string): string {
+    const selected = this.selectedSimType() === sim;
+    const unavailable = this.isSimTypeUnavailable(sim);
     if (unavailable) {
       return 'border-gray-200 text-gray-300 cursor-not-allowed bg-gray-50';
     }
@@ -608,9 +676,11 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const col = this.selectedColour();
     const variants = this.productVariants();
     if (!col || !variants.length) return null;
+    const sim = this.selectedSimType();
     const v = variants.find(
-      vv => vv.color.toLowerCase() === col.toLowerCase() &&
-            vv.storage.toLowerCase() === storage.toLowerCase()
+      vv => vv.color.toLowerCase() === this.selectedColour()?.toLowerCase() &&
+            vv.storage.toLowerCase() === storage.toLowerCase() &&
+            (!sim || (vv.simType || '').toLowerCase() === sim.toLowerCase())
     );
     return v?.price ?? null;
   }
@@ -689,11 +759,13 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.product.set(p);
         this.selectedImage.set(resolveProductImageUrl(p.primary_image_url));
 
-        // Auto-select first storage + colour
+        // Auto-select first storage + colour + simType
         const storage = this.storageOptions();
         if (storage.length) this.selectedStorage.set(storage[0]);
         const cols = this.colours();
         if (cols.length) this.selectedColour.set(cols[0]);
+        const sims = this.simTypes();
+        if (sims.length) this.selectedSimType.set(sims[0]);
 
         this.isLoading.set(false);
         this.updateSeo(p);
@@ -779,7 +851,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       dataGb: deal.data_gb,
       addedAt: Date.now(),
       color: this.selectedColour() ?? undefined,
-      storage: this.selectedStorage() ?? undefined
+      storage: this.selectedStorage() ?? undefined,
+      simType: this.selectedSimType() ?? undefined
     };
 
     const added = this.cart.addItem(item);

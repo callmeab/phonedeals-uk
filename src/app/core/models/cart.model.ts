@@ -1,5 +1,5 @@
 export interface CartItem {
-  id: string; // unique identifier
+  id: string;
   dealId: number;
   productId: number;
   productName: string;
@@ -13,4 +13,5 @@ export interface CartItem {
   addedAt: number;
   color?: string;
   storage?: string;
+  simType?: string;
 }
