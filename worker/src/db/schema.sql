@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS products (
   colours TEXT, -- JSON text
   primary_image_url TEXT,
   gallery_images TEXT, -- JSON text
+  variants TEXT, -- JSON text
   is_featured BOOLEAN DEFAULT 0,
   is_active BOOLEAN DEFAULT 1,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

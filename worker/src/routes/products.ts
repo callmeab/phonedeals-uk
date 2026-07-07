@@ -174,8 +174,8 @@ adminProductsRouter.post('/', async (c) => {
     const result = await db.prepare(`
       INSERT INTO products (
         category_id, name, slug, description, storage_options, colours, 
-        primary_image_url, gallery_images, is_featured, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        primary_image_url, gallery_images, variants, is_featured, is_active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING *
     `).bind(
       body.category_id,
@@ -186,6 +186,7 @@ adminProductsRouter.post('/', async (c) => {
       body.colours ? JSON.stringify(body.colours) : null,
       body.primary_image_url || null,
       body.gallery_images ? JSON.stringify(body.gallery_images) : null,
+      body.variants ? JSON.stringify(body.variants) : null,
       body.is_featured ? 1 : 0,
       body.is_active !== undefined ? (body.is_active ? 1 : 0) : 1
     ).first<Product>();
@@ -244,6 +245,9 @@ adminProductsRouter.put('/:id', async (c) => {
     if (body.primary_image_url !== undefined) addUpdate('primary_image_url', body.primary_image_url);
     if (body.gallery_images !== undefined) {
       addUpdate('gallery_images', typeof body.gallery_images === 'string' ? body.gallery_images : JSON.stringify(body.gallery_images));
+    }
+    if (body.variants !== undefined) {
+      addUpdate('variants', typeof body.variants === 'string' ? body.variants : JSON.stringify(body.variants));
     }
     if (body.is_featured !== undefined) addUpdate('is_featured', body.is_featured ? 1 : 0);
     if (body.is_active !== undefined) addUpdate('is_active', body.is_active ? 1 : 0);

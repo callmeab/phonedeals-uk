@@ -1,11 +1,11 @@
 import {
-  Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, OnDestroy
+  Component, ChangeDetectionStrategy, inject, signal, computed, OnInit, OnDestroy, effect
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { SeoService } from '../../core/services/seo.service';
 import { ApiService } from '../../core/services/api.service';
-import { Product } from '../../core/models/product.model';
+import { Product, ProductVariant } from '../../core/models/product.model';
 import { Deal } from '../../core/models/deal.model';
 import { CartItem } from '../../core/models/cart.model';
 import { ToastService } from '../../core/services/toast.service';
@@ -317,9 +317,31 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     resolveProductImageUrl(this.product()?.primary_image_url ?? null)
   );
 
+  productVariants = computed<ProductVariant[]>(() => {
+    const p = this.product();
+    if (!p?.variants) return [];
+    try { return JSON.parse(p.variants) as ProductVariant[]; } catch { return []; }
+  });
+
   galleryImages = computed<string[]>(() => {
     const p = this.product();
-    if (!p?.gallery_images) return [];
+    if (!p) return [];
+
+    const selectedCol = this.selectedColour();
+    const variants = this.productVariants();
+    
+    // 1. Try finding specific images for the selected color
+    if (selectedCol && variants.length > 0) {
+      const variant = variants.find(v => v.color.toLowerCase() === selectedCol.toLowerCase());
+      if (variant && variant.images && variant.images.length > 0) {
+        return variant.images
+          .map(url => resolveProductImageUrl(url))
+          .filter((url): url is string => !!url);
+      }
+    }
+
+    // 2. Fallback to default gallery_images
+    if (!p.gallery_images) return [];
     try {
       return (JSON.parse(p.gallery_images) as string[])
         .map(url => resolveProductImageUrl(url))
@@ -392,6 +414,22 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   uniqueNetworks = computed(() =>
     new Set(this.deals().map(d => d.network)).size
   );
+
+  constructor() {
+    effect(() => {
+      const col = this.selectedColour();
+      if (!col) return;
+      
+      const images = this.galleryImages();
+      // If there are variant images or gallery images for this color, pick the first one. 
+      // Otherwise fallback to primary.
+      if (images.length > 0) {
+        this.selectedImage.set(images[0]);
+      } else {
+        this.selectedImage.set(this.primaryImageUrl());
+      }
+    }, { allowSignalWrites: true });
+  }
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug');

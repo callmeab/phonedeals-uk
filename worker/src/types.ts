@@ -43,7 +43,8 @@ export interface Product {
   storage_options: string | null; // JSON text
   colours: string | null; // JSON text
   primary_image_url: string | null;
-  gallery_images: string | null; // JSON text
+  gallery_images: string | null; // JSON array of URLs
+  variants: string | null; // JSON array of variant configurations
   is_featured: boolean | number;
   is_active: boolean | number;
   created_at: string;

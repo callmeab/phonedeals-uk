@@ -1,0 +1,1 @@
+UPDATE products SET variants = '[{"color":"Black Titanium","images":["https://pub-5dd1d3d0c28a496fade1529ff89a1222.r2.dev/products/1782045473827-images--2-.jpg"]},{"color":"White Titanium","images":["https://pub-5dd1d3d0c28a496fade1529ff89a1222.r2.dev/products/1782045473910-images--1-.jpg"]}]' WHERE id = 1;

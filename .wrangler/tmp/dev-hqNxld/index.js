@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// .wrangler/tmp/bundle-oPp8Jj/checked-fetch.js
+// .wrangler/tmp/bundle-HXikVJ/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -27,7 +27,7 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
   }
 });
 
-// .wrangler/tmp/bundle-oPp8Jj/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-HXikVJ/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
@@ -2602,8 +2602,8 @@ adminProductsRouter.post("/", async (c) => {
     const result = await db.prepare(`
       INSERT INTO products (
         category_id, name, slug, description, storage_options, colours, 
-        primary_image_url, gallery_images, is_featured, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        primary_image_url, gallery_images, variants, is_featured, is_active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING *
     `).bind(
       body.category_id,
@@ -2614,6 +2614,7 @@ adminProductsRouter.post("/", async (c) => {
       body.colours ? JSON.stringify(body.colours) : null,
       body.primary_image_url || null,
       body.gallery_images ? JSON.stringify(body.gallery_images) : null,
+      body.variants ? JSON.stringify(body.variants) : null,
       body.is_featured ? 1 : 0,
       body.is_active !== void 0 ? body.is_active ? 1 : 0 : 1
     ).first();
@@ -2669,6 +2670,9 @@ adminProductsRouter.put("/:id", async (c) => {
       addUpdate("primary_image_url", body.primary_image_url);
     if (body.gallery_images !== void 0) {
       addUpdate("gallery_images", typeof body.gallery_images === "string" ? body.gallery_images : JSON.stringify(body.gallery_images));
+    }
+    if (body.variants !== void 0) {
+      addUpdate("variants", typeof body.variants === "string" ? body.variants : JSON.stringify(body.variants));
     }
     if (body.is_featured !== void 0)
       addUpdate("is_featured", body.is_featured ? 1 : 0);
@@ -3374,7 +3378,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-oPp8Jj/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-HXikVJ/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -3406,7 +3410,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-oPp8Jj/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-HXikVJ/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
