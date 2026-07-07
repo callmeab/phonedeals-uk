@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, inject, signal, effect, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
@@ -7,6 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ToastService } from '../../../core/services/toast.service';
+import { ProductVariant } from '../../../core/models/product.model';
 
 function frontendSlugify(text: string): string {
   if (!text) return '';
@@ -32,7 +33,7 @@ function frontendSlugify(text: string): string {
           <p class="text-sm text-gray-500 mt-1">{{ isEditMode() ? 'Update the details for this device.' : 'Add a new phone to your catalog.' }}</p>
         </div>
         <a routerLink="/xk92-admin/products" class="text-sm font-medium text-gray-500 hover:text-gray-700 underline focus:outline-none">
-          Cancel & Return
+          Cancel &amp; Return
         </a>
       </div>
 
@@ -126,17 +127,18 @@ function frontendSlugify(text: string): string {
             </div>
           </div>
 
-          <!-- Variants Section -->
+          <!-- ===== STEP 1: Colors & Storage ===== -->
           <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
             <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
-              <h3 class="text-lg font-semibold text-gray-900">Device Variants</h3>
+              <h3 class="text-lg font-semibold text-gray-900">Step 1 — Colours &amp; Storage Options</h3>
+              <p class="text-sm text-gray-500 mt-1">Define all available colours and storage sizes. The variant matrix will be auto-generated below.</p>
             </div>
             <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
               
               <!-- Storage Options -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Storage Options</label>
-                <p class="text-xs text-gray-500 mb-3">Press Enter or comma to add an option (e.g., 128GB).</p>
+                <p class="text-xs text-gray-500 mb-3">Press Enter or comma to add (e.g., 128GB).</p>
                 
                 <div class="flex flex-wrap gap-2 mb-3">
                   @for (opt of storageOptions(); track opt) {
@@ -161,7 +163,7 @@ function frontendSlugify(text: string): string {
               <!-- Colours -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Available Colours</label>
-                <p class="text-xs text-gray-500 mb-3">Press Enter or comma to add a colour (e.g., Midnight).</p>
+                <p class="text-xs text-gray-500 mb-3">Press Enter or comma to add (e.g., Midnight).</p>
                 
                 <div class="flex flex-wrap gap-2 mb-3">
                   @for (col of colours(); track col) {
@@ -184,12 +186,147 @@ function frontendSlugify(text: string): string {
               </div>
 
             </div>
+            
+            <!-- Generate Button -->
+            @if (colours().length > 0 && storageOptions().length > 0) {
+              <div class="px-6 pb-6">
+                <button type="button" (click)="generateVariantMatrix()" 
+                  class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent text-white text-sm font-semibold hover:bg-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-1">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  Generate Variant Matrix ({{ colours().length }} × {{ storageOptions().length }} = {{ colours().length * storageOptions().length }} variants)
+                </button>
+                <p class="text-xs text-gray-400 mt-1">Existing variant data will be preserved when regenerating.</p>
+              </div>
+            }
           </div>
+
+          <!-- ===== STEP 2: Variant Matrix ===== -->
+          @if (variantMatrix().length > 0) {
+            <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
+              <div class="px-6 py-5 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">Step 2 — Variant Pricing Matrix</h3>
+                  <p class="text-sm text-gray-500 mt-1">Set price, stock, and SKU for each Colour × Storage combination.</p>
+                </div>
+                @if (isUploadingVariant()) {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                    <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-800" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Uploading...
+                  </span>
+                }
+              </div>
+
+              <!-- Group variants by color -->
+              @for (colorGroup of variantsByColor(); track colorGroup.color) {
+                <div class="border-b border-gray-100 last:border-b-0">
+                  <!-- Color header row -->
+                  <div class="px-6 py-3 bg-purple-50 border-b border-purple-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800">
+                        {{ colorGroup.color }}
+                      </span>
+                      <span class="text-sm text-gray-500">{{ colorGroup.variants.length }} storage option{{ colorGroup.variants.length === 1 ? '' : 's' }}</span>
+                    </div>
+                    <!-- Per-color image upload -->
+                    <div class="flex items-center gap-2">
+                      @if (colorImages(colorGroup.color).length > 0) {
+                        <div class="flex gap-1 items-center">
+                          <span class="text-xs text-gray-500 mr-2">{{ colorImages(colorGroup.color).length }} image(s) uploaded</span>
+                          @for (img of colorImages(colorGroup.color); track img; let i = $index) {
+                            <div class="relative group">
+                              <img [src]="img" class="h-10 w-10 rounded-md object-cover border border-gray-200 shadow-sm">
+                              <button type="button" (click)="removeVariantImage(colorGroup.color, i)"
+                                class="absolute -top-1.5 -right-1.5 bg-red-100 text-red-600 rounded-full p-0.5 shadow-sm hover:bg-red-200 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus:opacity-100">
+                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                              </button>
+                            </div>
+                          }
+                        </div>
+                      }
+                      <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs font-medium text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-accent focus-within:ring-offset-1">
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        {{ colorImages(colorGroup.color).length > 0 ? 'Add more' : 'Upload images' }}
+                        <input type="file" class="sr-only" accept="image/*" multiple (change)="onVariantImageSelected($event, colorGroup.color)">
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Storage variants table -->
+                  <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                      <thead>
+                        <tr class="bg-gray-50 border-b border-gray-100">
+                          <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Storage</th>
+                          <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Price (£)</th>
+                          <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Sale Price (£)</th>
+                          <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Stock</th>
+                          <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">SKU</th>
+                          <th class="text-center px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">Active</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-gray-50">
+                        @for (variant of colorGroup.variants; track variant.storage) {
+                          <tr class="hover:bg-gray-50/50 transition-colors" [class.opacity-50]="!(variant.isActive ?? true)">
+                            <td class="px-4 py-3">
+                              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-blue-100 text-blue-800">{{ variant.storage }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                              <input type="number" placeholder="0.00" min="0" step="0.01"
+                                [value]="variant.price || ''"
+                                (change)="updateVariantField(colorGroup.color, variant.storage, 'price', +$any($event.target).value)"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-1.5 px-2 border"
+                              >
+                            </td>
+                            <td class="px-4 py-3">
+                              <input type="number" placeholder="Optional" min="0" step="0.01"
+                                [value]="variant.salePrice ?? ''"
+                                (change)="onSalePriceChange($event, colorGroup.color, variant.storage)"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-1.5 px-2 border"
+                              >
+                            </td>
+                            <td class="px-4 py-3">
+                              <input type="number" placeholder="0" min="0" step="1"
+                                [value]="variant.stock ?? 0"
+                                (change)="updateVariantField(colorGroup.color, variant.storage, 'stock', +$any($event.target).value)"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-1.5 px-2 border"
+                              >
+                            </td>
+                            <td class="px-4 py-3">
+                              <input type="text" placeholder="e.g. IPH15-BLK-128"
+                                [value]="variant.sku ?? ''"
+                                (change)="updateVariantField(colorGroup.color, variant.storage, 'sku', $any($event.target).value || null)"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-1.5 px-2 border"
+                              >
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                              <input type="checkbox" 
+                                [checked]="variant.isActive ?? true"
+                                (change)="updateVariantField(colorGroup.color, variant.storage, 'isActive', $any($event.target).checked)"
+                                class="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded"
+                              >
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              }
+            </div>
+          }
 
           <!-- Images Section -->
           <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
             <div class="px-6 py-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-              <h3 class="text-lg font-semibold text-gray-900">Product Images</h3>
+              <div>
+                <h3 class="text-lg font-semibold text-gray-900">Product Images</h3>
+                <p class="text-sm text-gray-500 mt-1">Default fallback images shown when no variant-specific images exist.</p>
+              </div>
               @if (isUploading()) {
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                   <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -310,7 +447,7 @@ function frontendSlugify(text: string): string {
             <button type="button" routerLink="/xk92-admin/products" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors">
               Cancel
             </button>
-            <button type="submit" [disabled]="isSubmitting() || isUploading()" class="inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
+            <button type="submit" [disabled]="isSubmitting() || isUploading() || isUploadingVariant()" class="inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
               @if (isSubmitting()) {
                 <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -356,9 +493,27 @@ export class AdminProductFormComponent implements OnInit {
   colours = signal<string[]>([]);
   galleryImages = signal<string[]>([]);
 
+  /** The variant matrix — one entry per Color×Storage combination */
+  variantMatrix = signal<ProductVariant[]>([]);
+
   manualSlug = signal(false);
   dragActive = signal<'primary' | 'gallery' | null>(null);
   isUploading = signal(false);
+  isUploadingVariant = signal(false);
+
+  /** Variants grouped by color for the table UI */
+  variantsByColor = computed(() => {
+    const matrix = this.variantMatrix();
+    const colorOrder = this.colours();
+    const groups: { color: string; variants: ProductVariant[] }[] = [];
+    for (const color of colorOrder) {
+      const variants = matrix.filter(v => v.color === color);
+      if (variants.length > 0) {
+        groups.push({ color, variants });
+      }
+    }
+    return groups;
+  });
 
   private submitted = false;
 
@@ -419,6 +574,12 @@ export class AdminProductFormComponent implements OnInit {
         if (p.gallery_images) {
           try { this.galleryImages.set(JSON.parse(p.gallery_images)); } catch {}
         }
+        if (p.variants) {
+          try {
+            const loaded = JSON.parse(p.variants) as ProductVariant[];
+            this.variantMatrix.set(loaded);
+          } catch {}
+        }
 
         this.manualSlug.set(true);
         this.isPageLoading.set(false);
@@ -428,6 +589,110 @@ export class AdminProductFormComponent implements OnInit {
         this.router.navigate(['/xk92-admin/products']);
       }
     });
+  }
+
+  /** Generate all Color×Storage combinations, preserving existing variant data */
+  generateVariantMatrix() {
+    const colors = this.colours();
+    const storages = this.storageOptions();
+    const existing = this.variantMatrix();
+
+    const newMatrix: ProductVariant[] = [];
+    for (const color of colors) {
+      for (const storage of storages) {
+        // Preserve existing data if this combination already exists
+        const prev = existing.find(v =>
+          v.color.toLowerCase() === color.toLowerCase() &&
+          v.storage.toLowerCase() === storage.toLowerCase()
+        );
+        // Get existing images for this color from the variant matrix
+        const colorImages = existing.find(v => v.color.toLowerCase() === color.toLowerCase())?.images ?? [];
+        newMatrix.push({
+          color,
+          storage,
+          price: prev?.price ?? 0,
+          salePrice: prev?.salePrice ?? null,
+          stock: prev?.stock ?? 0,
+          sku: prev?.sku ?? null,
+          isActive: prev?.isActive ?? true,
+          images: colorImages
+        });
+      }
+    }
+    this.variantMatrix.set(newMatrix);
+    this.form.markAsDirty();
+  }
+
+  /** Update a single field on a variant in the matrix */
+  updateVariantField(color: string, storage: string, field: keyof ProductVariant, value: any) {
+    this.variantMatrix.update(matrix =>
+      matrix.map(v => {
+        if (v.color.toLowerCase() === color.toLowerCase() && v.storage.toLowerCase() === storage.toLowerCase()) {
+          return { ...v, [field]: value };
+        }
+        return v;
+      })
+    );
+    this.form.markAsDirty();
+  }
+
+  /** Handles sale price input separately because of null/empty logic that template can't express */
+  onSalePriceChange(event: Event, color: string, storage: string) {
+    const val = (event.target as HTMLInputElement).value;
+    this.updateVariantField(color, storage, 'salePrice', val ? +val : null);
+  }
+
+  /** Get images for a specific color from the matrix */
+  colorImages(color: string): string[] {
+    const variant = this.variantMatrix().find(v => v.color.toLowerCase() === color.toLowerCase());
+    return variant?.images ?? [];
+  }
+
+  /** Remove an image at index from all variants of the same color */
+  removeVariantImage(color: string, index: number) {
+    this.variantMatrix.update(matrix =>
+      matrix.map(v => {
+        if (v.color.toLowerCase() === color.toLowerCase()) {
+          const imgs = [...v.images];
+          imgs.splice(index, 1);
+          return { ...v, images: imgs };
+        }
+        return v;
+      })
+    );
+    this.form.markAsDirty();
+  }
+
+  /** Upload images for a specific color variant */
+  onVariantImageSelected(event: Event, color: string) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const files = Array.from(input.files);
+    this.isUploadingVariant.set(true);
+    void (async () => {
+      try {
+        const uploadedUrls: string[] = [];
+        for (const file of files.slice(0, 6)) {
+          const url = await this.uploadSingleFile(file);
+          if (url) uploadedUrls.push(url);
+        }
+        // Apply the uploaded URLs to all variants of this color
+        this.variantMatrix.update(matrix =>
+          matrix.map(v => {
+            if (v.color.toLowerCase() === color.toLowerCase()) {
+              return { ...v, images: [...v.images, ...uploadedUrls] };
+            }
+            return v;
+          })
+        );
+        this.form.markAsDirty();
+      } catch {
+        this.toast.warning('One or more variant images failed to upload.');
+      } finally {
+        this.isUploadingVariant.set(false);
+        input.value = '';
+      }
+    })();
   }
 
   onChipInput(event: KeyboardEvent, type: 'storage' | 'colour') {
@@ -451,8 +716,12 @@ export class AdminProductFormComponent implements OnInit {
   removeChip(type: 'storage' | 'colour', value: string) {
     if (type === 'storage') {
       this.storageOptions.update(v => v.filter(item => item !== value));
+      // Remove variants with this storage from matrix
+      this.variantMatrix.update(m => m.filter(v => v.storage !== value));
     } else {
       this.colours.update(v => v.filter(item => item !== value));
+      // Remove variants with this color from matrix
+      this.variantMatrix.update(m => m.filter(v => v.color !== value));
     }
     this.form.markAsDirty();
   }
@@ -509,6 +778,19 @@ export class AdminProductFormComponent implements OnInit {
    * 3. Save publicUrl (NOT uploadUrl) into the form / gallery
    */
   private async uploadProductImage(file: File, type: 'primary' | 'gallery'): Promise<void> {
+    const publicUrl = await this.uploadSingleFile(file);
+    if (!publicUrl) return;
+
+    if (type === 'primary') {
+      this.form.patchValue({ primary_image_url: publicUrl });
+    } else {
+      this.galleryImages.update(v => [...v, publicUrl]);
+    }
+    this.form.markAsDirty();
+  }
+
+  /** Core upload logic — returns the public URL or null on failure */
+  private async uploadSingleFile(file: File): Promise<string | null> {
     const contentType = file.type || 'application/octet-stream';
 
     const presignRes = await firstValueFrom(
@@ -545,13 +827,7 @@ export class AdminProductFormComponent implements OnInit {
         throw new Error(`R2 PUT failed: ${putRes.status}`);
       }
     }
-
-    if (type === 'primary') {
-      this.form.patchValue({ primary_image_url: publicUrl });
-    } else {
-      this.galleryImages.update(v => [...v, publicUrl]);
-    }
-    this.form.markAsDirty();
+    return publicUrl;
   }
 
   removePrimaryImage() {
@@ -584,7 +860,8 @@ export class AdminProductFormComponent implements OnInit {
       ...this.form.value,
       storage_options: this.storageOptions(),
       colours: this.colours(),
-      gallery_images: this.galleryImages()
+      gallery_images: this.galleryImages(),
+      variants: this.variantMatrix()
     };
 
     const request = this.isEditMode() 

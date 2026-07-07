@@ -1,5 +1,11 @@
 export interface ProductVariant {
   color: string;
+  storage: string;
+  price: number;
+  salePrice?: number | null;
+  stock: number;
+  sku?: string | null;
+  isActive?: boolean;
   images: string[];
 }
 

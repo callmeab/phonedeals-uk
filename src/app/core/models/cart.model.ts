@@ -11,4 +11,6 @@ export interface CartItem {
   upfrontCost: number;
   dataGb: number;
   addedAt: number;
+  color?: string;
+  storage?: string;
 }

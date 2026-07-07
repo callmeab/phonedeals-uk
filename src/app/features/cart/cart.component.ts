@@ -38,6 +38,17 @@ import { CartService } from '../../core/services/cart.service';
 
                 <div class="flex-grow text-center sm:text-left">
                   <h3 class="text-lg font-bold text-gray-900 leading-tight mb-1">{{ item.productName }}</h3>
+                  
+                  @if (item.color || item.storage) {
+                    <p class="text-sm font-medium text-gray-500 mb-2">
+                      {{ item.color }} 
+                      @if (item.color && item.storage) {
+                        <span>&middot;</span>
+                      }
+                      {{ item.storage }}
+                    </p>
+                  }
+
                   <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
                     <span class="inline-block px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg">{{ item.network }}</span>
                     <span class="text-sm font-semibold text-gray-500">{{ item.contractMonths }} Month Contract</span>
