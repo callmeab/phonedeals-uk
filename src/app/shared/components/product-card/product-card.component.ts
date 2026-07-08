@@ -4,7 +4,7 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Product } from '../../../core/models/product.model';
-import { resolveProductImageUrl, PLACEHOLDER_PHONE_IMAGE } from '../../../core/utils/image-url';
+import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE } from '../../../core/utils/image-url';
 
 @Component({
   selector: 'app-product-card',
@@ -182,7 +182,7 @@ export class ProductCardComponent {
   private router = inject(Router);
 
   primaryImageUrl(): string | null {
-    return resolveProductImageUrl(this.product.primary_image_url);
+    return resolveProductImageUrl(getPrimaryProductImage(this.product));
   }
 
   onImageError(event: Event): void {

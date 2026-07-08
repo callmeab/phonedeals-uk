@@ -14,8 +14,7 @@ CREATE TABLE IF NOT EXISTS products (
   description TEXT,
   storage_options TEXT, -- JSON text
   colours TEXT, -- JSON text
-  primary_image_url TEXT,
-  gallery_images TEXT, -- JSON text
+  colours TEXT, -- JSON text
   variants TEXT, -- JSON text
   is_featured BOOLEAN DEFAULT 0,
   is_active BOOLEAN DEFAULT 1,

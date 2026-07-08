@@ -353,111 +353,6 @@ function frontendSlugify(text: string): string {
             </div>
           }
 
-          <!-- Images Section -->
-          <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-              <div>
-                <h3 class="text-lg font-semibold text-gray-900">Product Images</h3>
-                <p class="text-sm text-gray-500 mt-1">Default fallback images shown when no variant-specific images exist.</p>
-              </div>
-              @if (isUploading()) {
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-800" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Uploading...
-                </span>
-              }
-            </div>
-            
-            <div class="p-6 space-y-6">
-              
-              <!-- Primary Image -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Primary Hero Image</label>
-                <div 
-                  class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors"
-                  [ngClass]="dragActive() === 'primary' ? 'border-accent bg-blue-50' : 'border-gray-300 hover:border-gray-400'"
-                  (dragover)="onDragOver($event, 'primary')"
-                  (dragleave)="onDragLeave($event)"
-                  (drop)="onDrop($event, 'primary')"
-                >
-                  <div class="space-y-1 text-center">
-                    @if (form.value.primary_image_url) {
-                      <div class="relative inline-block">
-                        <img [src]="form.value.primary_image_url" alt="Primary" class="mx-auto h-32 w-auto rounded-md object-contain border border-gray-200 shadow-sm">
-                        <button type="button" (click)="removePrimaryImage()" class="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 shadow-sm hover:bg-red-200 focus:outline-none">
-                          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                        </button>
-                      </div>
-                    } @else {
-                      <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                      </svg>
-                      <div class="flex text-sm text-gray-600 justify-center">
-                        <label for="primary-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-accent hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-accent">
-                          <span>Upload a file</span>
-                          <input id="primary-upload" name="file-upload" type="file" class="sr-only" accept="image/*" (change)="onFileSelected($event, 'primary')">
-                        </label>
-                        <p class="pl-1">or drag and drop</p>
-                      </div>
-                      <p class="text-xs text-gray-500">PNG, JPG, WEBP up to 2MB</p>
-                    }
-                  </div>
-                </div>
-              </div>
-
-              <!-- Gallery Images -->
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Gallery Images (Optional, up to 6)</label>
-                <div 
-                  class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-md transition-colors"
-                  [ngClass]="dragActive() === 'gallery' ? 'border-accent bg-blue-50' : 'border-gray-300 hover:border-gray-400'"
-                  (dragover)="onDragOver($event, 'gallery')"
-                  (dragleave)="onDragLeave($event)"
-                  (drop)="onDrop($event, 'gallery')"
-                >
-                  <div class="space-y-3 w-full">
-                    
-                    @if (galleryImages().length > 0) {
-                      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                        @for (img of galleryImages(); track img; let i = $index) {
-                          <div class="relative group">
-                            <img [src]="img" class="h-24 w-full rounded-md object-cover border border-gray-200 shadow-sm">
-                            <button type="button" (click)="removeGalleryImage(i)" class="absolute -top-2 -right-2 bg-red-100 text-red-600 rounded-full p-1 shadow-sm hover:bg-red-200 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus:opacity-100">
-                              <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                            </button>
-                          </div>
-                        }
-                        
-                        @if (galleryImages().length < 6) {
-                          <label for="gallery-upload" class="h-24 w-full rounded-md border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-accent hover:bg-blue-50 transition-colors">
-                            <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                            <input id="gallery-upload" type="file" class="sr-only" accept="image/*" multiple (change)="onFileSelected($event, 'gallery')">
-                          </label>
-                        }
-                      </div>
-                    } @else {
-                      <div class="text-center">
-                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
-                          <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <div class="flex text-sm text-gray-600 justify-center mt-2">
-                          <label for="gallery-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-accent hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-accent">
-                            <span>Upload files</span>
-                            <input id="gallery-upload" type="file" class="sr-only" accept="image/*" multiple (change)="onFileSelected($event, 'gallery')">
-                          </label>
-                          <p class="pl-1">or drag and drop</p>
-                        </div>
-                      </div>
-                    }
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
 
           <!-- Error Banner -->
           @if (submitError()) {
@@ -480,7 +375,7 @@ function frontendSlugify(text: string): string {
             <button type="button" routerLink="/xk92-admin/products" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors">
               Cancel
             </button>
-            <button type="submit" [disabled]="isSubmitting() || isUploading() || isUploadingVariant()" class="inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
+            <button type="submit" [disabled]="isSubmitting() || isUploadingVariant()" class="inline-flex justify-center items-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-accent hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
               @if (isSubmitting()) {
                 <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -511,7 +406,6 @@ export class AdminProductFormComponent implements OnInit {
     slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
     category_id: [null as number | null, [Validators.required]],
     description: [''],
-    primary_image_url: [''],
     is_featured: [false],
     is_active: [true]
   });
@@ -525,15 +419,12 @@ export class AdminProductFormComponent implements OnInit {
   storageOptions = signal<string[]>([]);
   colours = signal<string[]>([]);
   simTypes = signal<string[]>([]);
-  galleryImages = signal<string[]>([]);
   Math = Math;
 
   /** The variant matrix — one entry per Color×Storage combination */
   variantMatrix = signal<ProductVariant[]>([]);
 
   manualSlug = signal(false);
-  dragActive = signal<'primary' | 'gallery' | null>(null);
-  isUploading = signal(false);
   isUploadingVariant = signal(false);
 
   /** Variants grouped by color for the table UI */
@@ -595,7 +486,6 @@ export class AdminProductFormComponent implements OnInit {
           slug: p.slug,
           category_id: p.category_id,
           description: p.description,
-          primary_image_url: p.primary_image_url,
           is_featured: !!p.is_featured,
           is_active: !!p.is_active
         });
@@ -608,9 +498,6 @@ export class AdminProductFormComponent implements OnInit {
         }
         if (p.sim_types) {
           try { this.simTypes.set(JSON.parse(p.sim_types)); } catch {}
-        }
-        if (p.gallery_images) {
-          try { this.galleryImages.set(JSON.parse(p.gallery_images)); } catch {}
         }
         if (p.variants) {
           try {
@@ -768,69 +655,6 @@ export class AdminProductFormComponent implements OnInit {
     this.form.markAsDirty();
   }
 
-  onDragOver(event: DragEvent, type: 'primary' | 'gallery') {
-    event.preventDefault();
-    this.dragActive.set(type);
-  }
-
-  onDragLeave(event: DragEvent) {
-    event.preventDefault();
-    this.dragActive.set(null);
-  }
-
-  onDrop(event: DragEvent, type: 'primary' | 'gallery') {
-    event.preventDefault();
-    this.dragActive.set(null);
-    if (event.dataTransfer?.files) {
-      this.handleFiles(Array.from(event.dataTransfer.files), type);
-    }
-  }
-
-  onFileSelected(event: Event, type: 'primary' | 'gallery') {
-    const input = event.target as HTMLInputElement;
-    if (input.files) {
-      this.handleFiles(Array.from(input.files), type);
-    }
-  }
-
-  private handleFiles(files: File[], type: 'primary' | 'gallery') {
-    if (!files.length) return;
-
-    const filesToUpload = type === 'primary' ? [files[0]] : files.slice(0, 6 - this.galleryImages().length);
-    if (!filesToUpload.length) return;
-
-    this.isUploading.set(true);
-
-    void (async () => {
-      try {
-        for (const file of filesToUpload) {
-          await this.uploadProductImage(file, type);
-        }
-      } catch {
-        this.toast.warning('One or more images failed to upload. Please try again.');
-      } finally {
-        this.isUploading.set(false);
-      }
-    })();
-  }
-
-  /**
-   * 1. Request presigned URL + publicUrl from Worker
-   * 2. PUT file directly to R2 (production) OR POST via Worker (local dev fallback)
-   * 3. Save publicUrl (NOT uploadUrl) into the form / gallery
-   */
-  private async uploadProductImage(file: File, type: 'primary' | 'gallery'): Promise<void> {
-    const publicUrl = await this.uploadSingleFile(file);
-    if (!publicUrl) return;
-
-    if (type === 'primary') {
-      this.form.patchValue({ primary_image_url: publicUrl });
-    } else {
-      this.galleryImages.update(v => [...v, publicUrl]);
-    }
-    this.form.markAsDirty();
-  }
-
   /** Core upload logic — returns the public URL or null on failure */
   private async uploadSingleFile(file: File): Promise<string | null> {
     const contentType = file.type || 'application/octet-stream';
@@ -872,16 +696,6 @@ export class AdminProductFormComponent implements OnInit {
     return publicUrl;
   }
 
-  removePrimaryImage() {
-    this.form.patchValue({ primary_image_url: '' });
-    this.form.markAsDirty();
-  }
-
-  removeGalleryImage(index: number) {
-    this.galleryImages.update(v => v.filter((_, i) => i !== index));
-    this.form.markAsDirty();
-  }
-
   onSubmit() {
     this.submitted = true;
     this.submitError.set(null);
@@ -903,7 +717,6 @@ export class AdminProductFormComponent implements OnInit {
       storage_options: this.storageOptions(),
       colours: this.colours(),
       sim_types: this.simTypes(),
-      gallery_images: this.galleryImages(),
       variants: this.variantMatrix()
     };
 

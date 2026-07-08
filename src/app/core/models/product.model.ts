@@ -19,8 +19,6 @@ export interface Product {
   storage_options: string | null; // JSON
   colours: string | null; // JSON
   sim_types?: string | null; // JSON
-  primary_image_url: string | null;
-  gallery_images: string | null; // JSON
   variants: string | null; // JSON string of ProductVariant[]
   is_featured: boolean | number;
   is_active: boolean | number;

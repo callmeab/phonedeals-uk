@@ -6,6 +6,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ApiService } from '../../../core/services/api.service';
 import { Product } from '../../../core/models/product.model';
+import { getPrimaryProductImage } from '../../../core/utils/image-url';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ToastService } from '../../../core/services/toast.service';
 
@@ -136,8 +137,8 @@ interface ApiResponse<T> {
                   <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                       <div class="flex-shrink-0 h-10 w-10">
-                        @if (product.primary_image_url) {
-                          <img class="h-10 w-10 rounded-full object-cover border border-gray-200" [src]="product.primary_image_url" alt="">
+                        @if (getPrimaryImage(product)) {
+                          <img class="h-10 w-10 rounded-full object-cover border border-gray-200" [src]="getPrimaryImage(product)" alt="">
                         } @else {
                           <div class="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 text-gray-400">
                             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -187,7 +188,7 @@ interface ApiResponse<T> {
                         }
                       </button>
                       <!-- Delete -->
-                      <button (click)="openDeleteModal(product)" class="hover:text-red-500 transition-colors" title="Deactivate">
+                      <button (click)="openDeleteModal(product)" class="hover:text-red-500 transition-colors" title="Delete">
                         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -205,8 +206,8 @@ interface ApiResponse<T> {
           @for (product of products(); track product.id) {
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex items-center justify-between">
               <div class="flex items-center space-x-4">
-                @if (product.primary_image_url) {
-                  <img class="h-12 w-12 rounded-full object-cover border border-gray-200" [src]="product.primary_image_url" alt="">
+                @if (getPrimaryImage(product)) {
+                  <img class="h-12 w-12 rounded-full object-cover border border-gray-200" [src]="getPrimaryImage(product)" alt="">
                 } @else {
                   <div class="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200 text-gray-400">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -229,7 +230,7 @@ interface ApiResponse<T> {
                 <a [routerLink]="['/xk92-admin/products', product.id, 'edit']" class="p-2 text-gray-400 hover:text-accent bg-gray-50 rounded-md">
                   <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                 </a>
-                <button (click)="openDeleteModal(product)" class="p-2 text-gray-400 hover:text-red-500 bg-gray-50 rounded-md">
+                <button (click)="openDeleteModal(product)" class="p-2 text-gray-400 hover:text-red-500 bg-gray-50 rounded-md" title="Delete">
                   <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 </button>
               </div>
@@ -272,10 +273,10 @@ interface ApiResponse<T> {
                   </svg>
                 </div>
                 <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-                  <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Deactivate Product</h3>
+                  <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Delete Product</h3>
                   <div class="mt-2">
                     <p class="text-sm text-gray-500">
-                      Are you sure you want to deactivate <strong>{{ productToDelete()?.name }}</strong>? This will also hide all associated deals from the public storefront.
+                      Are you sure you want to delete <strong>{{ productToDelete()?.name }}</strong>? This action cannot be undone and will also delete all associated deals.
                     </p>
                   </div>
                 </div>
@@ -287,7 +288,7 @@ interface ApiResponse<T> {
                   [disabled]="isDeleting()"
                   class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
                 >
-                  {{ isDeleting() ? 'Deactivating...' : 'Deactivate' }}
+                  {{ isDeleting() ? 'Deleting...' : 'Delete' }}
                 </button>
                 <button 
                   type="button" 
@@ -327,6 +328,8 @@ export class AdminProductsComponent implements OnInit {
   isDeleting = signal(false);
 
   searchControl = new FormControl('');
+  
+  getPrimaryImage = getPrimaryProductImage;
 
   constructor() {
     this.searchControl.valueChanges
@@ -427,7 +430,7 @@ export class AdminProductsComponent implements OnInit {
       },
       error: () => {
         this.isDeleting.set(false);
-        this.toast.error('Failed to deactivate product. Please try again.');
+        this.toast.error('Failed to delete product. Please try again.');
       }
     });
   }

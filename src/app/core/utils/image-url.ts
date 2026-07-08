@@ -1,3 +1,5 @@
+import { Product, ProductVariant } from '../models/product.model';
+
 /** Resolve product image URLs for display in templates. */
 export function resolveProductImageUrl(url: string | null | undefined): string | null {
   if (!url) return null;
@@ -26,3 +28,22 @@ export function resolveProductImageUrl(url: string | null | undefined): string |
 }
 
 export const PLACEHOLDER_PHONE_IMAGE = '/assets/images/placeholder-phone.svg';
+
+export function getPrimaryProductImage(product: Product | null | undefined): string | null {
+  if (!product || !product.variants) return null;
+  try {
+    const variants = (typeof product.variants === 'string' 
+      ? JSON.parse(product.variants) 
+      : product.variants) as ProductVariant[];
+    
+    if (Array.isArray(variants)) {
+      const withImages = variants.find(v => v.images && v.images.length > 0);
+      if (withImages && withImages.images.length > 0) {
+        return withImages.images[0];
+      }
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return null;
+}

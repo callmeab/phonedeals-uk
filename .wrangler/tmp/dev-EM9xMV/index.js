@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// .wrangler/tmp/bundle-HXikVJ/checked-fetch.js
+// .wrangler/tmp/bundle-oUA0aL/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -27,7 +27,7 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
   }
 });
 
-// .wrangler/tmp/bundle-HXikVJ/strip-cf-connecting-ip-header.js
+// .wrangler/tmp/bundle-oUA0aL/strip-cf-connecting-ip-header.js
 function stripCfConnectingIPHeader(input, init) {
   const request = new Request(input, init);
   request.headers.delete("CF-Connecting-IP");
@@ -2444,14 +2444,16 @@ function normalizeImageUrl(storedUrl, requestUrl, r2PublicUrl) {
 __name(normalizeImageUrl, "normalizeImageUrl");
 function normalizeProductImages(product, requestUrl, r2PublicUrl) {
   const normalized = {
-    ...product,
-    primary_image_url: normalizeImageUrl(product.primary_image_url, requestUrl, r2PublicUrl)
+    ...product
   };
-  if (product.gallery_images) {
+  if (product.variants) {
     try {
-      const gallery = JSON.parse(product.gallery_images);
-      normalized.gallery_images = JSON.stringify(
-        gallery.map((url) => normalizeImageUrl(url, requestUrl, r2PublicUrl))
+      const variants = JSON.parse(product.variants);
+      normalized.variants = JSON.stringify(
+        variants.map((v) => ({
+          ...v,
+          images: (v.images || []).map((imgUrl) => normalizeImageUrl(imgUrl, requestUrl, r2PublicUrl))
+        }))
       );
     } catch {
     }
@@ -2601,9 +2603,8 @@ adminProductsRouter.post("/", async (c) => {
     }
     const result = await db.prepare(`
       INSERT INTO products (
-        category_id, name, slug, description, storage_options, colours, sim_types,
-        primary_image_url, gallery_images, variants, is_featured, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        sim_types, variants, is_featured, is_active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING *
     `).bind(
       body.category_id,
@@ -2613,8 +2614,6 @@ adminProductsRouter.post("/", async (c) => {
       body.storage_options ? JSON.stringify(body.storage_options) : null,
       body.colours ? JSON.stringify(body.colours) : null,
       body.sim_types ? JSON.stringify(body.sim_types) : null,
-      body.primary_image_url || null,
-      body.gallery_images ? JSON.stringify(body.gallery_images) : null,
       body.variants ? JSON.stringify(body.variants) : null,
       body.is_featured ? 1 : 0,
       body.is_active !== void 0 ? body.is_active ? 1 : 0 : 1
@@ -2670,11 +2669,6 @@ adminProductsRouter.put("/:id", async (c) => {
     if (body.sim_types !== void 0) {
       addUpdate("sim_types", typeof body.sim_types === "string" ? body.sim_types : JSON.stringify(body.sim_types));
     }
-    if (body.primary_image_url !== void 0)
-      addUpdate("primary_image_url", body.primary_image_url);
-    if (body.gallery_images !== void 0) {
-      addUpdate("gallery_images", typeof body.gallery_images === "string" ? body.gallery_images : JSON.stringify(body.gallery_images));
-    }
     if (body.variants !== void 0) {
       addUpdate("variants", typeof body.variants === "string" ? body.variants : JSON.stringify(body.variants));
     }
@@ -2701,7 +2695,8 @@ adminProductsRouter.delete("/:id", async (c) => {
   try {
     const id = c.req.param("id");
     const db = c.env.DB;
-    const { success } = await db.prepare(`UPDATE products SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).bind(id).run();
+    await db.prepare("DELETE FROM deals WHERE product_id = ?").bind(id).run();
+    const { success } = await db.prepare("DELETE FROM products WHERE id = ?").bind(id).run();
     if (!success)
       return c.json({ success: false, error: "Failed to delete product" }, 500);
     return c.json({ success: true });
@@ -3164,23 +3159,23 @@ debugRouter.get("/image-check", async (c) => {
     return c.json({ success: false, error: "product_id query param is required" }, 400);
   }
   const row = await c.env.DB.prepare(
-    "SELECT id, name, primary_image_url FROM products WHERE id = ?"
+    "SELECT id, name FROM products WHERE id = ?"
   ).bind(productId).first();
   if (!row) {
     return c.json({ success: false, error: "Product not found" }, 404);
   }
-  const rawUrl = row.primary_image_url;
+  const rawUrl = null;
   const r2PublicUrl = c.env.R2_PUBLIC_URL ?? null;
   return c.json({
     success: true,
     data: {
       product_id: row.id,
       name: row.name,
-      primary_image_url: rawUrl,
+      primary_image_url: null,
       starts_with_https: rawUrl ? rawUrl.startsWith("https://") : false,
       r2_public_url_configured: r2PublicUrl,
       r2_public_url_from_env: r2PublicUrl ?? "(not set \u2014 local dev uses /api/images proxy)",
-      hint: !rawUrl ? "No image URL stored in D1 for this product." : !rawUrl.startsWith("https://") && !rawUrl.includes("/api/images/") ? "URL may be malformed \u2014 re-upload via admin panel." : "Paste primary_image_url into browser to test loading."
+      hint: !rawUrl ? "No image URL stored in D1 for this product." : !rawUrl.startsWith("https://") && !rawUrl.includes("/api/images/") ? "URL may be malformed \u2014 re-upload via admin panel." : "Paste variant image url into browser to test loading."
     }
   });
 });
@@ -3382,7 +3377,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-HXikVJ/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-oUA0aL/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -3414,7 +3409,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-HXikVJ/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-oUA0aL/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

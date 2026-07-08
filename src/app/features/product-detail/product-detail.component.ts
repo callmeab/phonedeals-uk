@@ -15,7 +15,7 @@ import { DealCardComponent } from '../../shared/components/deal-card/deal-card.c
 import { DealCardSkeletonComponent } from '../../shared/components/deal-card/deal-card-skeleton.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
-import { resolveProductImageUrl, PLACEHOLDER_PHONE_IMAGE } from '../../core/utils/image-url';
+import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE } from '../../core/utils/image-url';
 
 type DealSort = 'monthly' | 'data' | 'upfront';
 
@@ -451,7 +451,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   // --- Derived ---
   primaryImageUrl = computed(() =>
-    resolveProductImageUrl(this.product()?.primary_image_url ?? null)
+    resolveProductImageUrl(getPrimaryProductImage(this.product()))
   );
 
   /** All parsed variants from the backend */
@@ -496,15 +496,15 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       }
     }
 
-    // 2. Fallback to default gallery_images
-    if (!p.gallery_images) return [];
-    try {
-      return (JSON.parse(p.gallery_images) as string[])
+    // 2. Fallback to first variant with images
+    const withImages = variants.find(v => v.images && v.images.length > 0);
+    if (withImages) {
+      return withImages.images
         .map(url => resolveProductImageUrl(url))
         .filter((url): url is string => !!url);
-    } catch {
-      return [];
     }
+
+    return [];
   });
 
   // Variant pricing helpers
@@ -757,7 +757,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         }
         const p = res.data;
         this.product.set(p);
-        this.selectedImage.set(resolveProductImageUrl(p.primary_image_url));
+        this.selectedImage.set(resolveProductImageUrl(getPrimaryProductImage(p)));
 
         // Auto-select first storage + colour + simType
         const storage = this.storageOptions();
@@ -800,7 +800,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.seo.setMetaTags({
       description: `Compare the best ${p.name} contract deals in the UK. ${lowestStr === 'great prices' ? 'Find' : `From ${lowestStr} with`} EE, O2, Vodafone, Three and more. Updated daily.`,
       keywords: `${p.name} deals, ${p.name} contract, cheap ${p.name}, ${categoryName} deals UK`,
-      ogImage: p.primary_image_url ?? undefined,
+      ogImage: getPrimaryProductImage(p) ?? undefined,
       ogType: 'product',
     });
   }
@@ -824,7 +824,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       '@type': 'Product',
       name: p.name,
       description: p.description || `${p.name} contract deals from UK networks.`,
-      image: p.primary_image_url || undefined,
+      image: getPrimaryProductImage(p) || undefined,
       brand: {
         '@type': 'Brand',
         name: p.category_name?.toLowerCase().includes('samsung') ? 'Samsung' : 'Apple',

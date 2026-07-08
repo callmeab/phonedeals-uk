@@ -14,14 +14,14 @@ debugRouter.get('/image-check', async (c) => {
   }
 
   const row = await c.env.DB.prepare(
-    'SELECT id, name, primary_image_url FROM products WHERE id = ?'
-  ).bind(productId).first<{ id: number; name: string; primary_image_url: string | null }>();
+    'SELECT id, name FROM products WHERE id = ?'
+  ).bind(productId).first<{ id: number; name: string }>();
 
   if (!row) {
     return c.json({ success: false, error: 'Product not found' }, 404);
   }
 
-  const rawUrl = row.primary_image_url;
+  const rawUrl = null;
   const r2PublicUrl = c.env.R2_PUBLIC_URL ?? null;
 
   return c.json({
@@ -29,7 +29,7 @@ debugRouter.get('/image-check', async (c) => {
     data: {
       product_id: row.id,
       name: row.name,
-      primary_image_url: rawUrl,
+      primary_image_url: null,
       starts_with_https: rawUrl ? rawUrl.startsWith('https://') : false,
       r2_public_url_configured: r2PublicUrl,
       r2_public_url_from_env: r2PublicUrl ?? '(not set — local dev uses /api/images proxy)',
@@ -37,7 +37,7 @@ debugRouter.get('/image-check', async (c) => {
         ? 'No image URL stored in D1 for this product.'
         : !rawUrl.startsWith('https://') && !rawUrl.includes('/api/images/')
           ? 'URL may be malformed — re-upload via admin panel.'
-          : 'Paste primary_image_url into browser to test loading.',
+          : 'Paste variant image url into browser to test loading.',
     },
   });
 });

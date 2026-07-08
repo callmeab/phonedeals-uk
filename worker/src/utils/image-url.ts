@@ -56,14 +56,15 @@ export function normalizeProductImages(
 ): Product {
   const normalized: Product = {
     ...product,
-    primary_image_url: normalizeImageUrl(product.primary_image_url, requestUrl, r2PublicUrl),
   };
-
-  if (product.gallery_images) {
+  if (product.variants) {
     try {
-      const gallery = JSON.parse(product.gallery_images) as string[];
-      normalized.gallery_images = JSON.stringify(
-        gallery.map(url => normalizeImageUrl(url, requestUrl, r2PublicUrl))
+      const variants = JSON.parse(product.variants) as any[];
+      normalized.variants = JSON.stringify(
+        variants.map(v => ({
+          ...v,
+          images: (v.images || []).map((imgUrl: string) => normalizeImageUrl(imgUrl, requestUrl, r2PublicUrl))
+        }))
       );
     } catch {
       // keep original JSON if parse fails

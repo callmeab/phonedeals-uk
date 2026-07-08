@@ -173,9 +173,8 @@ adminProductsRouter.post('/', async (c) => {
 
     const result = await db.prepare(`
       INSERT INTO products (
-        category_id, name, slug, description, storage_options, colours, sim_types,
-        primary_image_url, gallery_images, variants, is_featured, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        sim_types, variants, is_featured, is_active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING *
     `).bind(
       body.category_id,
@@ -185,8 +184,6 @@ adminProductsRouter.post('/', async (c) => {
       body.storage_options ? JSON.stringify(body.storage_options) : null,
       body.colours ? JSON.stringify(body.colours) : null,
       body.sim_types ? JSON.stringify(body.sim_types) : null,
-      body.primary_image_url || null,
-      body.gallery_images ? JSON.stringify(body.gallery_images) : null,
       body.variants ? JSON.stringify(body.variants) : null,
       body.is_featured ? 1 : 0,
       body.is_active !== undefined ? (body.is_active ? 1 : 0) : 1
@@ -246,10 +243,6 @@ adminProductsRouter.put('/:id', async (c) => {
     if (body.sim_types !== undefined) {
       addUpdate('sim_types', typeof body.sim_types === 'string' ? body.sim_types : JSON.stringify(body.sim_types));
     }
-    if (body.primary_image_url !== undefined) addUpdate('primary_image_url', body.primary_image_url);
-    if (body.gallery_images !== undefined) {
-      addUpdate('gallery_images', typeof body.gallery_images === 'string' ? body.gallery_images : JSON.stringify(body.gallery_images));
-    }
     if (body.variants !== undefined) {
       addUpdate('variants', typeof body.variants === 'string' ? body.variants : JSON.stringify(body.variants));
     }
@@ -281,8 +274,9 @@ adminProductsRouter.delete('/:id', async (c) => {
     const id = c.req.param('id');
     const db = c.env.DB;
 
-    // Soft delete: sets is_active = 0 instead of destroying relational records
-    const { success } = await db.prepare(`UPDATE products SET is_active = 0, updated_at = CURRENT_TIMESTAMP WHERE id = ?`).bind(id).run();
+    // Hard delete: delete deals first then product
+    await db.prepare('DELETE FROM deals WHERE product_id = ?').bind(id).run();
+    const { success } = await db.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
     
     if (!success) return c.json({ success: false, error: 'Failed to delete product' }, 500);
 

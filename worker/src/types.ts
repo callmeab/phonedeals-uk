@@ -42,8 +42,7 @@ export interface Product {
   description: string | null;
   storage_options: string | null; // JSON text
   colours: string | null; // JSON text
-  primary_image_url: string | null;
-  gallery_images: string | null; // JSON array of URLs
+  colours: string | null; // JSON text
   variants: string | null; // JSON array of variant configurations
   is_featured: boolean | number;
   is_active: boolean | number;
