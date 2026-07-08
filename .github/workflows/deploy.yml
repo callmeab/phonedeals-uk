@@ -3,7 +3,7 @@ name: Deploy PhoneDeals UK
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   deploy:
