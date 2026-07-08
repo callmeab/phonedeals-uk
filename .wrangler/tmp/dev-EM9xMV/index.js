@@ -2415,8 +2415,7 @@ function buildPublicImageUrl(requestUrl, key, r2PublicUrl) {
   if (r2PublicUrl) {
     return `${r2PublicUrl.replace(/\/$/, "")}/${key}`;
   }
-  const origin = new URL(requestUrl).origin;
-  return `${origin}/api/images/${key}`;
+  return `/api/images/${key}`;
 }
 __name(buildPublicImageUrl, "buildPublicImageUrl");
 function normalizeImageUrl(storedUrl, requestUrl, r2PublicUrl) {
@@ -2429,6 +2428,10 @@ function normalizeImageUrl(storedUrl, requestUrl, r2PublicUrl) {
     return storedUrl;
   }
   if (storedUrl.includes("/api/images/")) {
+    if (!r2PublicUrl && (storedUrl.includes("localhost") || storedUrl.includes("127.0.0.1"))) {
+      const idx = storedUrl.indexOf("/api/images/");
+      return storedUrl.slice(idx);
+    }
     return storedUrl;
   }
   const productsIdx = storedUrl.indexOf("products/");
@@ -2603,6 +2606,7 @@ adminProductsRouter.post("/", async (c) => {
     }
     const result = await db.prepare(`
       INSERT INTO products (
+        category_id, name, slug, description, storage_options, colours,
         sim_types, variants, is_featured, is_active
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING *
@@ -2693,11 +2697,12 @@ adminProductsRouter.put("/:id", async (c) => {
 });
 adminProductsRouter.delete("/:id", async (c) => {
   try {
-    const id = c.req.param("id");
+    const id = parseInt(c.req.param("id"), 10);
     const db = c.env.DB;
-    await db.prepare("DELETE FROM deals WHERE product_id = ?").bind(id).run();
-    const { success } = await db.prepare("DELETE FROM products WHERE id = ?").bind(id).run();
-    if (!success)
+    const dealsResult = await db.prepare("DELETE FROM deals WHERE product_id = ?").bind(id).run();
+    const productResult = await db.prepare("DELETE FROM products WHERE id = ?").bind(id).run();
+    console.log("Delete Product ID", id, "deals result:", dealsResult, "product result:", productResult);
+    if (!productResult.success)
       return c.json({ success: false, error: "Failed to delete product" }, 500);
     return c.json({ success: true });
   } catch (err) {
@@ -2915,7 +2920,7 @@ adminDealsRouter.put("/:id", async (c) => {
 });
 adminDealsRouter.delete("/:id", async (c) => {
   try {
-    const id = c.req.param("id");
+    const id = parseInt(c.req.param("id"), 10);
     const db = c.env.DB;
     const { success } = await db.prepare(`DELETE FROM deals WHERE id = ?`).bind(id).run();
     if (!success)
@@ -3094,7 +3099,12 @@ var sitemap_default = sitemapRouter;
 // worker/src/routes/images.ts
 var imagesRouter = new Hono2();
 imagesRouter.get("/*", async (c) => {
-  const key = c.req.path.replace(/^\/api\/images\//, "");
+  let key = c.req.path;
+  const match2 = key.match(/images\/(.+)$/);
+  if (match2) {
+    key = match2[1];
+  }
+  key = key.replace(/^\//, "");
   if (!key) {
     return c.json({ success: false, error: "Image key required" }, 400);
   }

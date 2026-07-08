@@ -173,6 +173,7 @@ adminProductsRouter.post('/', async (c) => {
 
     const result = await db.prepare(`
       INSERT INTO products (
+        category_id, name, slug, description, storage_options, colours,
         sim_types, variants, is_featured, is_active
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING *
@@ -271,14 +272,15 @@ adminProductsRouter.put('/:id', async (c) => {
 
 adminProductsRouter.delete('/:id', async (c) => {
   try {
-    const id = c.req.param('id');
+    const id = parseInt(c.req.param('id'), 10);
     const db = c.env.DB;
 
     // Hard delete: delete deals first then product
-    await db.prepare('DELETE FROM deals WHERE product_id = ?').bind(id).run();
-    const { success } = await db.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
+    const dealsResult = await db.prepare('DELETE FROM deals WHERE product_id = ?').bind(id).run();
+    const productResult = await db.prepare('DELETE FROM products WHERE id = ?').bind(id).run();
+    console.log('Delete Product ID', id, 'deals result:', dealsResult, 'product result:', productResult);
     
-    if (!success) return c.json({ success: false, error: 'Failed to delete product' }, 500);
+    if (!productResult.success) return c.json({ success: false, error: 'Failed to delete product' }, 500);
 
     return c.json({ success: true });
   } catch (err) {

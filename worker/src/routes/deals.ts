@@ -173,7 +173,7 @@ adminDealsRouter.put('/:id', async (c) => {
 
 adminDealsRouter.delete('/:id', async (c) => {
   try {
-    const id = c.req.param('id');
+    const id = parseInt(c.req.param('id'), 10);
     const db = c.env.DB;
 
     // Deals are transient representations of third-party network prices. Hard delete is preferred.

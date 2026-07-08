@@ -9,8 +9,9 @@ export function buildPublicImageUrl(
   if (r2PublicUrl) {
     return `${r2PublicUrl.replace(/\/$/, '')}/${key}`;
   }
-  const origin = new URL(requestUrl).origin;
-  return `${origin}/api/images/${key}`;
+  // Use relative path for local development so it works through the Angular proxy
+  // This solves issues when testing on other devices in the local network
+  return `/api/images/${key}`;
 }
 
 /** Rewrite legacy/wrong URLs to a working public URL. */
@@ -32,6 +33,11 @@ export function normalizeImageUrl(
   }
 
   if (storedUrl.includes('/api/images/')) {
+    // If we're in local mode (no r2PublicUrl), convert absolute local URLs to relative
+    if (!r2PublicUrl && (storedUrl.includes('localhost') || storedUrl.includes('127.0.0.1'))) {
+      const idx = storedUrl.indexOf('/api/images/');
+      return storedUrl.slice(idx);
+    }
     return storedUrl;
   }
 

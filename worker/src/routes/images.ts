@@ -5,9 +5,14 @@ const imagesRouter = new Hono<{ Bindings: Env }>();
 
 /** Public R2 image proxy — serves uploaded product images from the IMAGES bucket. */
 imagesRouter.get('/*', async (c) => {
-  // c.req.path is the full path e.g. /api/images/products/123.jpg
-  // We need to strip /api/images/ to get the actual R2 object key
-  const key = c.req.path.replace(/^\/api\/images\//, '');
+  // Extract the key robustly, handling potential leading slashes or missing base paths
+  let key = c.req.path;
+  const match = key.match(/images\/(.+)$/);
+  if (match) {
+    key = match[1];
+  }
+  // Strip any leading slash just in case
+  key = key.replace(/^\//, '');
   if (!key) {
     return c.json({ success: false, error: 'Image key required' }, 400);
   }
