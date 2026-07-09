@@ -324,7 +324,7 @@ function frontendSlugify(text: string): string {
                             </td>
                             <td class="px-4 py-3">
                               <input type="number" placeholder="0" min="0" step="1"
-                                [value]="variant.stock ?? 0"
+                                [value]="variant.stock || 0"
                                 (change)="updateVariantField(variant, 'stock', +$any($event.target).value)"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-sm py-1.5 px-2 border"
                               >
