@@ -2,7 +2,7 @@ import { Context, Next } from 'hono';
 import { Env } from '../types';
 import { verifyJWT } from '../utils/jwt';
 
-export async function authMiddleware(c: Context<{ Bindings: Env }>, next: Next) {
+export async function authMiddleware(c: Context<{ Bindings: Env, Variables: { adminUser: any } }>, next: Next) {
   const authHeader = c.req.header('Authorization');
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return c.json({ success: false, error: 'Unauthorized: Missing or invalid Authorization header' }, 401);

@@ -1,4 +1,4 @@
-import { crypto } from 'node:crypto';
+import * as crypto from 'node:crypto';
 
 // Use native Node.js webcrypto which correctly mimics the Cloudflare Workers API
 const webcrypto = globalThis.crypto || require('node:crypto').webcrypto;

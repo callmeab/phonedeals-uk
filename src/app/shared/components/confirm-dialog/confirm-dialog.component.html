@@ -1,0 +1,62 @@
+<!-- Backdrop -->
+<div class="cd-backdrop" [class.cd-backdrop-visible]="visible" (click)="onCancel()"></div>
+
+<!-- Modal Panel -->
+<div class="cd-panel-wrap" [class.cd-panel-visible]="visible" role="alertdialog"
+     aria-modal="true" [attr.aria-labelledby]="'cd-title'" [attr.aria-describedby]="'cd-msg'">
+  <div class="cd-panel" #panel>
+
+    <!-- Icon -->
+    <div class="cd-icon-wrap" [ngClass]="iconClass">
+      <!-- Warning -->
+      <svg *ngIf="options.icon !== 'danger'" class="cd-icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <!-- Danger (leave) -->
+      <svg *ngIf="options.icon === 'danger'" class="cd-icon" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="15" y1="9" x2="9" y2="15"/>
+        <line x1="9" y1="9" x2="15" y2="15"/>
+      </svg>
+    </div>
+
+    <!-- Content -->
+    <div class="cd-body">
+      <h2 class="cd-title" id="cd-title">{{ options.title }}</h2>
+      <p class="cd-message" id="cd-msg">{{ options.message }}</p>
+    </div>
+
+    <!-- Warning chips -->
+    <div class="cd-chips">
+      <span class="cd-chip">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+        Your progress will be lost
+      </span>
+      <span class="cd-chip">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+        Form data is not saved
+      </span>
+    </div>
+
+    <!-- Actions -->
+    <div class="cd-actions">
+      <button class="cd-btn-cancel" (click)="onCancel()" #cancelBtn>
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7 7-7"/>
+        </svg>
+        {{ options.cancelText }}
+      </button>
+      <button class="cd-btn-confirm" (click)="onConfirm()">
+        {{ options.confirmText }}
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+        </svg>
+      </button>
+    </div>
+
+  </div>
+</div>

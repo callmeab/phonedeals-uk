@@ -21,7 +21,7 @@ debugRouter.get('/image-check', async (c) => {
     return c.json({ success: false, error: 'Product not found' }, 404);
   }
 
-  const rawUrl = null;
+  let rawUrl: string | null = null;
   const r2PublicUrl = c.env.R2_PUBLIC_URL ?? null;
 
   return c.json({
@@ -30,12 +30,12 @@ debugRouter.get('/image-check', async (c) => {
       product_id: row.id,
       name: row.name,
       primary_image_url: null,
-      starts_with_https: rawUrl ? rawUrl.startsWith('https://') : false,
+      starts_with_https: rawUrl ? (rawUrl as string).startsWith('https://') : false,
       r2_public_url_configured: r2PublicUrl,
       r2_public_url_from_env: r2PublicUrl ?? '(not set — local dev uses /api/images proxy)',
       hint: !rawUrl
         ? 'No image URL stored in D1 for this product.'
-        : !rawUrl.startsWith('https://') && !rawUrl.includes('/api/images/')
+        : !(rawUrl as string).startsWith('https://') && !(rawUrl as string).includes('/api/images/')
           ? 'URL may be malformed — re-upload via admin panel.'
           : 'Paste variant image url into browser to test loading.',
     },

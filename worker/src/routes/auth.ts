@@ -31,7 +31,7 @@ async function verifyPassword(password: string, storedHashString: string): Promi
     const hashBuffer = await crypto.subtle.deriveBits(
       {
         name: 'PBKDF2',
-        salt: saltBytes,
+        salt: saltBytes as any,
         iterations: iterations,
         hash: 'SHA-256'
       },
