@@ -313,15 +313,10 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                             <span class="w-2 h-2 rounded-full bg-red-500"></span>
                             Out of Stock
                           </span>
-                        } @else if (variantStock()! <= 5) {
-                          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                            <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
-                            Only {{ variantStock() }} left
-                          </span>
                         } @else {
                           <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-bold bg-green-50 text-green-700 border border-green-200">
                             <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                            In Stock ({{ variantStock() }})
+                            In Stock
                           </span>
                         }
                         <p class="text-xs text-gray-400 mt-0.5">
