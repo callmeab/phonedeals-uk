@@ -77,34 +77,64 @@ import { OrderService, OrderDetails } from '../../../core/services/order.service
       <!-- Main Layout Grid -->
       <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
         
-        <!-- Left Col: Sales Analytics Placeholder -->
-        <div class="xl:col-span-2">
-          <div class="bg-white shadow-sm border border-gray-200 rounded-2xl p-6 h-full min-h-[400px] flex flex-col">
-            <h2 class="text-lg font-bold text-gray-900 tracking-tight">Sales Analytics</h2>
-            <div class="mt-6 flex-1 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 relative overflow-hidden group">
+        <!-- Left Col: Sales Analytics -->
+        <div class="xl:col-span-2 space-y-6">
+          
+          <!-- Revenue Chart -->
+          <div class="bg-white shadow-sm border border-gray-200 rounded-2xl p-6 h-full min-h-[350px] flex flex-col">
+            <div class="flex items-center justify-between mb-8">
+               <h2 class="text-lg font-bold text-gray-900 tracking-tight">Revenue (Last 7 Days)</h2>
+               <span class="text-sm font-medium text-gray-500">Upfront Sales</span>
+            </div>
+            
+            <div class="flex-1 flex items-end justify-between gap-2 sm:gap-4 h-full relative">
+              <!-- Y-axis guide lines -->
+              <div class="absolute inset-0 flex flex-col justify-between pointer-events-none pb-8">
+                 <div class="border-b border-gray-100 w-full h-full flex items-start"><span class="text-[10px] text-gray-400 -mt-2 bg-white pr-2 hidden sm:block">Max</span></div>
+                 <div class="border-b border-gray-100 w-full h-full"></div>
+                 <div class="border-b border-gray-100 w-full h-full"></div>
+                 <div class="border-b border-gray-100 w-full h-full flex items-end"><span class="text-[10px] text-gray-400 mb-[-10px] bg-white pr-2 hidden sm:block">0</span></div>
+              </div>
               
-              <!-- Fake chart visual -->
-              <div class="absolute bottom-0 left-0 w-full h-full flex items-end justify-between px-10 pb-10 opacity-30 pointer-events-none">
-                <div class="w-12 bg-indigo-200 rounded-t-md" style="height: 40%;"></div>
-                <div class="w-12 bg-indigo-300 rounded-t-md" style="height: 60%;"></div>
-                <div class="w-12 bg-indigo-400 rounded-t-md" style="height: 30%;"></div>
-                <div class="w-12 bg-indigo-500 rounded-t-md" style="height: 80%;"></div>
-                <div class="w-12 bg-indigo-400 rounded-t-md" style="height: 50%;"></div>
-                <div class="w-12 bg-indigo-600 rounded-t-md" style="height: 90%;"></div>
-                <div class="w-12 bg-indigo-500 rounded-t-md" style="height: 70%;"></div>
-              </div>
-
-              <div class="relative z-10 text-center">
-                <div class="mx-auto w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-8 h-8 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-                  </svg>
+              @for (day of revenueData(); track day.label) {
+                <div class="flex-1 flex flex-col items-center group relative h-full justify-end z-10">
+                  <!-- tooltip -->
+                  <div class="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-900 text-white text-xs px-2.5 py-1.5 rounded shadow-lg whitespace-nowrap z-20 pointer-events-none">
+                    {{ day.value | currency:'GBP' }}
+                    <div class="absolute w-2 h-2 bg-gray-900 rotate-45 -bottom-1 left-1/2 -translate-x-1/2"></div>
+                  </div>
+                  <!-- bar -->
+                  <div 
+                    class="w-full max-w-[48px] bg-indigo-500 rounded-t-md transition-all duration-700 ease-out group-hover:bg-indigo-600 relative" 
+                    [style.height.%]="day.percentage === 0 ? 1 : day.percentage"
+                  >
+                     <div class="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-t-md"></div>
+                  </div>
+                  <span class="text-xs sm:text-sm font-medium text-gray-500 mt-3">{{ day.label }}</span>
                 </div>
-                <h3 class="text-sm font-semibold text-gray-900">Advanced Analytics Coming Soon</h3>
-                <p class="mt-1 text-xs text-gray-500 max-w-[200px] mx-auto">We are building an enterprise-grade chart module to visualize your sales data.</p>
-              </div>
+              }
             </div>
           </div>
+
+          <!-- Order Status Distribution -->
+          <div class="bg-white shadow-sm border border-gray-200 rounded-2xl p-6">
+             <h2 class="text-lg font-bold text-gray-900 tracking-tight mb-6">Orders Overview</h2>
+             
+             <div class="space-y-4">
+                @for (status of statusDistribution(); track status.label) {
+                   <div>
+                     <div class="flex justify-between items-center mb-1">
+                       <span class="text-sm font-medium text-gray-700">{{ status.label }}</span>
+                       <span class="text-sm font-bold {{ status.text }}">{{ status.count }}</span>
+                     </div>
+                     <div class="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
+                       <div class="{{ status.color }} h-2 rounded-full transition-all duration-1000 ease-out" [style.width.%]="status.percent"></div>
+                     </div>
+                   </div>
+                }
+             </div>
+          </div>
+
         </div>
 
         <!-- Right Col: Recent Orders -->
@@ -174,6 +204,68 @@ export class AdminDashboardComponent implements OnInit {
 
   recentOrders = computed(() => {
     return this.orderService.orders().slice(0, 5);
+  });
+
+  revenueData = computed(() => {
+    const orders = this.orderService.orders();
+    const result: { date: Date; label: string; value: number; percentage: number }[] = [];
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    // Create an array of the last 7 dates
+    for(let i=6; i>=0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      result.push({
+        date: d,
+        label: d.toLocaleDateString('en-GB', { weekday: 'short' }),
+        value: 0,
+        percentage: 0
+      });
+    }
+
+    // Populate data
+    orders.forEach(o => {
+      const orderDate = new Date(o.date);
+      orderDate.setHours(0,0,0,0);
+      
+      const targetDay = result.find(r => r.date.getTime() === orderDate.getTime());
+      if(targetDay) {
+         targetDay.value += (o.totalUpfront || 0);
+      }
+    });
+
+    // Calculate percentages for chart heights
+    const maxVal = Math.max(...result.map(r => r.value));
+    return result.map(r => ({
+      ...r,
+      percentage: maxVal === 0 ? 0 : (r.value / maxVal) * 100
+    }));
+  });
+
+  statusDistribution = computed(() => {
+    const orders = this.orderService.orders();
+    const total = orders.length || 1; // avoid divide by zero
+    
+    const counts = {
+      Completed: 0,
+      Pending: 0,
+      Dispatched: 0,
+      Cancelled: 0
+    };
+    
+    orders.forEach(o => {
+      if(o.status === 'Completed' || o.status === 'Pending' || o.status === 'Dispatched' || o.status === 'Cancelled') {
+         counts[o.status]++;
+      }
+    });
+
+    return [
+      { label: 'Completed', count: counts.Completed, color: 'bg-green-500', text: 'text-green-600', percent: (counts.Completed / total) * 100 },
+      { label: 'Pending', count: counts.Pending, color: 'bg-amber-500', text: 'text-amber-600', percent: (counts.Pending / total) * 100 },
+      { label: 'Dispatched', count: counts.Dispatched, color: 'bg-blue-500', text: 'text-blue-600', percent: (counts.Dispatched / total) * 100 },
+      { label: 'Cancelled', count: counts.Cancelled, color: 'bg-red-500', text: 'text-red-600', percent: (counts.Cancelled / total) * 100 }
+    ];
   });
 
   ngOnInit() {
