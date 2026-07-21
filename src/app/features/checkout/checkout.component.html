@@ -105,6 +105,22 @@
                 </div>
               </div>
 
+              <!-- Email Address -->
+              <div class="form-group">
+                <label for="email">Email Address <span class="req">*</span></label>
+                <input id="email" type="email" formControlName="email"
+                       placeholder="e.g. james.smith@email.com"
+                       autocomplete="email"
+                       [class.input-error]="checkoutForm.get('personalDetails.email')?.touched && checkoutForm.get('personalDetails.email')?.invalid">
+                <div class="error-msg" *ngIf="checkoutForm.get('personalDetails.email')?.touched && checkoutForm.get('personalDetails.email')?.hasError('required')">
+                  Email address is required.
+                </div>
+                <div class="error-msg" *ngIf="checkoutForm.get('personalDetails.email')?.touched && checkoutForm.get('personalDetails.email')?.hasError('email')">
+                  Please enter a valid email address.
+                </div>
+                <p class="field-hint">Your order confirmation will be sent to this address.</p>
+              </div>
+
               <!-- Date of Birth -->
               <div class="form-group">
                 <label for="dob">Date of Birth <span class="req">*</span></label>
@@ -112,6 +128,9 @@
                        [class.input-error]="checkoutForm.get('personalDetails.dob')?.touched && checkoutForm.get('personalDetails.dob')?.invalid">
                 <div class="error-msg" *ngIf="checkoutForm.get('personalDetails.dob')?.touched && checkoutForm.get('personalDetails.dob')?.hasError('required')">
                   Date of birth is required.
+                </div>
+                <div class="error-msg" *ngIf="checkoutForm.get('personalDetails.dob')?.touched && checkoutForm.get('personalDetails.dob')?.hasError('minAge')">
+                  You must be at least 18 years old to proceed.
                 </div>
               </div>
 

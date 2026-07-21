@@ -9,6 +9,13 @@ export interface Env {
    * When unset, local dev serves images via GET /api/images/* proxy.
    */
   R2_PUBLIC_URL?: string;
+  /**
+   * Resend API key for transactional emails (order confirmation, shipping updates).
+   * Set via: wrangler secret put RESEND_API_KEY
+   * Get your key at: https://resend.com/api-keys
+   * Optional — if not set, emails are skipped (logged as warning) but orders still succeed.
+   */
+  RESEND_API_KEY?: string;
 }
 
 export interface ApiResponse<T> {

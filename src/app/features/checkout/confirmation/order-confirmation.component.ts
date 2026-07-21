@@ -21,14 +21,17 @@ import { Router } from '@angular/router';
         
         <div class="order-details-card">
           <p class="thank-you-text">
-            Thank you for your order. Your order number is:
+            Thank you for your order. Your order reference is:
           </p>
           <p class="order-id">
-            {{ orderId }}
+            {{ orderId || '—' }}
           </p>
-          <p class="email-text">
+          <p class="email-text" *ngIf="email">
             A confirmation email has been sent to <br>
             <strong class="email-address">{{ email }}</strong>
+          </p>
+          <p class="email-text" *ngIf="!email">
+            Check your inbox for a confirmation email.
           </p>
         </div>
 
@@ -44,20 +47,21 @@ export class OrderConfirmationComponent implements OnInit {
   private router = inject(Router);
 
   orderId: string = '';
-  email: string = '';
+  email: string   = '';
 
   ngOnInit() {
     const navigation = this.router.getCurrentNavigation();
-    const state = navigation?.extras.state as { orderId: string; email: string };
+    const state = navigation?.extras.state as { orderId: string; email: string } | undefined;
     
-    if (state) {
+    if (state?.orderId) {
+      // Preferred path: state passed via router.navigate()
       this.orderId = state.orderId;
-      this.email = state.email;
+      this.email   = state.email || '';
     } else {
-      // Fallback if accessed directly
+      // Fallback: user refreshed the page — history.state may still carry the values
       const stateFallback = history.state as { orderId?: string; email?: string };
-      this.orderId = stateFallback?.orderId || 'MOB-XXXXX';
-      this.email = stateFallback?.email || 'customer@example.com';
+      this.orderId = stateFallback?.orderId || '';
+      this.email   = stateFallback?.email   || '';
     }
   }
 

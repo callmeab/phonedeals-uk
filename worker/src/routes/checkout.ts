@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { Env } from '../types';
 import { validate } from '../utils/validate';
 import { sanitise } from '../utils/sanitise';
+import { sendOrderEmail, OrderEmailData } from '../utils/email';
 
 const checkoutRouter = new Hono<{ Bindings: Env }>();
 
@@ -14,7 +15,7 @@ checkoutRouter.get('/postcode-lookup', async (c) => {
   }
 
   // TODO: integrate getaddress.io (free tier: 20 lookups/day) or ideal-postcodes.co.uk (pay-as-you-go, ~1p per lookup) for production
-  
+
   // Hardcoded mock response for UI testing
   return c.json({
     success: true,
@@ -46,14 +47,14 @@ checkoutRouter.post('/create-intent', async (c) => {
       }
     }
 
-    // Return 400 early with special error struct if age restriction fails, 
+    // Return 400 early with special error struct if age restriction fails,
     // but the prompt says returns field-level errors as well.
     if (errors['dateOfBirth'] === 'You must be at least 18 years old') {
       return c.json({
         success: false,
         error: 'AGE_RESTRICTION',
         message: 'You must be at least 18 years old to complete this order',
-        errors 
+        errors
       }, 400);
     }
 
@@ -81,15 +82,37 @@ checkoutRouter.post('/create-intent', async (c) => {
       errors['title'] = 'Invalid title selected';
     }
 
-    // 7. Network provider validation
+    // 7. Network provider validation — also fetch deal+product info for the confirmation email
+    let dealInfo: {
+      network: string;
+      monthly_cost: number;
+      upfront_cost: number;
+      contract_months: number;
+      product_name?: string;
+    } | null = null;
+
     if (!body.dealId) {
       errors['dealId'] = 'Deal ID is required';
     } else {
-      const deal = await c.env.DB.prepare('SELECT network FROM deals WHERE id = ?').bind(body.dealId).first();
-      if (!deal) {
+      const dealRow = await c.env.DB.prepare(`
+        SELECT d.network, d.monthly_cost, d.upfront_cost, d.contract_months, p.name AS product_name
+        FROM deals d
+        LEFT JOIN products p ON p.id = d.product_id
+        WHERE d.id = ?
+      `).bind(body.dealId).first<{
+        network: string;
+        monthly_cost: number;
+        upfront_cost: number;
+        contract_months: number;
+        product_name?: string;
+      }>();
+
+      if (!dealRow) {
         errors['dealId'] = 'Deal not found';
-      } else if (body.networkProvider !== deal.network) {
+      } else if (body.networkProvider !== dealRow.network) {
         errors['networkProvider'] = 'Invalid network provider for this deal';
+      } else {
+        dealInfo = dealRow;
       }
     }
 
@@ -97,24 +120,31 @@ checkoutRouter.post('/create-intent', async (c) => {
       return c.json({ success: false, errors }, 400);
     }
 
+    // ── Save customer to DB ──────────────────────────────────────────────────
     // Data mapped directly to DB according to Module A schema & Migration 004
     const customerId = crypto.randomUUID();
+    const customerEmail     = sanitise.string(body.customer?.email)     || '';
+    const customerFirstName = sanitise.string(body.customer?.firstName) || '';
+    const customerLastName  = sanitise.string(body.customer?.lastName)  || '';
+
     await c.env.DB.prepare(`
       INSERT INTO customers (id, first_name, last_name, email, phone, date_of_birth, title, marketing_opt_in)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
       customerId,
-      sanitise.string(body.customer?.firstName),
-      sanitise.string(body.customer?.lastName),
-      sanitise.string(body.customer?.email),
+      customerFirstName,
+      customerLastName,
+      customerEmail,
       sanitise.string(body.customer?.mobile),
       sanitise.string(body.customer?.dateOfBirth),
       sanitise.string(body.customer?.title) || null,
       body.customer?.marketingOptIn ? 1 : 0
     ).run();
 
+    // ── Save order to DB ─────────────────────────────────────────────────────
     const orderId = crypto.randomUUID();
     const billing = body.sameAsDelivery ? delivery : (body.billingAddress || {});
+
     await c.env.DB.prepare(`
       INSERT INTO orders (
         id, customer_id, deal_id, status, network_provider, same_as_delivery,
@@ -140,7 +170,35 @@ checkoutRouter.post('/create-intent', async (c) => {
       sanitise.string(billing.postcode)
     ).run();
 
-    return c.json({ success: true, orderId });
+    // ── Send confirmation email (non-blocking — order succeeds regardless) ───
+    // If email fails, the error is logged but does NOT affect the HTTP response.
+    if (customerEmail && dealInfo) {
+      const emailData: OrderEmailData = {
+        orderId,
+        customerName:   `${customerFirstName} ${customerLastName}`.trim(),
+        customerEmail,
+        productName:    dealInfo.product_name || 'Smartphone',
+        network:        dealInfo.network,
+        contractMonths: dealInfo.contract_months,
+        monthlyAmount:  dealInfo.monthly_cost,
+        upfrontAmount:  dealInfo.upfront_cost,
+        deliveryAddress: {
+          line1:    sanitise.string(delivery.line1)   || '',
+          line2:    sanitise.string(delivery.line2)   || null,
+          city:     sanitise.string(delivery.city)    || '',
+          county:   sanitise.string(delivery.county)  || null,
+          postcode: sanitise.string(delivery.postcode) || '',
+        },
+      };
+      c.executionCtx.waitUntil(
+        sendOrderEmail('confirmation', c.env, emailData).catch((err) => {
+          console.error('[checkout] Unexpected error in sendOrderEmail:', err);
+        })
+      );
+    }
+
+    // Return real orderId and customer email so the frontend can display them
+    return c.json({ success: true, orderId, email: customerEmail });
 
   } catch (error: any) {
     console.error('Checkout error:', error);

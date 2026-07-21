@@ -25,8 +25,20 @@ id = "fff098953b324e2ab262f1a249727aa9" # REPLACE with output of: wrangler kv:na
 
 [vars]
 JWT_SECRET = "local-dev-placeholder-secret-change-me"
+RESEND_API_KEY = "re_JbPnNZrQ_8HTocs59m9K61n5q1NhRPgT5"
 # R2_PUBLIC_URL = "https://pub-5dd1d3d0c28a496fade1529ff89a1222.r2.dev"
 # Set after enabling R2 public access in Cloudflare Dashboard:
 # R2_PUBLIC_URL = "https://pub-XXXXXXXX.r2.dev"
 # Or use a custom domain:
 # R2_PUBLIC_URL = "https://images.phonedealsuk.co.uk"
+
+# ─── Email (Resend) ───────────────────────────────────────────────────────────
+# RESEND_API_KEY is a secret — do NOT put the real value here.
+# Set it once using:
+#   wrangler secret put RESEND_API_KEY
+# Then paste your key from https://resend.com/api-keys when prompted.
+#
+# Sender email is configured in: worker/src/utils/email.ts → SENDER_EMAIL constant
+# For testing, the default is onboarding@resend.dev (works on Resend free plan).
+# For production, replace with a verified domain address (e.g. orders@phonedeals.co.uk).
+

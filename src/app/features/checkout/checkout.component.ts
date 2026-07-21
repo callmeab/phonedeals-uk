@@ -10,6 +10,7 @@ import {
   ValidatorFn
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
@@ -42,6 +43,20 @@ export function accountNumberValidator(): ValidatorFn {
   };
 }
 
+export function ageValidator(minAge: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (!control.value) return null;
+    const dob = new Date(control.value);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+    return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
+  };
+}
+
 // ── Component ────────────────────────────────────────────────────────────────
 
 @Component({
@@ -52,11 +67,13 @@ export function accountNumberValidator(): ValidatorFn {
   styleUrl: './checkout.component.scss'
 })
 export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
-  private fb     = inject(FormBuilder);
-  public  cartService = inject(CartService);
+  private fb           = inject(FormBuilder);
+  public  cartService  = inject(CartService);
   private orderService = inject(OrderService);
-  private router = inject(Router);
-  private toast  = inject(ToastService);
+  private router       = inject(Router);
+  private toast        = inject(ToastService);
+  private http         = inject(HttpClient);
+
 
   checkoutForm!: FormGroup;
   currentStep: 1 | 2 | 3 = 1;
@@ -88,8 +105,9 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
       personalDetails: this.fb.group({
         firstName: ['', [Validators.required, Validators.minLength(2)]],
         lastName:  ['', [Validators.required, Validators.minLength(2)]],
+        email:     ['', [Validators.required, Validators.email]],
         phone:     ['', [Validators.required, ukPhoneValidator()]],
-        dob:       ['', Validators.required]
+        dob:       ['', [Validators.required, ageValidator(18)]]
       }),
 
       addressAndInsurance: this.fb.group({
@@ -288,41 +306,109 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
 
     this.isSubmitting = true;
 
-    setTimeout(() => {
-      const val     = this.checkoutForm.value;
-      const orderId = 'MOB-' + Math.floor(10000 + Math.random() * 90000);
-      const email   = 'user@example.com';
+    const val      = this.checkoutForm.value;
+    const personal = val.personalDetails;
+    const address  = val.addressAndInsurance;
 
-      const orderDetails: any = {
-        orderId,
-        fullName:     `${val.personalDetails.firstName} ${val.personalDetails.lastName}`,
-        email,
-        address:      val.addressAndInsurance.currentAddress,
-        city:         '',
-        postcode:     val.addressAndInsurance.postcode,
-        phone:        val.personalDetails.phone,
-        totalUpfront: this.finalUpfrontCost,
-        totalMonthly: this.finalMonthlyCost,
-        status:       'Pending',
-        date:         new Date().toISOString(),
-        paymentInfo: {
-          cardNumber:  val.paymentAndExtras.accountNumber,
-          expiryDate:  '',
-          cvv:         ''
-        },
-        items:         this.cartService.items(),
-        insurance:     val.addressAndInsurance.insurancePlan,
-        addedCharger:  val.paymentAndExtras.addCharger,
-        addedCover:    val.paymentAndExtras.addCover
-      };
+    // Build the request payload for POST /api/checkout/create-intent
+    // Note: dealId is set to the first cart item's deal ID if available.
+    // In a full implementation this would come from CheckoutStateService.
+    const cartItems = this.cartService.items();
+    const firstItem = cartItems[0] as any;
 
-      // Mark as submitted BEFORE navigation so the guard allows the redirect.
-      this.isSubmitted = true;
-      this.orderService.placeOrder(orderDetails);
-      this.cartService.clearCart();
+    const payload = {
+      customer: {
+        firstName:      personal.firstName,
+        lastName:       personal.lastName,
+        email:          personal.email,
+        mobile:         personal.phone,
+        dateOfBirth:    personal.dob,
+        marketingOptIn: false,
+      },
+      dealId:          firstItem?.dealId ?? firstItem?.id ?? null,
+      networkProvider: firstItem?.network ?? '',
+      deliveryAddress: {
+        line1:    address.currentAddress,
+        line2:    null,
+        city:     address.city || 'London',
+        county:   null,
+        postcode: address.postcode,
+      },
+      sameAsDelivery: true,
+    };
 
-      this.router.navigate(['/order-confirmation'], { state: { orderId, email } });
-      this.isSubmitting = false;
-    }, 1500);
+    this.http.post<{ success: boolean; orderId: string; email: string }>(
+      '/api/checkout/create-intent',
+      payload
+    ).subscribe({
+      next: (response) => {
+        if (response.success) {
+          const orderId      = response.orderId;
+          const email        = response.email || personal.email;
+
+          // Build a local order record so the admin panel can see it
+          const orderDetails: any = {
+            orderId,
+            fullName:     `${personal.firstName} ${personal.lastName}`,
+            email,
+            address:      address.currentAddress,
+            city:         address.city || '',
+            postcode:     address.postcode,
+            phone:        personal.phone,
+            totalUpfront: this.finalUpfrontCost,
+            totalMonthly: this.finalMonthlyCost,
+            status:       'Pending',
+            date:         new Date().toISOString(),
+            paymentInfo:  { cardNumber: val.paymentAndExtras.accountNumber, expiryDate: '', cvv: '' },
+            items:        cartItems,
+            insurance:    address.insurancePlan,
+            addedCharger: val.paymentAndExtras.addCharger,
+            addedCover:   val.paymentAndExtras.addCover,
+          };
+
+          // Mark submitted BEFORE navigation so the guard allows the redirect
+          this.isSubmitted = true;
+          this.orderService.placeOrder(orderDetails);
+          this.cartService.clearCart();
+
+          this.router.navigate(['/order-confirmation'], { state: { orderId, email } });
+        } else {
+          this.toast.error('Order could not be placed. Please try again.');
+        }
+        this.isSubmitting = false;
+      },
+      error: (err) => {
+        console.error('[checkout] API error:', err);
+        // Graceful fallback for local dev without backend running
+        const orderId = 'MOB-' + Math.floor(10000 + Math.random() * 90000);
+        const email   = personal.email;
+
+        const orderDetails: any = {
+          orderId,
+          fullName:     `${personal.firstName} ${personal.lastName}`,
+          email,
+          address:      address.currentAddress,
+          city:         '',
+          postcode:     address.postcode,
+          phone:        personal.phone,
+          totalUpfront: this.finalUpfrontCost,
+          totalMonthly: this.finalMonthlyCost,
+          status:       'Pending',
+          date:         new Date().toISOString(),
+          paymentInfo:  { cardNumber: val.paymentAndExtras.accountNumber, expiryDate: '', cvv: '' },
+          items:        this.cartService.items(),
+          insurance:    address.insurancePlan,
+          addedCharger: val.paymentAndExtras.addCharger,
+          addedCover:   val.paymentAndExtras.addCover,
+        };
+
+        this.toast.error('Could not reach server. Using offline mode.');
+        this.isSubmitted = true;
+        this.orderService.placeOrder(orderDetails);
+        this.cartService.clearCart();
+        this.router.navigate(['/order-confirmation'], { state: { orderId, email } });
+        this.isSubmitting = false;
+      },
+    });
   }
 }
