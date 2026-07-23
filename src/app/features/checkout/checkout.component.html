@@ -207,6 +207,16 @@
                   Current address is required.
                 </div>
               </div>
+
+              <div class="form-group col-span-full">
+                <label for="city">City / Town <span class="req">*</span></label>
+                <input id="city" type="text" formControlName="city"
+                       placeholder="e.g. London, Manchester, Birmingham"
+                       [class.input-error]="checkoutForm.get('addressAndInsurance.city')?.touched && checkoutForm.get('addressAndInsurance.city')?.invalid">
+                <div class="error-msg" *ngIf="checkoutForm.get('addressAndInsurance.city')?.touched && checkoutForm.get('addressAndInsurance.city')?.hasError('required')">
+                  City is required.
+                </div>
+              </div>
             </div>
 
             <!-- Time at address buttons -->

@@ -113,6 +113,7 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
       addressAndInsurance: this.fb.group({
         postcode:       ['', Validators.required],
         currentAddress: ['', Validators.required],
+        city:           ['', Validators.required],
         timeAtAddress:  ['1-2 Years', Validators.required],
         insurancePlan:  ['none'],       // 'none' | 'lite' | 'complete'
         insuranceBilling: ['monthly']  // 'monthly' | 'annual'
@@ -330,7 +331,7 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
       deliveryAddress: {
         line1:    address.currentAddress,
         line2:    null,
-        city:     address.city || 'London',
+        city:     address.city,
         county:   null,
         postcode: address.postcode,
       },
