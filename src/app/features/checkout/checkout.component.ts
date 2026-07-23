@@ -82,6 +82,8 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
    *  blocks the automatic redirect to /order-confirmation. */
   isSubmitted = false;
   stepAnimating = false;
+  /** Stores a user-visible error message when the order API call fails. */
+  submitError: string | null = null;
 
   readonly timeAtAddressOptions = ['<1 Year', '1-2 Years', '2-5 Years', '5+ Years'];
   readonly timeWithBankOptions   = ['<1 Year', '1-2 Years', '2-5 Years', '5-10 Years', '10+ Years'];
@@ -338,6 +340,8 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
       sameAsDelivery: true,
     };
 
+    this.submitError = null;  // clear previous errors on retry
+
     this.http.post<{ success: boolean; orderId: string; email: string }>(
       '/api/checkout/create-intent',
       payload
@@ -374,42 +378,35 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
 
           this.router.navigate(['/order-confirmation'], { state: { orderId, email } });
         } else {
-          this.toast.error('Order could not be placed. Please try again.');
+          this.submitError = 'Your order could not be placed. Please check your details and try again.';
+          this.toast.error(this.submitError);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
         }
         this.isSubmitting = false;
       },
       error: (err) => {
         console.error('[checkout] API error:', err);
-        // Graceful fallback for local dev without backend running
-        const orderId = 'MOB-' + Math.floor(10000 + Math.random() * 90000);
-        const email   = personal.email;
 
-        const orderDetails: any = {
-          orderId,
-          fullName:     `${personal.firstName} ${personal.lastName}`,
-          email,
-          address:      address.currentAddress,
-          city:         '',
-          postcode:     address.postcode,
-          phone:        personal.phone,
-          totalUpfront: this.finalUpfrontCost,
-          totalMonthly: this.finalMonthlyCost,
-          status:       'Pending',
-          date:         new Date().toISOString(),
-          paymentInfo:  { cardNumber: val.paymentAndExtras.accountNumber, expiryDate: '', cvv: '' },
-          items:        this.cartService.items(),
-          insurance:    address.insurancePlan,
-          addedCharger: val.paymentAndExtras.addCharger,
-          addedCover:   val.paymentAndExtras.addCover,
-        };
+        // Extract a meaningful message from the API response if available
+        const apiErrors = err?.error?.errors as Record<string, string> | undefined;
+        if (apiErrors && Object.keys(apiErrors).length > 0) {
+          const messages = Object.values(apiErrors).join(' • ');
+          this.submitError = `Please fix the following: ${messages}`;
+        } else if (err?.error?.message) {
+          this.submitError = err.error.message;
+        } else if (err.status === 0) {
+          this.submitError = 'Unable to connect to the server. Please check your internet connection and try again.';
+        } else if (err.status >= 500) {
+          this.submitError = 'Our server encountered an error. Please try again in a few minutes.';
+        } else {
+          this.submitError = 'Something went wrong while placing your order. Please try again.';
+        }
 
-        this.toast.error('Could not reach server. Using offline mode.');
-        this.isSubmitted = true;
-        this.orderService.placeOrder(orderDetails);
-        this.cartService.clearCart();
-        this.router.navigate(['/order-confirmation'], { state: { orderId, email } });
+        this.toast.error(this.submitError);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         this.isSubmitting = false;
       },
     });
   }
 }
+
