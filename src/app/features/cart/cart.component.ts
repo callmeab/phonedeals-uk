@@ -50,11 +50,12 @@ import { CartService } from '../../core/services/cart.service';
                   }
 
                   <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
-                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg border border-gray-200">
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-gray-200 rounded-xl shadow-sm">
                       @if (getNetworkLogo(item.network); as logoUrl) {
-                        <img [src]="logoUrl" [alt]="item.network" class="h-4 w-auto object-contain rounded-sm" />
+                        <img [src]="logoUrl" [alt]="item.network" class="h-5 w-auto object-contain" />
+                      } @else {
+                        <span class="text-xs font-bold text-gray-700">{{ item.network }}</span>
                       }
-                      <span>{{ item.network }}</span>
                     </span>
                     <span class="text-sm font-semibold text-gray-500">{{ item.contractMonths }} Month Contract</span>
                     <span class="text-sm font-semibold text-gray-500 border-l border-gray-300 pl-2">{{ item.dataGb === 9999 ? 'Unlimited Data' : item.dataGb + 'GB Data' }}</span>

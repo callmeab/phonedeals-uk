@@ -45,4 +45,16 @@ export class AdminOrderDetailComponent implements OnInit {
       default: return 'bg-gray-100 text-gray-800';
     }
   }
+
+  getNetworkLogo(network: string): string {
+    const net = network.toLowerCase().replace(/\s+/g, '-');
+    if (net === 'ee') return '/EE-sim-logo.png';
+    if (net === 'o2') return '/O2-sim-logo.jpg';
+    if (net === 'vodafone') return '/Vodafone-sim-logo.png';
+    if (net === 'three') return '/three-sim-logo.jpg';
+    if (net === 'sky-mobile') return '/sky-mobile-sim-logo.jpg';
+    if (net === 'id-mobile') return '/id-mobile-sim-logo.png';
+    if (net === 'bt-mobile') return '/BT-mobile-sim-logo.png';
+    return '';
+  }
 }

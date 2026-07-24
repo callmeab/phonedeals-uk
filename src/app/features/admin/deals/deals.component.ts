@@ -144,11 +144,12 @@ import { Product } from '../../../core/models/product.model';
               <!-- Card Header: Network + Status -->
               <div class="flex items-center justify-between px-5 pt-5 pb-3">
                 <div class="flex items-center gap-2.5">
-                  <span
-                    class="px-2.5 py-1 rounded-full text-xs font-bold tracking-wide"
-                    [ngClass]="getNetworkClasses(deal.network)"
-                  >
-                    {{ deal.network }}
+                  <span class="inline-flex items-center px-2.5 py-1 rounded-xl bg-white border border-gray-200 shadow-sm">
+                    @if (getNetworkLogo(deal.network); as logoUrl) {
+                      <img [src]="logoUrl" [alt]="deal.network" class="h-6 w-auto object-contain" />
+                    } @else {
+                      <span class="text-xs font-bold text-gray-700">{{ deal.network }}</span>
+                    }
                   </span>
                   <span class="px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 text-xs font-medium">
                     {{ deal.contract_months }} months
@@ -630,6 +631,18 @@ export class AdminDealsComponent implements OnInit {
     const colours = NETWORK_COLOURS[network];
     if (!colours) return 'bg-gray-100 text-gray-700';
     return `${colours.bg} ${colours.text}`;
+  }
+
+  getNetworkLogo(network: string): string {
+    const net = network.toLowerCase().replace(/\s+/g, '-');
+    if (net === 'ee') return '/EE-sim-logo.png';
+    if (net === 'o2') return '/O2-sim-logo.jpg';
+    if (net === 'vodafone') return '/Vodafone-sim-logo.png';
+    if (net === 'three') return '/three-sim-logo.jpg';
+    if (net === 'sky-mobile') return '/sky-mobile-sim-logo.jpg';
+    if (net === 'id-mobile') return '/id-mobile-sim-logo.png';
+    if (net === 'bt-mobile') return '/BT-mobile-sim-logo.png';
+    return '';
   }
 
   parseHighlights(json: string | null): string[] {

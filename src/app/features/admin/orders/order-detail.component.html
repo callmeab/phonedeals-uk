@@ -105,7 +105,16 @@
                   <h3>{{ item.productName }}</h3>
                   <p class="ml-4">£{{ item.upfrontCost }} upfront</p>
                 </div>
-                <p class="mt-1 text-sm text-gray-500">Network: {{ item.network }}</p>
+                <p class="mt-1 text-sm text-gray-500 flex items-center gap-2">
+                  Network:
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-lg bg-white border border-gray-200 shadow-sm">
+                    @if (getNetworkLogo(item.network); as logoUrl) {
+                      <img [src]="logoUrl" [alt]="item.network" class="h-5 w-auto object-contain" />
+                    } @else {
+                      <span class="text-xs font-bold text-gray-700">{{ item.network }}</span>
+                    }
+                  </span>
+                </p>
                 <p class="mt-1 text-sm text-gray-500">Data: {{ item.dataGb }}GB</p>
                 <p class="mt-1 text-sm text-gray-500">Contract: {{ item.contractMonths }} Months</p>
               </div>

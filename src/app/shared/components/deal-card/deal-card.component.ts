@@ -33,13 +33,13 @@ import { CartService } from '../../../core/services/cart.service';
 
       <!-- Network header strip -->
       <div class="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
-        <!-- Network badge -->
-        <!-- Network badge -->
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gray-50 border border-gray-150/80">
+        <!-- Network badge with logo -->
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-gray-200 shadow-sm">
           @if (getNetworkLogo(deal.network); as logoUrl) {
-            <img [src]="logoUrl" [alt]="deal.network" class="h-6 w-auto object-contain rounded" />
+            <img [src]="logoUrl" [alt]="deal.network" class="h-7 w-auto object-contain" />
+          } @else {
+            <span class="text-xs font-bold text-gray-700 tracking-wide">{{ deal.network }}</span>
           }
-          <span class="text-xs font-bold text-gray-700 tracking-wide">{{ deal.network }}</span>
         </span>
 
         <!-- Contract length -->
