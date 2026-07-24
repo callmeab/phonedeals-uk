@@ -1,4 +1,4 @@
-﻿import {
+import {
   Component, ChangeDetectionStrategy, inject, signal, OnInit, PLATFORM_ID
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
@@ -47,6 +47,18 @@ export class HomeComponent implements OnInit {
     { name: 'iD Mobile',  classes: 'bg-purple-100 text-purple-800 border-purple-200'  },
     { name: 'BT Mobile',  classes: 'bg-indigo-100 text-indigo-800 border-indigo-200'  },
   ];
+
+  getNetworkLogo(network: string): string {
+    const net = network.toLowerCase().replace(/\s+/g, '-');
+    if (net === 'ee') return '/EE-sim-logo.png';
+    if (net === 'o2') return '/O2-sim-logo.jpg';
+    if (net === 'vodafone') return '/Vodafone-sim-logo.png';
+    if (net === 'three') return '/three-sim-logo.jpg';
+    if (net === 'sky-mobile') return '/sky-mobile-sim-logo.jpg';
+    if (net === 'id-mobile') return '/id-mobile-sim-logo.png';
+    if (net === 'bt-mobile') return '/BT-mobile-sim-logo.png';
+    return '';
+  }
 
   readonly howItWorks = [
     {

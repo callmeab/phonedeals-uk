@@ -62,6 +62,7 @@ async function callResendApi(
       body: JSON.stringify({
         from: `${SENDER_NAME} <${SENDER_EMAIL}>`,
         to: [to],
+        reply_to: SUPPORT_EMAIL,
         subject,
         html,
       }),

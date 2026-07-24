@@ -34,11 +34,12 @@ import { CartService } from '../../../core/services/cart.service';
       <!-- Network header strip -->
       <div class="flex items-center justify-between px-5 pt-5 pb-4 border-b border-gray-100">
         <!-- Network badge -->
-        <span
-          class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-extrabold tracking-wide"
-          [ngClass]="networkClasses"
-        >
-          {{ deal.network }}
+        <!-- Network badge -->
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gray-50 border border-gray-150/80">
+          @if (getNetworkLogo(deal.network); as logoUrl) {
+            <img [src]="logoUrl" [alt]="deal.network" class="h-6 w-auto object-contain rounded" />
+          }
+          <span class="text-xs font-bold text-gray-700 tracking-wide">{{ deal.network }}</span>
         </span>
 
         <!-- Contract length -->
@@ -188,6 +189,18 @@ export class DealCardComponent {
     } catch {
       return [];
     }
+  }
+
+  getNetworkLogo(network: string): string {
+    const net = network.toLowerCase().replace(/\s+/g, '-');
+    if (net === 'ee') return '/EE-sim-logo.png';
+    if (net === 'o2') return '/O2-sim-logo.jpg';
+    if (net === 'vodafone') return '/Vodafone-sim-logo.png';
+    if (net === 'three') return '/three-sim-logo.jpg';
+    if (net === 'sky-mobile') return '/sky-mobile-sim-logo.jpg';
+    if (net === 'id-mobile') return '/id-mobile-sim-logo.png';
+    if (net === 'bt-mobile') return '/BT-mobile-sim-logo.png';
+    return '';
   }
 
   get networkClasses(): string {

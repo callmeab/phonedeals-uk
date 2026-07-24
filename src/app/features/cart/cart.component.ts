@@ -50,7 +50,12 @@ import { CartService } from '../../core/services/cart.service';
                   }
 
                   <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
-                    <span class="inline-block px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg">{{ item.network }}</span>
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 text-gray-700 text-xs font-bold rounded-lg border border-gray-200">
+                      @if (getNetworkLogo(item.network); as logoUrl) {
+                        <img [src]="logoUrl" [alt]="item.network" class="h-4 w-auto object-contain rounded-sm" />
+                      }
+                      <span>{{ item.network }}</span>
+                    </span>
                     <span class="text-sm font-semibold text-gray-500">{{ item.contractMonths }} Month Contract</span>
                     <span class="text-sm font-semibold text-gray-500 border-l border-gray-300 pl-2">{{ item.dataGb === 9999 ? 'Unlimited Data' : item.dataGb + 'GB Data' }}</span>
                   </div>
@@ -109,4 +114,16 @@ import { CartService } from '../../core/services/cart.service';
 })
 export class CartComponent {
   public cart = inject(CartService);
+
+  getNetworkLogo(network: string): string {
+    const net = network.toLowerCase().replace(/\s+/g, '-');
+    if (net === 'ee') return '/EE-sim-logo.png';
+    if (net === 'o2') return '/O2-sim-logo.jpg';
+    if (net === 'vodafone') return '/Vodafone-sim-logo.png';
+    if (net === 'three') return '/three-sim-logo.jpg';
+    if (net === 'sky-mobile') return '/sky-mobile-sim-logo.jpg';
+    if (net === 'id-mobile') return '/id-mobile-sim-logo.png';
+    if (net === 'bt-mobile') return '/BT-mobile-sim-logo.png';
+    return '';
+  }
 }
