@@ -402,7 +402,7 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
           this.submitError = 'Something went wrong while placing your order. Please try again.';
         }
 
-        this.toast.error(this.submitError);
+        this.toast.error(this.submitError ?? 'Something went wrong while placing your order. Please try again.');
         window.scrollTo({ top: 0, behavior: 'smooth' });
         this.isSubmitting = false;
       },
