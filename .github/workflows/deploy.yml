@@ -17,6 +17,18 @@ jobs:
         with:
           node-version: '22'
 
+      - name: Validate Cloudflare Secrets
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ] || [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
+            echo "❌ Missing required secrets: CLOUDFLARE_API_TOKEN or CLOUDFLARE_ACCOUNT_ID"
+            echo "Please add them in: GitHub repo → Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          echo "✅ Cloudflare secrets found"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Install Root Dependencies
         run: npm ci
 
@@ -24,7 +36,7 @@ jobs:
         run: cd worker && npm ci
 
       - name: Deploy Cloudflare Worker
-        run: cd worker && npx wrangler deploy
+        run: cd worker && npx wrangler deploy --api-token "$CLOUDFLARE_API_TOKEN" --account-id "$CLOUDFLARE_ACCOUNT_ID"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -32,15 +44,13 @@ jobs:
       - name: Generate Prerender Routes
         run: node scripts/generate-prerender-routes.mjs
         env:
-          # Assuming the worker deploys to this default dev domain.
-          # If using a custom domain, update this to match your actual API endpoint.
-          API_URL: https://phonedeals-uk-api.workers.dev
+          API_URL: https://api.phonedealsuk.co.uk
 
       - name: Build Angular Application
         run: npx ng build --configuration=production
 
       - name: Deploy Cloudflare Pages
-        run: npx wrangler pages deploy dist/phonedeals-uk/browser --project-name=phonedeals-uk
+        run: npx wrangler pages deploy dist/phonedeals-uk/browser --project-name=phonedeals-uk --api-token "$CLOUDFLARE_API_TOKEN" --account-id "$CLOUDFLARE_ACCOUNT_ID"
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
