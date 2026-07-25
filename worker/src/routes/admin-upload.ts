@@ -15,11 +15,11 @@ const uploadHandler = async (c: Context<{ Bindings: Env }>) => {
       return c.json({ success: false, error: 'No file provided' }, 400);
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024;
+    // Validate file size (max 10MB)
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      console.warn(`Upload rejected: File size ${file.size} exceeds 5MB limit`);
-      return c.json({ success: false, error: 'File size exceeds 5MB limit' }, 400);
+      console.warn(`Upload rejected: File size ${file.size} exceeds 10MB limit`);
+      return c.json({ success: false, error: 'File size exceeds 10MB limit' }, 400);
     }
 
     // Validate MIME type

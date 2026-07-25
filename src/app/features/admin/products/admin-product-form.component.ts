@@ -250,20 +250,20 @@ function frontendSlugify(text: string): string {
               @for (colorGroup of variantsByColor(); track colorGroup.color) {
                 <div class="border-b border-gray-100 last:border-b-0">
                   <!-- Color header row -->
-                  <div class="px-6 py-3 bg-purple-50 border-b border-purple-100 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
+                  <div class="px-6 py-3 bg-purple-50 border-b border-purple-100 flex items-center justify-between gap-3 flex-wrap">
+                    <div class="flex items-center gap-3 flex-shrink-0">
                       <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800">
                         {{ colorGroup.color }}
                       </span>
                       <span class="text-sm text-gray-500">{{ colorGroup.variants.length }} variant{{ colorGroup.variants.length === 1 ? '' : 's' }}</span>
                     </div>
                     <!-- Per-color image upload -->
-                    <div class="flex items-center gap-2">
+                    <div class="flex items-center gap-2 flex-wrap min-w-0">
                       @if (colorImages(colorGroup.color).length > 0) {
-                        <div class="flex gap-1 items-center">
-                          <span class="text-xs text-gray-500 mr-2">{{ colorImages(colorGroup.color).length }} image(s) uploaded</span>
+                        <div class="flex gap-1 items-center flex-wrap min-w-0">
+                          <span class="text-xs text-gray-500 mr-1 whitespace-nowrap">{{ colorImages(colorGroup.color).length }} image(s) uploaded</span>
                           @for (img of colorImages(colorGroup.color); track img; let i = $index) {
-                            <div class="relative group">
+                            <div class="relative group flex-shrink-0">
                               <img [src]="img" class="h-10 w-10 rounded-md object-cover border border-gray-200 shadow-sm">
                               <button type="button" (click)="removeVariantImage(colorGroup.color, i)"
                                 class="absolute -top-1.5 -right-1.5 bg-red-100 text-red-600 rounded-full p-0.5 shadow-sm hover:bg-red-200 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus:opacity-100">
@@ -273,7 +273,7 @@ function frontendSlugify(text: string): string {
                           }
                         </div>
                       }
-                      <label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs font-medium text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-accent focus-within:ring-offset-1">
+                      <label class="inline-flex flex-shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs font-medium text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-accent focus-within:ring-offset-1 whitespace-nowrap">
                         <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                         {{ colorImages(colorGroup.color).length > 0 ? 'Add more' : 'Upload images' }}
                         <input type="file" class="sr-only" accept="image/*" multiple (change)="onVariantImageSelected($event, colorGroup.color)">
