@@ -1,0 +1,17 @@
+name = "phonedeals-uk-api"
+main = "src/index.ts"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "phonedeals-uk-db"
+database_id = "c42d58ea-707a-4d15-aa1c-9d79d618bd80"
+
+[[r2_buckets]]
+binding = "IMAGES"
+bucket_name = "phonedeals-uk-images"
+
+[[kv_namespaces]]
+binding = "SESSIONS"
+id = "fff098953b324e2ab262f1a249727aa9"
