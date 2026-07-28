@@ -108,6 +108,76 @@ function frontendSlugify(text: string): string {
                 ></textarea>
               </div>
 
+              <!-- Condition Row -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-3">Product Condition <span class="text-red-500">*</span></label>
+                <div class="grid grid-cols-2 gap-3 max-w-sm" formGroupName="">
+                  <!-- New -->
+                  <label
+                    class="relative flex cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-accent focus-within:ring-offset-1"
+                    [class.border-accent]="form.get('condition')?.value === 'new'"
+                    [class.bg-blue-50]="form.get('condition')?.value === 'new'"
+                    [class.border-gray-200]="form.get('condition')?.value !== 'new'"
+                    [class.bg-white]="form.get('condition')?.value !== 'new'"
+                  >
+                    <input type="radio" formControlName="condition" value="new" class="sr-only">
+                    <div class="flex flex-col gap-1.5">
+                      <div class="flex items-center gap-2">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-full"
+                          [class.bg-accent]="form.get('condition')?.value === 'new'"
+                          [class.bg-gray-100]="form.get('condition')?.value !== 'new'"
+                        >
+                          <svg class="h-4 w-4" [class.text-white]="form.get('condition')?.value === 'new'" [class.text-gray-400]="form.get('condition')?.value !== 'new'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" />
+                          </svg>
+                        </span>
+                        <span class="text-sm font-semibold" [class.text-accent]="form.get('condition')?.value === 'new'" [class.text-gray-700]="form.get('condition')?.value !== 'new'">New</span>
+                      </div>
+                      <p class="text-xs text-gray-500 leading-tight">Brand new, sealed in box</p>
+                    </div>
+                    @if (form.get('condition')?.value === 'new') {
+                      <span class="absolute top-2 right-2">
+                        <svg class="h-4 w-4 text-accent" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    }
+                  </label>
+
+                  <!-- Refurbished -->
+                  <label
+                    class="relative flex cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-amber-400 focus-within:ring-offset-1"
+                    [class.border-amber-400]="form.get('condition')?.value === 'refurbished'"
+                    [class.bg-amber-50]="form.get('condition')?.value === 'refurbished'"
+                    [class.border-gray-200]="form.get('condition')?.value !== 'refurbished'"
+                    [class.bg-white]="form.get('condition')?.value !== 'refurbished'"
+                  >
+                    <input type="radio" formControlName="condition" value="refurbished" class="sr-only">
+                    <div class="flex flex-col gap-1.5">
+                      <div class="flex items-center gap-2">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-full"
+                          [class.bg-amber-400]="form.get('condition')?.value === 'refurbished'"
+                          [class.bg-gray-100]="form.get('condition')?.value !== 'refurbished'"
+                        >
+                          <svg class="h-4 w-4" [class.text-white]="form.get('condition')?.value === 'refurbished'" [class.text-gray-400]="form.get('condition')?.value !== 'refurbished'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                        </span>
+                        <span class="text-sm font-semibold" [class.text-amber-600]="form.get('condition')?.value === 'refurbished'" [class.text-gray-700]="form.get('condition')?.value !== 'refurbished'">Refurbished</span>
+                      </div>
+                      <p class="text-xs text-gray-500 leading-tight">Tested &amp; certified pre-owned</p>
+                    </div>
+                    @if (form.get('condition')?.value === 'refurbished') {
+                      <span class="absolute top-2 right-2">
+                        <svg class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    }
+                  </label>
+                </div>
+              </div>
+
               <!-- Toggles Row -->
               <div class="flex flex-col sm:flex-row gap-8 pt-2">
                 <div class="flex items-center">
@@ -406,6 +476,7 @@ export class AdminProductFormComponent implements OnInit {
     slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
     category_id: [null as number | null, [Validators.required]],
     description: [''],
+    condition: ['new'],
     is_featured: [false],
     is_active: [true]
   });
@@ -486,6 +557,7 @@ export class AdminProductFormComponent implements OnInit {
           slug: p.slug,
           category_id: p.category_id,
           description: p.description,
+          condition: p.condition || 'new',
           is_featured: !!p.is_featured,
           is_active: !!p.is_active
         });
