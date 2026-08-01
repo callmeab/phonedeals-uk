@@ -174,8 +174,8 @@ adminProductsRouter.post('/', async (c) => {
     const result = await db.prepare(`
       INSERT INTO products (
         category_id, name, slug, description, storage_options, colours,
-        sim_types, variants, is_featured, is_active
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        sim_types, variants, condition, refurbished_details, is_featured, is_active
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       RETURNING *
     `).bind(
       body.category_id,
@@ -186,6 +186,8 @@ adminProductsRouter.post('/', async (c) => {
       body.colours ? JSON.stringify(body.colours) : null,
       body.sim_types ? JSON.stringify(body.sim_types) : null,
       body.variants ? JSON.stringify(body.variants) : null,
+      body.condition || 'new',
+      body.refurbished_details ? JSON.stringify(body.refurbished_details) : null,
       body.is_featured ? 1 : 0,
       body.is_active !== undefined ? (body.is_active ? 1 : 0) : 1
     ).first<Product>();
@@ -234,6 +236,10 @@ adminProductsRouter.put('/:id', async (c) => {
     if (body.name !== undefined) addUpdate('name', body.name);
     addUpdate('slug', slug);
     if (body.description !== undefined) addUpdate('description', body.description);
+    if (body.condition !== undefined) addUpdate('condition', body.condition || 'new');
+    if (body.refurbished_details !== undefined) {
+      addUpdate('refurbished_details', body.refurbished_details ? JSON.stringify(body.refurbished_details) : null);
+    }
     
     if (body.storage_options !== undefined) {
       addUpdate('storage_options', typeof body.storage_options === 'string' ? body.storage_options : JSON.stringify(body.storage_options));

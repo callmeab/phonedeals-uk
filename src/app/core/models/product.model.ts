@@ -1,3 +1,11 @@
+export interface RefurbishedDetails {
+  grade: 'like_new' | 'excellent' | 'good' | 'fair';
+  batteryHealth: number | null;  // e.g. 85 means 85%
+  boxIncluded: boolean;
+  accessories: string[];         // e.g. ["Charging Cable", "Adapter"]
+  notes?: string;
+}
+
 export interface ProductVariant {
   color: string;
   storage: string;
@@ -16,6 +24,8 @@ export interface Product {
   name: string;
   slug: string;
   description: string | null;
+  condition?: 'new' | 'refurbished' | 'both';
+  refurbished_details?: string | null; // JSON string of RefurbishedDetails
   storage_options: string | null; // JSON
   colours: string | null; // JSON
   sim_types?: string | null; // JSON

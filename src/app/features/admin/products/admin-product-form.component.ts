@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ToastService } from '../../../core/services/toast.service';
-import { ProductVariant } from '../../../core/models/product.model';
+import { ProductVariant, RefurbishedDetails } from '../../../core/models/product.model';
 
 function frontendSlugify(text: string): string {
   if (!text) return '';
@@ -111,7 +111,8 @@ function frontendSlugify(text: string): string {
               <!-- Condition Row -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-3">Product Condition <span class="text-red-500">*</span></label>
-                <div class="grid grid-cols-2 gap-3 max-w-sm" formGroupName="">
+                <div class="grid grid-cols-3 gap-3">
+
                   <!-- New -->
                   <label
                     class="relative flex cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-accent focus-within:ring-offset-1"
@@ -175,8 +176,174 @@ function frontendSlugify(text: string): string {
                       </span>
                     }
                   </label>
+
+                  <!-- Both New & Refurbished -->
+                  <label
+                    class="relative flex cursor-pointer rounded-xl border-2 p-4 transition-all duration-200 focus-within:ring-2 focus-within:ring-purple-400 focus-within:ring-offset-1"
+                    [class.border-purple-500]="form.get('condition')?.value === 'both'"
+                    [class.bg-purple-50]="form.get('condition')?.value === 'both'"
+                    [class.border-gray-200]="form.get('condition')?.value !== 'both'"
+                    [class.bg-white]="form.get('condition')?.value !== 'both'"
+                  >
+                    <input type="radio" formControlName="condition" value="both" class="sr-only">
+                    <div class="flex flex-col gap-1.5">
+                      <div class="flex items-center gap-2">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-full"
+                          [class.bg-purple-500]="form.get('condition')?.value === 'both'"
+                          [class.bg-gray-100]="form.get('condition')?.value !== 'both'"
+                        >
+                          <svg class="h-4 w-4" [class.text-white]="form.get('condition')?.value === 'both'" [class.text-gray-400]="form.get('condition')?.value !== 'both'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                          </svg>
+                        </span>
+                        <span class="text-sm font-semibold" [class.text-purple-600]="form.get('condition')?.value === 'both'" [class.text-gray-700]="form.get('condition')?.value !== 'both'">Both</span>
+                      </div>
+                      <p class="text-xs text-gray-500 leading-tight">New &amp; Refurbished available</p>
+                    </div>
+                    @if (form.get('condition')?.value === 'both') {
+                      <span class="absolute top-2 right-2">
+                        <svg class="h-4 w-4 text-purple-500" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                      </span>
+                    }
+                  </label>
+
                 </div>
               </div>
+
+              <!-- ===== REFURBISHED DETAILS SECTION ===== -->
+              @if (form.get('condition')?.value === 'refurbished' || form.get('condition')?.value === 'both') {
+                <div class="mt-2 rounded-xl border-2 border-amber-200 bg-amber-50/60 p-5 space-y-5" formGroupName="refurbished_details">
+                  <div class="flex items-center gap-2 mb-1">
+                    <svg class="h-5 w-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <h4 class="text-sm font-bold text-amber-800">Refurbished Product Details</h4>
+                    <span class="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">Displayed on product page</span>
+                  </div>
+
+                  <!-- Grade -->
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Cosmetic Grade / Condition <span class="text-red-500">*</span></label>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      @for (grade of refurbGrades; track grade.value) {
+                        <label
+                          class="relative flex cursor-pointer rounded-lg border-2 p-3 transition-all duration-150"
+                          [class.border-amber-400]="refurbDetailsGroup.get('grade')?.value === grade.value"
+                          [class.bg-white]="refurbDetailsGroup.get('grade')?.value === grade.value"
+                          [class.border-gray-200]="refurbDetailsGroup.get('grade')?.value !== grade.value"
+                          [class.bg-gray-50]="refurbDetailsGroup.get('grade')?.value !== grade.value"
+                        >
+                          <input type="radio" formControlName="grade" [value]="grade.value" class="sr-only">
+                          <div class="flex flex-col gap-0.5">
+                            <span class="text-xs font-bold" [style.color]="grade.color">{{ grade.label }}</span>
+                            <span class="text-[10px] text-gray-400 leading-tight">{{ grade.desc }}</span>
+                          </div>
+                          @if (refurbDetailsGroup.get('grade')?.value === grade.value) {
+                            <span class="absolute top-1.5 right-1.5">
+                              <svg class="h-3 w-3 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                              </svg>
+                            </span>
+                          }
+                        </label>
+                      }
+                    </div>
+                  </div>
+
+                  <!-- Battery Health + Box Included row -->
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <!-- Battery Health -->
+                    <div>
+                      <label for="batteryHealth" class="block text-sm font-semibold text-gray-700 mb-1">
+                        Battery Health
+                        <span class="text-xs font-normal text-gray-400 ml-1">(iPhone especially)</span>
+                      </label>
+                      <select id="batteryHealth" formControlName="batteryHealth"
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border bg-white"
+                      >
+                        <option [ngValue]="null">Not specified / N/A</option>
+                        <option [ngValue]="100">100% — Like New</option>
+                        <option [ngValue]="95">95% — Excellent</option>
+                        <option [ngValue]="90">90% — Very Good</option>
+                        <option [ngValue]="85">85% — Good</option>
+                        <option [ngValue]="80">80% — Fair</option>
+                        <option [ngValue]="75">75% — Needs Attention</option>
+                        <option [ngValue]="70">70% — Poor</option>
+                        <option [ngValue]="65">Below 70% — Replace Soon</option>
+                      </select>
+                    </div>
+
+                    <!-- Box Included -->
+                    <div>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">Box Included?</label>
+                      <div class="flex gap-3 mt-1">
+                        <label
+                          class="flex-1 flex items-center justify-center gap-2 cursor-pointer rounded-lg border-2 py-2.5 px-3 transition-all duration-150"
+                          [class.border-green-400]="refurbDetailsGroup.get('boxIncluded')?.value === true"
+                          [class.bg-green-50]="refurbDetailsGroup.get('boxIncluded')?.value === true"
+                          [class.border-gray-200]="refurbDetailsGroup.get('boxIncluded')?.value !== true"
+                          [class.bg-white]="refurbDetailsGroup.get('boxIncluded')?.value !== true"
+                        >
+                          <input type="radio" formControlName="boxIncluded" [value]="true" class="sr-only">
+                          <svg class="h-4 w-4" [class.text-green-600]="refurbDetailsGroup.get('boxIncluded')?.value === true" [class.text-gray-400]="refurbDetailsGroup.get('boxIncluded')?.value !== true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span class="text-xs font-semibold" [class.text-green-700]="refurbDetailsGroup.get('boxIncluded')?.value === true" [class.text-gray-500]="refurbDetailsGroup.get('boxIncluded')?.value !== true">Yes, Box Included</span>
+                        </label>
+                        <label
+                          class="flex-1 flex items-center justify-center gap-2 cursor-pointer rounded-lg border-2 py-2.5 px-3 transition-all duration-150"
+                          [class.border-red-300]="refurbDetailsGroup.get('boxIncluded')?.value === false"
+                          [class.bg-red-50]="refurbDetailsGroup.get('boxIncluded')?.value === false"
+                          [class.border-gray-200]="refurbDetailsGroup.get('boxIncluded')?.value !== false"
+                          [class.bg-white]="refurbDetailsGroup.get('boxIncluded')?.value !== false"
+                        >
+                          <input type="radio" formControlName="boxIncluded" [value]="false" class="sr-only">
+                          <svg class="h-4 w-4" [class.text-red-400]="refurbDetailsGroup.get('boxIncluded')?.value === false" [class.text-gray-400]="refurbDetailsGroup.get('boxIncluded')?.value !== false" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          <span class="text-xs font-semibold" [class.text-red-500]="refurbDetailsGroup.get('boxIncluded')?.value === false" [class.text-gray-500]="refurbDetailsGroup.get('boxIncluded')?.value !== false">No Box</span>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Accessories -->
+                  <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Accessories Included</label>
+                    <p class="text-xs text-gray-500 mb-2">Press Enter or comma to add (e.g., Charging Cable, Adapter, EarPods).</p>
+                    <div class="flex flex-wrap gap-2 mb-2">
+                      @for (acc of refurbAccessories(); track acc) {
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-sm font-medium bg-amber-100 text-amber-800">
+                          {{ acc }}
+                          <button type="button" (click)="removeAccessory(acc)" class="flex-shrink-0 ml-1.5 h-4 w-4 rounded-full inline-flex items-center justify-center text-amber-500 hover:bg-amber-200 hover:text-amber-700 focus:outline-none">
+                            <span class="sr-only">Remove</span>
+                            <svg class="h-2 w-2" stroke="currentColor" fill="none" viewBox="0 0 8 8">
+                              <path stroke-linecap="round" stroke-width="1.5" d="M1 1l6 6m0-6L1 7" />
+                            </svg>
+                          </button>
+                        </span>
+                      }
+                    </div>
+                    <input type="text" id="accessoriesInput" placeholder="Add accessory..."
+                      (keydown)="onAccessoryInput($event)"
+                      class="block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border"
+                    >
+                    <p class="text-xs text-gray-400 mt-1">Common: Charging Cable, USB-C Adapter, EarPods, Case</p>
+                  </div>
+
+                  <!-- Notes -->
+                  <div>
+                    <label for="refurbNotes" class="block text-sm font-semibold text-gray-700 mb-1">Additional Notes <span class="text-xs font-normal text-gray-400">(Optional)</span></label>
+                    <textarea id="refurbNotes" formControlName="notes" rows="3"
+                      placeholder="e.g. Minor scuff on back panel. Screen in perfect condition. Fully tested by our engineers."
+                      class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border resize-y"
+                    ></textarea>
+                  </div>
+                </div>
+              }
 
               <!-- Toggles Row -->
               <div class="flex flex-col sm:flex-row gap-8 pt-2">
@@ -478,8 +645,30 @@ export class AdminProductFormComponent implements OnInit {
     description: [''],
     condition: ['new'],
     is_featured: [false],
-    is_active: [true]
+    is_active: [true],
+    refurbished_details: this.fb.group({
+      grade: ['excellent'],
+      batteryHealth: [null as number | null],
+      boxIncluded: [true],
+      notes: ['']
+    })
   });
+
+  /** Accessor shortcut for the refurb sub-group */
+  get refurbDetailsGroup() {
+    return this.form.get('refurbished_details') as any;
+  }
+
+  /** Grade options for refurbished condition */
+  readonly refurbGrades = [
+    { value: 'like_new',  label: 'Like New',  desc: 'Essentially perfect', color: '#059669' },
+    { value: 'excellent', label: 'Excellent',  desc: 'Minor wear only',     color: '#0284c7' },
+    { value: 'good',      label: 'Good',       desc: 'Visible light marks', color: '#d97706' },
+    { value: 'fair',      label: 'Fair',       desc: 'Noticeable wear',     color: '#dc2626' },
+  ];
+
+  /** Accessories chips for refurbished details */
+  refurbAccessories = signal<string[]>([]);
 
   isEditMode = signal(false);
   productId = signal<string | null>(null);
@@ -561,6 +750,20 @@ export class AdminProductFormComponent implements OnInit {
           is_featured: !!p.is_featured,
           is_active: !!p.is_active
         });
+
+        // Load refurbished details if present
+        if (p.refurbished_details) {
+          try {
+            const rd: RefurbishedDetails = JSON.parse(p.refurbished_details);
+            this.form.get('refurbished_details')?.patchValue({
+              grade: rd.grade || 'excellent',
+              batteryHealth: rd.batteryHealth ?? null,
+              boxIncluded: rd.boxIncluded ?? true,
+              notes: rd.notes || ''
+            });
+            this.refurbAccessories.set(rd.accessories || []);
+          } catch {}
+        }
 
         if (p.storage_options) {
           try { this.storageOptions.set(JSON.parse(p.storage_options)); } catch {}
@@ -713,6 +916,24 @@ export class AdminProductFormComponent implements OnInit {
     }
   }
 
+  onAccessoryInput(event: KeyboardEvent) {
+    if (event.key === 'Enter' || event.key === ',') {
+      event.preventDefault();
+      const input = event.target as HTMLInputElement;
+      const value = input.value.trim();
+      if (value && !this.refurbAccessories().includes(value)) {
+        this.refurbAccessories.update(v => [...v, value]);
+        this.form.markAsDirty();
+      }
+      input.value = '';
+    }
+  }
+
+  removeAccessory(value: string) {
+    this.refurbAccessories.update(v => v.filter(a => a !== value));
+    this.form.markAsDirty();
+  }
+
   removeChip(type: 'storage' | 'colour' | 'simType', value: string) {
     if (type === 'storage') {
       this.storageOptions.update(v => v.filter(item => item !== value));
@@ -784,8 +1005,23 @@ export class AdminProductFormComponent implements OnInit {
 
     this.isSubmitting.set(true);
     
+    const condition = this.form.value.condition || 'new';
+    const hasRefurb = condition === 'refurbished' || condition === 'both';
+
+    const refurbDetails: RefurbishedDetails | null = hasRefurb ? {
+      grade: (this.form.get('refurbished_details.grade')?.value || 'excellent') as RefurbishedDetails['grade'],
+      batteryHealth: this.form.get('refurbished_details.batteryHealth')?.value ?? null,
+      boxIncluded: this.form.get('refurbished_details.boxIncluded')?.value ?? true,
+      accessories: this.refurbAccessories(),
+      notes: this.form.get('refurbished_details.notes')?.value || undefined
+    } : null;
+
+    const { refurbished_details: _rd, ...formValues } = this.form.value as any;
+
     const payload = {
-      ...this.form.value,
+      ...formValues,
+      condition,
+      refurbished_details: refurbDetails,
       storage_options: this.storageOptions(),
       colours: this.colours(),
       sim_types: this.simTypes(),

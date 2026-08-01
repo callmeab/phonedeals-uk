@@ -47,8 +47,11 @@ export interface Product {
   name: string;
   slug: string;
   description: string | null;
+  condition?: 'new' | 'refurbished' | 'both';
+  refurbished_details?: string | null; // JSON text (RefurbishedDetails)
   storage_options: string | null; // JSON text
   colours: string | null; // JSON text
+  sim_types?: string | null; // JSON text
   variants: string | null; // JSON array of variant configurations
   is_featured: boolean | number;
   is_active: boolean | number;

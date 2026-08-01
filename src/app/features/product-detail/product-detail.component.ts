@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { SeoService } from '../../core/services/seo.service';
 import { ApiService } from '../../core/services/api.service';
-import { Product, ProductVariant } from '../../core/models/product.model';
+import { Product, ProductVariant, RefurbishedDetails } from '../../core/models/product.model';
 import { Deal } from '../../core/models/deal.model';
 import { CartItem } from '../../core/models/cart.model';
 import { ToastService } from '../../core/services/toast.service';
@@ -355,6 +355,173 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                 }
               </div>
 
+                <!-- ============================================
+                   REFURBISHED DETAILS CARD
+                   ============================================ -->
+              @if (refurbishedDetails(); as rd) {
+                <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 shadow-sm overflow-hidden">
+                  <!-- Card Header -->
+                  <div class="px-5 py-4 border-b border-amber-200 bg-white/60 flex items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                      <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100">
+                        <svg class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h3 class="text-sm font-bold text-amber-900">Refurbished Details</h3>
+                        <p class="text-[11px] text-amber-600">Professionally tested &amp; certified</p>
+                      </div>
+                    </div>
+                    <!-- Condition badge (New + Refurbished available) -->
+                    @if (product()!.condition === 'both') {
+                      <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 border border-purple-200">
+                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                        </svg>
+                        New &amp; Refurb Available
+                      </span>
+                    }
+                  </div>
+
+                  <!-- Card Body -->
+                  <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+                    <!-- Grade -->
+                    <div class="flex items-start gap-3">
+                      <div class="flex-shrink-0 mt-0.5">
+                        <div class="h-8 w-8 rounded-lg flex items-center justify-center" [style.background-color]="gradeColor(rd.grade) + '20'">
+                          <svg class="h-4 w-4" [style.color]="gradeColor(rd.grade)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div>
+                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Cosmetic Grade</p>
+                        <span class="inline-flex items-center mt-1 px-2.5 py-0.5 rounded-full text-xs font-bold border"
+                          [style.color]="gradeColor(rd.grade)"
+                          [style.background-color]="gradeColor(rd.grade) + '15'"
+                          [style.border-color]="gradeColor(rd.grade) + '40'"
+                        >
+                          {{ gradeLabel(rd.grade) }}
+                        </span>
+                        <p class="text-[11px] text-gray-500 mt-0.5">{{ gradeDescription(rd.grade) }}</p>
+                      </div>
+                    </div>
+
+                    <!-- Battery Health -->
+                    @if (rd.batteryHealth !== null && rd.batteryHealth !== undefined) {
+                      <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-0.5">
+                          <div class="h-8 w-8 rounded-lg flex items-center justify-center"
+                            [class.bg-green-100]="rd.batteryHealth >= 90"
+                            [class.bg-amber-100]="rd.batteryHealth >= 75 && rd.batteryHealth < 90"
+                            [class.bg-red-100]="rd.batteryHealth < 75"
+                          >
+                            <svg class="h-4 w-4"
+                              [class.text-green-600]="rd.batteryHealth >= 90"
+                              [class.text-amber-600]="rd.batteryHealth >= 75 && rd.batteryHealth < 90"
+                              [class.text-red-600]="rd.batteryHealth < 75"
+                              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                          <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Battery Health</p>
+                          <div class="flex items-center gap-2 mt-1">
+                            <span class="text-sm font-bold"
+                              [class.text-green-700]="rd.batteryHealth >= 90"
+                              [class.text-amber-700]="rd.batteryHealth >= 75 && rd.batteryHealth < 90"
+                              [class.text-red-600]="rd.batteryHealth < 75"
+                            >{{ rd.batteryHealth }}%</span>
+                          </div>
+                          <!-- Progress bar -->
+                          <div class="mt-1.5 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                            <div class="h-1.5 rounded-full transition-all duration-500"
+                              [style.width]="rd.batteryHealth + '%'"
+                              [class.bg-green-500]="rd.batteryHealth >= 90"
+                              [class.bg-amber-400]="rd.batteryHealth >= 75 && rd.batteryHealth < 90"
+                              [class.bg-red-500]="rd.batteryHealth < 75"
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                    <!-- Box Included -->
+                    <div class="flex items-start gap-3">
+                      <div class="flex-shrink-0 mt-0.5">
+                        <div class="h-8 w-8 rounded-lg flex items-center justify-center"
+                          [class.bg-green-100]="rd.boxIncluded"
+                          [class.bg-gray-100]="!rd.boxIncluded"
+                        >
+                          <svg class="h-4 w-4"
+                            [class.text-green-600]="rd.boxIncluded"
+                            [class.text-gray-400]="!rd.boxIncluded"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                          </svg>
+                        </div>
+                      </div>
+                      <div>
+                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Original Box</p>
+                        @if (rd.boxIncluded) {
+                          <div class="flex items-center gap-1.5 mt-1">
+                            <svg class="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                            <span class="text-sm font-semibold text-green-700">Box Included</span>
+                          </div>
+                        } @else {
+                          <div class="flex items-center gap-1.5 mt-1">
+                            <svg class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            <span class="text-sm font-semibold text-gray-500">No Box</span>
+                          </div>
+                        }
+                      </div>
+                    </div>
+
+                    <!-- Accessories -->
+                    @if (rd.accessories && rd.accessories.length > 0) {
+                      <div class="flex items-start gap-3 sm:col-span-2">
+                        <div class="flex-shrink-0 mt-0.5">
+                          <div class="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">What's in the Box</p>
+                          <div class="flex flex-wrap gap-1.5">
+                            @for (acc of rd.accessories; track acc) {
+                              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                                {{ acc }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      </div>
+                    }
+
+                  </div>
+
+                  <!-- Notes -->
+                  @if (rd.notes) {
+                    <div class="px-5 py-3 bg-white/50 border-t border-amber-100">
+                      <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Engineer's Notes</p>
+                      <p class="text-xs text-gray-600 leading-relaxed">{{ rd.notes }}</p>
+                    </div>
+                  }
+                </div>
+              }
+
               <!-- ============================================
                    DEALS SECTION
                    ============================================ -->
@@ -539,6 +706,15 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const p = this.product();
     if (!p?.sim_types) return [];
     try { return JSON.parse(p.sim_types) as string[]; } catch { return []; }
+  });
+
+  /** Parsed refurbished details — null if product is not refurbished or has no details */
+  refurbishedDetails = computed<RefurbishedDetails | null>(() => {
+    const p = this.product();
+    const condition = p?.condition;
+    if (!p || (condition !== 'refurbished' && condition !== 'both')) return null;
+    if (!p.refurbished_details) return null;
+    try { return JSON.parse(p.refurbished_details) as RefurbishedDetails; } catch { return null; }
   });
 
   colours = computed<string[]>(() => {
@@ -892,5 +1068,38 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const img = event.target as HTMLImageElement;
     if (img.src.endsWith(PLACEHOLDER_PHONE_IMAGE)) return;
     img.src = PLACEHOLDER_PHONE_IMAGE;
+  }
+
+  /** Returns the hex color for a given refurbished grade */
+  gradeColor(grade: RefurbishedDetails['grade']): string {
+    const map: Record<RefurbishedDetails['grade'], string> = {
+      like_new:  '#059669',
+      excellent: '#0284c7',
+      good:      '#d97706',
+      fair:      '#dc2626',
+    };
+    return map[grade] ?? '#6b7280';
+  }
+
+  /** Returns the display label for a refurbished grade */
+  gradeLabel(grade: RefurbishedDetails['grade']): string {
+    const map: Record<RefurbishedDetails['grade'], string> = {
+      like_new:  'Like New',
+      excellent: 'Excellent',
+      good:      'Good',
+      fair:      'Fair',
+    };
+    return map[grade] ?? grade;
+  }
+
+  /** Returns the description for a refurbished grade */
+  gradeDescription(grade: RefurbishedDetails['grade']): string {
+    const map: Record<RefurbishedDetails['grade'], string> = {
+      like_new:  'Essentially perfect condition — barely used',
+      excellent: 'Minor signs of wear, screen and body in great shape',
+      good:      'Light scratches visible but fully functional',
+      fair:      'Noticeable wear marks — screen and internals fully tested',
+    };
+    return map[grade] ?? '';
   }
 }
