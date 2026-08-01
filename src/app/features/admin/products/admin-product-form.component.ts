@@ -861,15 +861,23 @@ export class AdminProductFormComponent implements OnInit {
     this.api.get<{ success: boolean, data: any }>(`/api/admin/products/${id}`).subscribe({
       next: (res) => {
         const p = res.data;
+
+        // Determine the saved condition — default to 'new' only if truly absent
+        const savedCondition: 'new' | 'refurbished' | 'both' =
+          (p.condition === 'refurbished' || p.condition === 'both') ? p.condition : 'new';
+
         this.form.patchValue({
           name: p.name,
           slug: p.slug,
           category_id: p.category_id,
-          description: p.description,
-          condition: p.condition || 'new',
+          description: p.description || '',
           is_featured: !!p.is_featured,
           is_active: !!p.is_active
         });
+
+        // Set condition explicitly via setValue on the control to guarantee
+        // the radio button group re-renders with the correct selection.
+        this.form.get('condition')!.setValue(savedCondition);
 
         // Load refurbished details if present
         if (p.refurbished_details) {

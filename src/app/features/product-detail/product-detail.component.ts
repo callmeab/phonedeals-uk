@@ -468,10 +468,10 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                 }
               </div>
 
-                <!-- ============================================
+              <!-- ============================================
                    REFURBISHED DETAILS CARD
                    ============================================ -->
-              @if (refurbishedDetails(); as rd) {
+              @if (product()!.condition === 'refurbished' || product()!.condition === 'both') {
                 <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 shadow-sm overflow-hidden">
                   <!-- Card Header -->
                   <div class="px-5 py-4 border-b border-amber-200 bg-white/60 flex items-center justify-between gap-3">
@@ -544,74 +544,76 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                       </div>
                     }
 
-                    <!-- Box Included -->
-                    <div class="flex items-start gap-3">
-                      <div class="flex-shrink-0 mt-0.5">
-                        <div class="h-8 w-8 rounded-lg flex items-center justify-center"
-                          [class.bg-green-100]="rd.boxIncluded"
-                          [class.bg-gray-100]="!rd.boxIncluded"
-                        >
-                          <svg class="h-4 w-4"
-                            [class.text-green-600]="rd.boxIncluded"
-                            [class.text-gray-400]="!rd.boxIncluded"
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div>
-                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Original Box</p>
-                        @if (rd.boxIncluded) {
-                          <div class="flex items-center gap-1.5 mt-1">
-                            <svg class="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <span class="text-sm font-semibold text-green-700">Box Included</span>
-                          </div>
-                        } @else {
-                          <div class="flex items-center gap-1.5 mt-1">
-                            <svg class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            <span class="text-sm font-semibold text-gray-500">No Box</span>
-                          </div>
-                        }
-                      </div>
-                    </div>
-
-                    <!-- Accessories -->
-                    @if (rd.accessories && rd.accessories.length > 0) {
-                      <div class="flex items-start gap-3 sm:col-span-2">
+                    <!-- Box Included (only if refurbished_details available) -->
+                    @if (refurbishedDetails(); as rd) {
+                      <div class="flex items-start gap-3">
                         <div class="flex-shrink-0 mt-0.5">
-                          <div class="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                            <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                          <div class="h-8 w-8 rounded-lg flex items-center justify-center"
+                            [class.bg-green-100]="rd.boxIncluded"
+                            [class.bg-gray-100]="!rd.boxIncluded"
+                          >
+                            <svg class="h-4 w-4"
+                              [class.text-green-600]="rd.boxIncluded"
+                              [class.text-gray-400]="!rd.boxIncluded"
+                              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                             </svg>
                           </div>
                         </div>
                         <div>
-                          <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">What's in the Box</p>
-                          <div class="flex flex-wrap gap-1.5">
-                            @for (acc of rd.accessories; track acc) {
-                              <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                </svg>
-                                {{ acc }}
-                              </span>
-                            }
-                          </div>
+                          <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Original Box</p>
+                          @if (rd.boxIncluded) {
+                            <div class="flex items-center gap-1.5 mt-1">
+                              <svg class="h-3.5 w-3.5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                              </svg>
+                              <span class="text-sm font-semibold text-green-700">Box Included</span>
+                            </div>
+                          } @else {
+                            <div class="flex items-center gap-1.5 mt-1">
+                              <svg class="h-3.5 w-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                              <span class="text-sm font-semibold text-gray-500">No Box</span>
+                            </div>
+                          }
                         </div>
                       </div>
+
+                      <!-- Accessories -->
+                      @if (rd.accessories && rd.accessories.length > 0) {
+                        <div class="flex items-start gap-3 sm:col-span-2">
+                          <div class="flex-shrink-0 mt-0.5">
+                            <div class="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                              <svg class="h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                              </svg>
+                            </div>
+                          </div>
+                          <div>
+                            <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">What's in the Box</p>
+                            <div class="flex flex-wrap gap-1.5">
+                              @for (acc of rd.accessories; track acc) {
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                  <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                  </svg>
+                                  {{ acc }}
+                                </span>
+                              }
+                            </div>
+                          </div>
+                        </div>
+                      }
                     }
 
                   </div>
 
                   <!-- Notes -->
-                  @if (rd.notes) {
+                  @if (refurbishedDetails()?.notes) {
                     <div class="px-5 py-3 bg-white/50 border-t border-amber-100">
                       <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">Engineer's Notes</p>
-                      <p class="text-xs text-gray-600 leading-relaxed">{{ rd.notes }}</p>
+                      <p class="text-xs text-gray-600 leading-relaxed">{{ refurbishedDetails()!.notes }}</p>
                     </div>
                   }
                 </div>
