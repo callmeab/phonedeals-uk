@@ -1,7 +1,9 @@
 # Cloudflare Pages configuration
-# This file is used by Cloudflare Pages dashboard for the frontend deployment.
 # The Worker (API) has its own wrangler.toml in the /worker directory.
 
 name = "phonedeals-uk"
 compatibility_date = "2024-06-08"
 pages_build_output_dir = "dist/phonedeals-uk/browser"
+
+[pages_build_config]
+build_command = "npm ci && npx ng build --configuration=production"
