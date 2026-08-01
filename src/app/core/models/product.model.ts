@@ -1,8 +1,8 @@
 export interface RefurbishedDetails {
-  grade: 'like_new' | 'excellent' | 'good' | 'fair';
-  batteryHealth: number | null;  // e.g. 85 means 85%
+  availableGrades?: string[];         // e.g. ['like_new', 'excellent', 'good', 'fair']
+  availableBatteryHealths?: string[]; // e.g. ['>90%', '80%-90%', '<80%']
   boxIncluded: boolean;
-  accessories: string[];         // e.g. ["Charging Cable", "Adapter"]
+  accessories: string[];              // e.g. ["Charging Cable", "Adapter"]
   notes?: string;
 }
 
@@ -17,6 +17,8 @@ export interface ProductVariant {
   images: string[];
   simType?: string;
   condition?: 'new' | 'refurbished'; // only used when product.condition === 'both'
+  grade?: string;                    // Refurbished cosmetic grade (e.g. 'like_new')
+  batteryHealth?: string;            // Refurbished battery health range (e.g. '>90%')
 }
 
 export interface Product {

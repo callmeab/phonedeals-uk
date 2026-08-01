@@ -223,31 +223,31 @@ function frontendSlugify(text: string): string {
                     <span class="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">Displayed on product page</span>
                   </div>
 
-                  <!-- Grade -->
+                  <!-- Available Grades -->
                   <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-2">Cosmetic Grade / Condition <span class="text-red-500">*</span></label>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Available Cosmetic Grades <span class="text-gray-400 font-normal text-xs ml-1">(Select all that apply)</span></label>
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       @for (grade of refurbGrades; track grade.value) {
-                        <label
-                          class="relative flex cursor-pointer rounded-lg border-2 p-3 transition-all duration-150"
-                          [class.border-amber-400]="refurbDetailsGroup.get('grade')?.value === grade.value"
-                          [class.bg-white]="refurbDetailsGroup.get('grade')?.value === grade.value"
-                          [class.border-gray-200]="refurbDetailsGroup.get('grade')?.value !== grade.value"
-                          [class.bg-gray-50]="refurbDetailsGroup.get('grade')?.value !== grade.value"
+                        <button type="button"
+                          (click)="toggleGrade(grade.value)"
+                          class="relative flex flex-col text-left rounded-lg border-2 p-3 transition-all duration-150 focus:outline-none"
+                          [class.border-amber-400]="availableGrades().includes(grade.value)"
+                          [class.bg-white]="availableGrades().includes(grade.value)"
+                          [class.border-gray-200]="!availableGrades().includes(grade.value)"
+                          [class.bg-gray-50]="!availableGrades().includes(grade.value)"
                         >
-                          <input type="radio" formControlName="grade" [value]="grade.value" class="sr-only">
                           <div class="flex flex-col gap-0.5">
                             <span class="text-xs font-bold" [style.color]="grade.color">{{ grade.label }}</span>
                             <span class="text-[10px] text-gray-400 leading-tight">{{ grade.desc }}</span>
                           </div>
-                          @if (refurbDetailsGroup.get('grade')?.value === grade.value) {
+                          @if (availableGrades().includes(grade.value)) {
                             <span class="absolute top-1.5 right-1.5">
                               <svg class="h-3 w-3 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
                               </svg>
                             </span>
                           }
-                        </label>
+                        </button>
                       }
                     </div>
                   </div>
@@ -255,25 +255,28 @@ function frontendSlugify(text: string): string {
                   <!-- Battery Health + Box Included row -->
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                    <!-- Battery Health -->
+                    <!-- Available Battery Health -->
                     <div>
-                      <label for="batteryHealth" class="block text-sm font-semibold text-gray-700 mb-1">
-                        Battery Health
-                        <span class="text-xs font-normal text-gray-400 ml-1">(iPhone especially)</span>
+                      <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Available Battery Health
+                        <span class="text-xs font-normal text-gray-400 ml-1">(Select all that apply)</span>
                       </label>
-                      <select id="batteryHealth" formControlName="batteryHealth"
-                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border bg-white"
-                      >
-                        <option [ngValue]="null">Not specified / N/A</option>
-                        <option [ngValue]="100">100% — Like New</option>
-                        <option [ngValue]="95">95% — Excellent</option>
-                        <option [ngValue]="90">90% — Very Good</option>
-                        <option [ngValue]="85">85% — Good</option>
-                        <option [ngValue]="80">80% — Fair</option>
-                        <option [ngValue]="75">75% — Needs Attention</option>
-                        <option [ngValue]="70">70% — Poor</option>
-                        <option [ngValue]="65">Below 70% — Replace Soon</option>
-                      </select>
+                      <div class="flex flex-wrap gap-2">
+                        @for (opt of batteryOptions; track opt.value) {
+                          <button type="button"
+                            (click)="toggleBatteryHealth(opt.value)"
+                            class="inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold border-2 transition-colors focus:outline-none"
+                            [class.border-amber-400]="availableBatteryHealths().includes(opt.value)"
+                            [class.bg-amber-50]="availableBatteryHealths().includes(opt.value)"
+                            [class.text-amber-800]="availableBatteryHealths().includes(opt.value)"
+                            [class.border-gray-200]="!availableBatteryHealths().includes(opt.value)"
+                            [class.bg-gray-50]="!availableBatteryHealths().includes(opt.value)"
+                            [class.text-gray-600]="!availableBatteryHealths().includes(opt.value)"
+                          >
+                            {{ opt.label }}
+                          </button>
+                        }
+                      </div>
                     </div>
 
                     <!-- Box Included -->
@@ -457,10 +460,13 @@ function frontendSlugify(text: string): string {
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                   </svg>
-                  @if (form.get('condition')?.value === 'both') {
-                    Generate Matrix — New + Refurbished ({{ colours().length }} × {{ storageOptions().length }} × {{ Math.max(1, simTypes().length) }} × 2 = {{ colours().length * storageOptions().length * Math.max(1, simTypes().length) * 2 }} variants)
+                  Generate Matrix
+                  @if (form.get('condition')?.value === 'new') {
+                    ({{ colours().length }} × {{ storageOptions().length }} × {{ Math.max(1, simTypes().length) }} = {{ colours().length * storageOptions().length * Math.max(1, simTypes().length) }} variants)
+                  } @else if (form.get('condition')?.value === 'refurbished') {
+                    ({{ colours().length }} × {{ storageOptions().length }} × {{ Math.max(1, simTypes().length) }} × {{ Math.max(1, availableGrades().length) }} × {{ Math.max(1, availableBatteryHealths().length) }})
                   } @else {
-                    Generate Variant Matrix ({{ colours().length }} × {{ storageOptions().length }} × {{ Math.max(1, simTypes().length) }} = {{ colours().length * storageOptions().length * Math.max(1, simTypes().length) }} variants)
+                    (New + Refurbished Combinations)
                   }
                 </button>
                 <p class="text-xs text-gray-400 mt-1">Existing variant data will be preserved when regenerating.</p>
@@ -529,8 +535,12 @@ function frontendSlugify(text: string): string {
                         <tr class="bg-gray-50 border-b border-gray-100">
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Storage</th>
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">SIM Type</th>
-                          @if (form.get('condition')?.value === 'both') {
-                            <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Condition</th>
+                          @if (form.get('condition')?.value === 'both' || form.get('condition')?.value === 'refurbished') {
+                            @if (form.get('condition')?.value === 'both') {
+                              <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Condition</th>
+                            }
+                            <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Grade</th>
+                            <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Battery</th>
                           }
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Price (£)</th>
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Sale Price (£)</th>
@@ -556,18 +566,42 @@ function frontendSlugify(text: string): string {
                                 <span class="text-gray-400 text-xs">N/A</span>
                               }
                             </td>
-                            @if (form.get('condition')?.value === 'both') {
-                              <td class="px-4 py-3">
-                                @if (variant.condition === 'new') {
-                                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">
-                                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>
-                                    New
+                            @if (form.get('condition')?.value === 'both' || form.get('condition')?.value === 'refurbished') {
+                              @if (form.get('condition')?.value === 'both') {
+                                <td class="px-4 py-3">
+                                  @if (variant.condition === 'new') {
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700 border border-blue-200">
+                                      <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" /></svg>
+                                      New
+                                    </span>
+                                  } @else {
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
+                                      <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                                      Refurb
+                                    </span>
+                                  }
+                                </td>
+                              }
+                              
+                              <td class="px-4 py-3 text-sm text-gray-700">
+                                @if (variant.grade) {
+                                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold border"
+                                    [class.bg-emerald-50]="variant.grade === 'like_new'" [class.text-emerald-700]="variant.grade === 'like_new'" [class.border-emerald-200]="variant.grade === 'like_new'"
+                                    [class.bg-sky-50]="variant.grade === 'excellent'" [class.text-sky-700]="variant.grade === 'excellent'" [class.border-sky-200]="variant.grade === 'excellent'"
+                                    [class.bg-amber-50]="variant.grade === 'good'" [class.text-amber-700]="variant.grade === 'good'" [class.border-amber-200]="variant.grade === 'good'"
+                                    [class.bg-red-50]="variant.grade === 'fair'" [class.text-red-700]="variant.grade === 'fair'" [class.border-red-200]="variant.grade === 'fair'"
+                                  >
+                                    {{ variant.grade === 'like_new' ? 'Like New' : variant.grade === 'excellent' ? 'Excellent' : variant.grade === 'good' ? 'Good' : 'Fair' }}
                                   </span>
                                 } @else {
-                                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-700 border border-amber-200">
-                                    <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
-                                    Refurb
-                                  </span>
+                                  <span class="text-gray-400 text-xs">N/A</span>
+                                }
+                              </td>
+                              <td class="px-4 py-3 text-sm text-gray-700">
+                                @if (variant.batteryHealth) {
+                                  <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">{{ variant.batteryHealth }}</span>
+                                } @else {
+                                  <span class="text-gray-400 text-xs">N/A</span>
                                 }
                               </td>
                             }
@@ -673,8 +707,6 @@ export class AdminProductFormComponent implements OnInit {
     is_featured: [false],
     is_active: [true],
     refurbished_details: this.fb.group({
-      grade: ['excellent'],
-      batteryHealth: [null as number | null],
       boxIncluded: [true],
       notes: ['']
     })
@@ -693,7 +725,17 @@ export class AdminProductFormComponent implements OnInit {
     { value: 'fair',      label: 'Fair',       desc: 'Noticeable wear',     color: '#dc2626' },
   ];
 
-  /** Accessories chips for refurbished details */
+  /** Battery Health options */
+  readonly batteryOptions = [
+    { value: '>90%', label: '>90%' },
+    { value: '80%-90%', label: '80% - 90%' },
+    { value: '<80%', label: '<80%' },
+    { value: 'N/A', label: 'N/A' },
+  ];
+
+  /** Selected refurbished details */
+  availableGrades = signal<string[]>([]);
+  availableBatteryHealths = signal<string[]>([]);
   refurbAccessories = signal<string[]>([]);
 
   isEditMode = signal(false);
@@ -782,11 +824,11 @@ export class AdminProductFormComponent implements OnInit {
           try {
             const rd: RefurbishedDetails = JSON.parse(p.refurbished_details);
             this.form.get('refurbished_details')?.patchValue({
-              grade: rd.grade || 'excellent',
-              batteryHealth: rd.batteryHealth ?? null,
               boxIncluded: rd.boxIncluded ?? true,
               notes: rd.notes || ''
             });
+            this.availableGrades.set(rd.availableGrades || []);
+            this.availableBatteryHealths.set(rd.availableBatteryHealths || []);
             this.refurbAccessories.set(rd.accessories || []);
           } catch {}
         }
@@ -826,6 +868,13 @@ export class AdminProductFormComponent implements OnInit {
     const existing = this.variantMatrix();
     const productCondition = this.form.get('condition')?.value || 'new';
 
+    const grades = this.availableGrades();
+    const batteryHealths = this.availableBatteryHealths();
+    
+    // Default loop for grades and battery if none selected, so at least one row generates if they forgot
+    const gradesLoop = grades.length > 0 ? grades : [undefined];
+    const batteryLoop = batteryHealths.length > 0 ? batteryHealths : [undefined];
+
     // When 'both', generate New row + Refurbished row per combination
     const conditionLoop: Array<'new' | 'refurbished' | undefined> =
       productCondition === 'both' ? ['new', 'refurbished'] : [undefined];
@@ -835,25 +884,38 @@ export class AdminProductFormComponent implements OnInit {
       for (const storage of storages) {
         for (const simType of simLoop) {
           for (const variantCondition of conditionLoop) {
-            const prev = existing.find(v =>
-              v.color.toLowerCase() === color.toLowerCase() &&
-              v.storage.toLowerCase() === storage.toLowerCase() &&
-              (v.simType || '').toLowerCase() === (simType || '').toLowerCase() &&
-              (variantCondition ? (v.condition === variantCondition) : !v.condition)
-            );
-            const colorImages = existing.find(v => v.color.toLowerCase() === color.toLowerCase())?.images ?? [];
-            newMatrix.push({
-              color,
-              storage,
-              ...(simType ? { simType } : {}),
-              ...(variantCondition ? { condition: variantCondition } : {}),
-              price: prev?.price ?? 0,
-              salePrice: prev?.salePrice ?? null,
-              stock: prev?.stock ?? 0,
-              sku: prev?.sku ?? null,
-              isActive: prev?.isActive ?? true,
-              images: colorImages
-            });
+            // For 'new' or 'both'->'new' condition, we don't multiply by grades/battery
+            const isNew = productCondition === 'new' || variantCondition === 'new';
+            const currentGradesLoop = isNew ? [undefined] : gradesLoop;
+            const currentBatteryLoop = isNew ? [undefined] : batteryLoop;
+
+            for (const grade of currentGradesLoop) {
+              for (const batteryHealth of currentBatteryLoop) {
+                const prev = existing.find(v =>
+                  v.color.toLowerCase() === color.toLowerCase() &&
+                  v.storage.toLowerCase() === storage.toLowerCase() &&
+                  (v.simType || '').toLowerCase() === (simType || '').toLowerCase() &&
+                  (variantCondition ? (v.condition === variantCondition) : !v.condition) &&
+                  (grade ? (v.grade === grade) : !v.grade) &&
+                  (batteryHealth ? (v.batteryHealth === batteryHealth) : !v.batteryHealth)
+                );
+                const colorImages = existing.find(v => v.color.toLowerCase() === color.toLowerCase())?.images ?? [];
+                newMatrix.push({
+                  color,
+                  storage,
+                  ...(simType ? { simType } : {}),
+                  ...(variantCondition ? { condition: variantCondition } : {}),
+                  ...(grade ? { grade } : {}),
+                  ...(batteryHealth ? { batteryHealth } : {}),
+                  price: prev?.price ?? 0,
+                  salePrice: prev?.salePrice ?? null,
+                  stock: prev?.stock ?? 0,
+                  sku: prev?.sku ?? null,
+                  isActive: prev?.isActive ?? true,
+                  images: colorImages
+                });
+              }
+            }
           }
         }
       }
@@ -981,6 +1043,20 @@ export class AdminProductFormComponent implements OnInit {
     this.form.markAsDirty();
   }
 
+  toggleGrade(value: string) {
+    this.availableGrades.update(arr => 
+      arr.includes(value) ? arr.filter(x => x !== value) : [...arr, value]
+    );
+    this.form.markAsDirty();
+  }
+
+  toggleBatteryHealth(value: string) {
+    this.availableBatteryHealths.update(arr => 
+      arr.includes(value) ? arr.filter(x => x !== value) : [...arr, value]
+    );
+    this.form.markAsDirty();
+  }
+
   /** Core upload logic — returns the public URL or null on failure */
   private async uploadSingleFile(file: File): Promise<string | null> {
     const contentType = file.type || 'application/octet-stream';
@@ -1041,13 +1117,17 @@ export class AdminProductFormComponent implements OnInit {
     const condition = this.form.value.condition || 'new';
     const hasRefurb = condition === 'refurbished' || condition === 'both';
 
-    const refurbDetails: RefurbishedDetails | null = hasRefurb ? {
-      grade: (this.form.get('refurbished_details.grade')?.value || 'excellent') as RefurbishedDetails['grade'],
-      batteryHealth: this.form.get('refurbished_details.batteryHealth')?.value ?? null,
-      boxIncluded: this.form.get('refurbished_details.boxIncluded')?.value ?? true,
-      accessories: this.refurbAccessories(),
-      notes: this.form.get('refurbished_details.notes')?.value || undefined
-    } : null;
+    let refurbDetails: RefurbishedDetails | null = null;
+    if (hasRefurb) {
+      const rdForm = this.form.get('refurbished_details')?.value;
+      refurbDetails = {
+        availableGrades: this.availableGrades(),
+        availableBatteryHealths: this.availableBatteryHealths(),
+        boxIncluded: rdForm?.boxIncluded ?? true,
+        accessories: this.refurbAccessories(),
+        notes: rdForm?.notes || ''
+      };
+    }
 
     const { refurbished_details: _rd, ...formValues } = this.form.value as any;
 

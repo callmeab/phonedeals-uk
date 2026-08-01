@@ -272,6 +272,67 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                   </div>
                 }
 
+                <!-- Refurbished Options (Grade and Battery) -->
+                @if (product()!.condition === 'refurbished' || (product()!.condition === 'both' && selectedCondition() === 'refurbished')) {
+                  @if (availableGrades().length > 0) {
+                    <div class="mt-5 pt-5 border-t border-gray-100">
+                      <div class="flex items-center justify-between mb-3">
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Cosmetic Grade</p>
+                        @if (selectedGrade()) {
+                          <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full">{{ selectedGrade() === 'like_new' ? 'Like New' : selectedGrade() === 'excellent' ? 'Excellent' : selectedGrade() === 'good' ? 'Good' : 'Fair' }}</span>
+                        }
+                      </div>
+                      <div class="grid grid-cols-2 gap-2">
+                        @for (grade of availableGrades(); track grade) {
+                          <button
+                            (click)="selectedGrade.set(grade)"
+                            class="relative flex flex-col text-left rounded-lg border-2 p-3 transition-all duration-150 focus:outline-none"
+                            [class.border-amber-400]="selectedGrade() === grade"
+                            [class.bg-amber-50]="selectedGrade() === grade"
+                            [class.border-gray-200]="selectedGrade() !== grade"
+                            [class.hover:border-amber-200]="selectedGrade() !== grade"
+                          >
+                            <span class="text-sm font-bold text-gray-800">
+                              {{ grade === 'like_new' ? 'Like New' : grade === 'excellent' ? 'Excellent' : grade === 'good' ? 'Good' : 'Fair' }}
+                            </span>
+                            @if (selectedGrade() === grade) {
+                              <span class="absolute top-2 right-2">
+                                <svg class="h-4 w-4 text-amber-500" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                </svg>
+                              </span>
+                            }
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+
+                  @if (availableBatteryHealths().length > 0) {
+                    <div class="mt-5 pt-5 border-t border-gray-100">
+                      <div class="flex items-center justify-between mb-3">
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Battery Health</p>
+                      </div>
+                      <div class="flex flex-wrap gap-2">
+                        @for (battery of availableBatteryHealths(); track battery) {
+                          <button
+                            (click)="selectedBattery.set(battery)"
+                            class="px-4 py-2 rounded-lg border-2 text-sm font-semibold transition-all duration-150 focus:outline-none"
+                            [class.border-amber-400]="selectedBattery() === battery"
+                            [class.bg-amber-50]="selectedBattery() === battery"
+                            [class.text-amber-800]="selectedBattery() === battery"
+                            [class.border-gray-200]="selectedBattery() !== battery"
+                            [class.text-gray-600]="selectedBattery() !== battery"
+                            [class.hover:border-amber-200]="selectedBattery() !== battery"
+                          >
+                            {{ battery }}
+                          </button>
+                        }
+                      </div>
+                    </div>
+                  }
+                }
+
                 <!-- Storage selector (in right column) -->
                 @if (storageOptions().length > 0) {
                   <div class="mt-5 pt-5 border-t border-gray-100">
@@ -440,41 +501,35 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                   <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                     <!-- Grade -->
-                    <div class="flex items-start gap-3">
-                      <div class="flex-shrink-0 mt-0.5">
-                        <div class="h-8 w-8 rounded-lg flex items-center justify-center" [style.background-color]="gradeColor(rd.grade) + '20'">
-                          <svg class="h-4 w-4" [style.color]="gradeColor(rd.grade)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
-                        </div>
-                      </div>
-                      <div>
-                        <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Cosmetic Grade</p>
-                        <span class="inline-flex items-center mt-1 px-2.5 py-0.5 rounded-full text-xs font-bold border"
-                          [style.color]="gradeColor(rd.grade)"
-                          [style.background-color]="gradeColor(rd.grade) + '15'"
-                          [style.border-color]="gradeColor(rd.grade) + '40'"
-                        >
-                          {{ gradeLabel(rd.grade) }}
-                        </span>
-                        <p class="text-[11px] text-gray-500 mt-0.5">{{ gradeDescription(rd.grade) }}</p>
-                      </div>
-                    </div>
-
-                    <!-- Battery Health -->
-                    @if (rd.batteryHealth !== null && rd.batteryHealth !== undefined) {
+                    @if (selectedGrade()) {
                       <div class="flex items-start gap-3">
                         <div class="flex-shrink-0 mt-0.5">
-                          <div class="h-8 w-8 rounded-lg flex items-center justify-center"
-                            [class.bg-green-100]="rd.batteryHealth >= 90"
-                            [class.bg-amber-100]="rd.batteryHealth >= 75 && rd.batteryHealth < 90"
-                            [class.bg-red-100]="rd.batteryHealth < 75"
+                          <div class="h-8 w-8 rounded-lg flex items-center justify-center" [style.background-color]="gradeColor(selectedGrade()!) + '20'">
+                            <svg class="h-4 w-4" [style.color]="gradeColor(selectedGrade()!)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div>
+                          <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Cosmetic Grade</p>
+                          <span class="inline-flex items-center mt-1 px-2.5 py-0.5 rounded-full text-xs font-bold border"
+                            [style.color]="gradeColor(selectedGrade()!)"
+                            [style.background-color]="gradeColor(selectedGrade()!) + '15'"
+                            [style.border-color]="gradeColor(selectedGrade()!) + '40'"
                           >
-                            <svg class="h-4 w-4"
-                              [class.text-green-600]="rd.batteryHealth >= 90"
-                              [class.text-amber-600]="rd.batteryHealth >= 75 && rd.batteryHealth < 90"
-                              [class.text-red-600]="rd.batteryHealth < 75"
-                              fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {{ gradeLabel(selectedGrade()!) }}
+                          </span>
+                          <p class="text-[11px] text-gray-500 mt-0.5">{{ gradeDescription(selectedGrade()!) }}</p>
+                        </div>
+                      </div>
+                    }
+
+                    <!-- Battery Health -->
+                    @if (selectedBattery()) {
+                      <div class="flex items-start gap-3">
+                        <div class="flex-shrink-0 mt-0.5">
+                          <div class="h-8 w-8 rounded-lg flex items-center justify-center bg-gray-100">
+                            <svg class="h-4 w-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                             </svg>
                           </div>
@@ -482,21 +537,9 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                         <div class="flex-1 min-w-0">
                           <p class="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">Battery Health</p>
                           <div class="flex items-center gap-2 mt-1">
-                            <span class="text-sm font-bold"
-                              [class.text-green-700]="rd.batteryHealth >= 90"
-                              [class.text-amber-700]="rd.batteryHealth >= 75 && rd.batteryHealth < 90"
-                              [class.text-red-600]="rd.batteryHealth < 75"
-                            >{{ rd.batteryHealth }}%</span>
+                            <span class="text-sm font-bold text-gray-800">{{ selectedBattery() }}</span>
                           </div>
-                          <!-- Progress bar -->
-                          <div class="mt-1.5 w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
-                            <div class="h-1.5 rounded-full transition-all duration-500"
-                              [style.width]="rd.batteryHealth + '%'"
-                              [class.bg-green-500]="rd.batteryHealth >= 90"
-                              [class.bg-amber-400]="rd.batteryHealth >= 75 && rd.batteryHealth < 90"
-                              [class.bg-red-500]="rd.batteryHealth < 75"
-                            ></div>
-                          </div>
+                          <p class="text-[11px] text-gray-500 mt-0.5">Tested for peak performance capacity</p>
                         </div>
                       </div>
                     }
@@ -656,6 +699,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   selectedColour = signal<string | null>(null);
   selectedSimType = signal<string | null>(null);
   selectedCondition = signal<'new' | 'refurbished' | null>(null); // only used when product.condition === 'both'
+  selectedGrade = signal<string | null>(null);
+  selectedBattery = signal<string | null>(null);
   dealSort = signal<DealSort>('monthly');
 
   readonly sortTabs: { key: DealSort; label: string }[] = [
@@ -676,21 +721,30 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     try { return JSON.parse(p.variants) as ProductVariant[]; } catch { return []; }
   });
 
-  /** The single variant matching current color+storage+simType+condition selection */
+  /** The single variant matching current color+storage+simType+condition+grade+battery selection */
   selectedVariant = computed<ProductVariant | null>(() => {
     const col = this.selectedColour();
     const sto = this.selectedStorage();
     const sim = this.selectedSimType();
     const cond = this.selectedCondition();
+    const grade = this.selectedGrade();
+    const battery = this.selectedBattery();
     const variants = this.productVariants();
     const productCondition = this.product()?.condition;
+    
     if (!col || !sto || !variants.length) return null;
+    
+    const isNew = productCondition === 'new' || (productCondition === 'both' && cond === 'new');
+
     return variants.find(v =>
       v.color.toLowerCase() === col.toLowerCase() &&
       v.storage.toLowerCase() === sto.toLowerCase() &&
       (!sim || (v.simType || '').toLowerCase() === sim.toLowerCase()) &&
       // Match condition only when product has 'both'
-      (productCondition !== 'both' || (cond ? v.condition === cond : true))
+      (productCondition !== 'both' || (cond ? v.condition === cond : true)) &&
+      // Match grade & battery only if we are looking at a refurbished variant
+      (isNew || (grade ? v.grade === grade : true)) &&
+      (isNew || (battery ? v.batteryHealth === battery : true))
     ) ?? null;
   });
 
@@ -768,12 +822,16 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   /** Parsed refurbished details — null if product is not refurbished or has no details */
   refurbishedDetails = computed<RefurbishedDetails | null>(() => {
     const p = this.product();
-    const condition = p?.condition;
-    if (!p || (condition !== 'refurbished' && condition !== 'both')) return null;
-    // For 'both' products, only show refurb details when user selected 'refurbished'
-    if (condition === 'both' && this.selectedCondition() !== 'refurbished') return null;
-    if (!p.refurbished_details) return null;
+    if (!p?.refurbished_details) return null;
     try { return JSON.parse(p.refurbished_details) as RefurbishedDetails; } catch { return null; }
+  });
+
+  availableGrades = computed<string[]>(() => {
+    return this.refurbishedDetails()?.availableGrades || [];
+  });
+
+  availableBatteryHealths = computed<string[]>(() => {
+    return this.refurbishedDetails()?.availableBatteryHealths || [];
   });
 
   colours = computed<string[]>(() => {
@@ -996,8 +1054,16 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         if (cols.length) this.selectedColour.set(cols[0]);
         const sims = this.simTypes();
         if (sims.length) this.selectedSimType.set(sims[0]);
+        
         // Auto-select 'new' for 'both' condition products
         if (p.condition === 'both') this.selectedCondition.set('new');
+        else if (p.condition === 'refurbished') this.selectedCondition.set('refurbished');
+
+        // Auto-select first grade and battery
+        const grades = this.availableGrades();
+        if (grades.length) this.selectedGrade.set(grades[0]);
+        const batteries = this.availableBatteryHealths();
+        if (batteries.length) this.selectedBattery.set(batteries[0]);
 
         this.isLoading.set(false);
         this.updateSeo(p);
@@ -1132,8 +1198,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   /** Returns the hex color for a given refurbished grade */
-  gradeColor(grade: RefurbishedDetails['grade']): string {
-    const map: Record<RefurbishedDetails['grade'], string> = {
+  gradeColor(grade: string): string {
+    const map: Record<string, string> = {
       like_new:  '#059669',
       excellent: '#0284c7',
       good:      '#d97706',
@@ -1143,8 +1209,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   /** Returns the display label for a refurbished grade */
-  gradeLabel(grade: RefurbishedDetails['grade']): string {
-    const map: Record<RefurbishedDetails['grade'], string> = {
+  gradeLabel(grade: string): string {
+    const map: Record<string, string> = {
       like_new:  'Like New',
       excellent: 'Excellent',
       good:      'Good',
@@ -1154,8 +1220,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   /** Returns the description for a refurbished grade */
-  gradeDescription(grade: RefurbishedDetails['grade']): string {
-    const map: Record<RefurbishedDetails['grade'], string> = {
+  gradeDescription(grade: string): string {
+    const map: Record<string, string> = {
       like_new:  'Essentially perfect condition — barely used',
       excellent: 'Minor signs of wear, screen and body in great shape',
       good:      'Light scratches visible but fully functional',
