@@ -477,20 +477,59 @@ function frontendSlugify(text: string): string {
           <!-- ===== STEP 2: Variant Matrix ===== -->
           @if (variantMatrix().length > 0) {
             <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
-              <div class="px-6 py-5 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-                <div>
-                  <h3 class="text-lg font-semibold text-gray-900">Step 2 — Variant Pricing Matrix</h3>
-                  <p class="text-sm text-gray-500 mt-1">Set price, stock, and SKU for each Colour × Storage combination.</p>
+              <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 class="text-lg font-semibold text-gray-900">Step 2 — Variant Pricing Matrix</h3>
+                    <p class="text-sm text-gray-500 mt-1">Set price, stock, and SKU for each Colour × Storage combination.</p>
+                  </div>
+                  @if (isUploadingVariant()) {
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-800" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Uploading...
+                    </span>
+                  }
                 </div>
-                @if (isUploadingVariant()) {
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    <svg class="animate-spin -ml-1 mr-2 h-3 w-3 text-blue-800" fill="none" viewBox="0 0 24 24">
-                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Uploading...
-                  </span>
-                }
+
+                <!-- Bulk Update Toolbar -->
+                <div class="bg-white border border-gray-200 rounded-lg p-3 flex flex-wrap items-center gap-3 shadow-sm">
+                  <span class="text-sm font-semibold text-gray-700 whitespace-nowrap">Bulk Update:</span>
+                  
+                  <select [value]="bulkTargetField()" (change)="bulkTargetField.set($any($event.target).value)" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-accent focus:ring-accent py-1.5 pl-3 pr-8">
+                    <option value="price">Price</option>
+                    <option value="salePrice">Sale Price</option>
+                    <option value="stock">Stock</option>
+                  </select>
+
+                  <span class="text-sm text-gray-500">to</span>
+
+                  <input type="number" [value]="bulkTargetValue() ?? ''" (input)="bulkTargetValue.set($any($event.target).value ? +$any($event.target).value : null)" placeholder="Amount" class="w-24 text-sm border-gray-300 rounded-md shadow-sm focus:border-accent focus:ring-accent py-1.5 px-3">
+
+                  <span class="text-sm text-gray-500">for</span>
+
+                  <select [value]="bulkTargetFilter()" (change)="bulkTargetFilter.set($any($event.target).value)" class="text-sm border-gray-300 rounded-md shadow-sm focus:border-accent focus:ring-accent py-1.5 pl-3 pr-8">
+                    <option value="all">All Variants</option>
+                    <option value="new">New Condition Only</option>
+                    <option value="refurbished">Refurbished Only</option>
+                    <optgroup label="By Grade">
+                      @for (grade of availableGrades(); track grade) {
+                        <option [value]="'grade:' + grade">Grade: {{ grade === 'like_new' ? 'Like New' : grade === 'excellent' ? 'Excellent' : grade === 'good' ? 'Good' : 'Fair' }}</option>
+                      }
+                    </optgroup>
+                    <optgroup label="By Storage">
+                      @for (sto of storageOptions(); track sto) {
+                        <option [value]="'storage:' + sto">Storage: {{ sto }}</option>
+                      }
+                    </optgroup>
+                  </select>
+
+                  <button type="button" (click)="applyBulkUpdate()" class="ml-auto bg-gray-800 text-white text-sm font-semibold py-1.5 px-4 rounded-md shadow-sm hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-gray-800">
+                    Apply to Matching
+                  </button>
+                </div>
               </div>
 
               <!-- Group variants by color -->
@@ -547,6 +586,7 @@ function frontendSlugify(text: string): string {
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-24">Stock</th>
                           <th class="text-left px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">SKU</th>
                           <th class="text-center px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">Active</th>
+                          <th class="text-center px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider w-16" title="Quick Actions">Quick</th>
                         </tr>
                       </thead>
                       <tbody class="divide-y divide-gray-50">
@@ -639,6 +679,13 @@ function frontendSlugify(text: string): string {
                                 (change)="updateVariantField(variant, 'isActive', $any($event.target).checked)"
                                 class="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded"
                               >
+                            </td>
+                            <td class="px-4 py-3 text-center">
+                              <button type="button" (click)="copyVariantToOtherColors(variant)" title="Copy price & stock to all other colours for this exact spec" class="text-gray-400 hover:text-accent transition-colors focus:outline-none bg-gray-50 hover:bg-blue-50 p-1.5 rounded-md border border-gray-200">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2" />
+                                </svg>
+                              </button>
                             </td>
                           </tr>
                         }
@@ -743,6 +790,11 @@ export class AdminProductFormComponent implements OnInit {
   isPageLoading = signal(false);
   isSubmitting = signal(false);
   submitError = signal<string | null>(null);
+
+  // Bulk update state
+  bulkTargetFilter = signal<string>('all');
+  bulkTargetField = signal<'price' | 'salePrice' | 'stock'>('price');
+  bulkTargetValue = signal<number | null>(null);
   
   storageOptions = signal<string[]>([]);
   colours = signal<string[]>([]);
@@ -1055,6 +1107,64 @@ export class AdminProductFormComponent implements OnInit {
       arr.includes(value) ? arr.filter(x => x !== value) : [...arr, value]
     );
     this.form.markAsDirty();
+  }
+
+  copyVariantToOtherColors(sourceVariant: ProductVariant) {
+    this.variantMatrix.update(matrix => {
+      return matrix.map(v => {
+        if (
+          v.color !== sourceVariant.color &&
+          v.storage === sourceVariant.storage &&
+          v.simType === sourceVariant.simType &&
+          v.condition === sourceVariant.condition &&
+          v.grade === sourceVariant.grade &&
+          v.batteryHealth === sourceVariant.batteryHealth
+        ) {
+          return {
+            ...v,
+            price: sourceVariant.price,
+            salePrice: sourceVariant.salePrice,
+            stock: sourceVariant.stock,
+            isActive: sourceVariant.isActive
+          };
+        }
+        return v;
+      });
+    });
+    this.form.markAsDirty();
+    this.toast.success(`Copied pricing to all other colours for ${sourceVariant.storage}`);
+  }
+
+  applyBulkUpdate() {
+    const val = this.bulkTargetValue();
+    if (val === null) return;
+    const filter = this.bulkTargetFilter();
+    const field = this.bulkTargetField();
+
+    let count = 0;
+    this.variantMatrix.update(matrix => {
+      return matrix.map(v => {
+        let match = false;
+        if (filter === 'all') match = true;
+        else if (filter === 'new') match = v.condition === 'new';
+        else if (filter === 'refurbished') match = v.condition === 'refurbished';
+        else if (filter.startsWith('grade:')) match = v.grade === filter.replace('grade:', '');
+        else if (filter.startsWith('storage:')) match = v.storage === filter.replace('storage:', '');
+        
+        if (match) {
+          count++;
+          return { ...v, [field]: val };
+        }
+        return v;
+      });
+    });
+    
+    if (count > 0) {
+      this.form.markAsDirty();
+      this.toast.success(`Updated ${count} variants.`);
+    } else {
+      this.toast.info('No variants matched the selected filter.');
+    }
   }
 
   /** Core upload logic — returns the public URL or null on failure */
