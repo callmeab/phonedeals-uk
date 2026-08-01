@@ -16,6 +16,7 @@ export interface ProductVariant {
   isActive?: boolean;
   images: string[];
   simType?: string;
+  condition?: 'new' | 'refurbished'; // only used when product.condition === 'both'
 }
 
 export interface Product {

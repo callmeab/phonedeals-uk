@@ -220,6 +220,58 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                   <p class="mt-3 text-sm text-gray-500 leading-relaxed">{{ product()!.description }}</p>
                 }
 
+                <!-- Condition Toggle (only for 'both' condition products) -->
+                @if (product()!.condition === 'both') {
+                  <div class="mt-5 pt-5 border-t border-gray-100">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">Choose Condition</p>
+                    <div class="flex gap-3">
+                      <!-- New -->
+                      <button
+                        (click)="selectedCondition.set('new')"
+                        class="flex-1 flex items-center justify-center gap-2 rounded-xl border-2 py-3 px-4 transition-all duration-200 focus:outline-none"
+                        [ngClass]="selectedCondition() === 'new'
+                          ? 'border-accent bg-blue-50 shadow-sm'
+                          : 'border-gray-200 hover:border-gray-300 bg-white'"
+                      >
+                        <svg class="h-4 w-4" [class.text-accent]="selectedCondition() === 'new'" [class.text-gray-400]="selectedCondition() !== 'new'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3l14 9-14 9V3z" />
+                        </svg>
+                        <div class="text-left">
+                          <p class="text-sm font-bold" [class.text-accent]="selectedCondition() === 'new'" [class.text-gray-700]="selectedCondition() !== 'new'">Brand New</p>
+                          <p class="text-[11px]" [class.text-blue-500]="selectedCondition() === 'new'" [class.text-gray-400]="selectedCondition() !== 'new'">Sealed in box</p>
+                        </div>
+                        @if (selectedCondition() === 'new') {
+                          <svg class="h-4 w-4 text-accent ml-auto" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                          </svg>
+                        }
+                      </button>
+
+                      <!-- Refurbished -->
+                      <button
+                        (click)="selectedCondition.set('refurbished')"
+                        class="flex-1 flex items-center justify-center gap-2 rounded-xl border-2 py-3 px-4 transition-all duration-200 focus:outline-none"
+                        [ngClass]="selectedCondition() === 'refurbished'
+                          ? 'border-amber-400 bg-amber-50 shadow-sm'
+                          : 'border-gray-200 hover:border-gray-300 bg-white'"
+                      >
+                        <svg class="h-4 w-4" [class.text-amber-500]="selectedCondition() === 'refurbished'" [class.text-gray-400]="selectedCondition() !== 'refurbished'" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        <div class="text-left">
+                          <p class="text-sm font-bold" [class.text-amber-600]="selectedCondition() === 'refurbished'" [class.text-gray-700]="selectedCondition() !== 'refurbished'">Refurbished</p>
+                          <p class="text-[11px]" [class.text-amber-500]="selectedCondition() === 'refurbished'" [class.text-gray-400]="selectedCondition() !== 'refurbished'">Tested &amp; certified</p>
+                        </div>
+                        @if (selectedCondition() === 'refurbished') {
+                          <svg class="h-4 w-4 text-amber-500 ml-auto" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                          </svg>
+                        }
+                      </button>
+                    </div>
+                  </div>
+                }
+
                 <!-- Storage selector (in right column) -->
                 @if (storageOptions().length > 0) {
                   <div class="mt-5 pt-5 border-t border-gray-100">
@@ -603,6 +655,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   selectedStorage = signal<string | null>(null);
   selectedColour = signal<string | null>(null);
   selectedSimType = signal<string | null>(null);
+  selectedCondition = signal<'new' | 'refurbished' | null>(null); // only used when product.condition === 'both'
   dealSort = signal<DealSort>('monthly');
 
   readonly sortTabs: { key: DealSort; label: string }[] = [
@@ -623,17 +676,21 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     try { return JSON.parse(p.variants) as ProductVariant[]; } catch { return []; }
   });
 
-  /** The single variant matching current color+storage+simType selection */
+  /** The single variant matching current color+storage+simType+condition selection */
   selectedVariant = computed<ProductVariant | null>(() => {
     const col = this.selectedColour();
     const sto = this.selectedStorage();
     const sim = this.selectedSimType();
+    const cond = this.selectedCondition();
     const variants = this.productVariants();
+    const productCondition = this.product()?.condition;
     if (!col || !sto || !variants.length) return null;
     return variants.find(v =>
       v.color.toLowerCase() === col.toLowerCase() &&
       v.storage.toLowerCase() === sto.toLowerCase() &&
-      (!sim || (v.simType || '').toLowerCase() === sim.toLowerCase())
+      (!sim || (v.simType || '').toLowerCase() === sim.toLowerCase()) &&
+      // Match condition only when product has 'both'
+      (productCondition !== 'both' || (cond ? v.condition === cond : true))
     ) ?? null;
   });
 
@@ -713,6 +770,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const p = this.product();
     const condition = p?.condition;
     if (!p || (condition !== 'refurbished' && condition !== 'both')) return null;
+    // For 'both' products, only show refurb details when user selected 'refurbished'
+    if (condition === 'both' && this.selectedCondition() !== 'refurbished') return null;
     if (!p.refurbished_details) return null;
     try { return JSON.parse(p.refurbished_details) as RefurbishedDetails; } catch { return null; }
   });
@@ -937,6 +996,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         if (cols.length) this.selectedColour.set(cols[0]);
         const sims = this.simTypes();
         if (sims.length) this.selectedSimType.set(sims[0]);
+        // Auto-select 'new' for 'both' condition products
+        if (p.condition === 'both') this.selectedCondition.set('new');
 
         this.isLoading.set(false);
         this.updateSeo(p);
