@@ -12,7 +12,7 @@ import {
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { CartService } from '../../core/services/cart.service';
-import { OrderService } from '../../core/services/order.service';
+import { OrderService, OrderDetails } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
 import { CanDeactivateCheckout } from './checkout.guard';
 
@@ -352,23 +352,40 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
           const email        = response.email || personal.email;
 
           // Build a local order record so the admin panel can see it
-          const orderDetails: any = {
+          const orderDetails: OrderDetails = {
             orderId,
-            fullName:     `${personal.firstName} ${personal.lastName}`,
+            fullName:         `${personal.firstName} ${personal.lastName}`,
+            firstName:        personal.firstName,
+            lastName:         personal.lastName,
             email,
-            address:      address.currentAddress,
-            city:         address.city || '',
-            postcode:     address.postcode,
-            phone:        personal.phone,
-            totalUpfront: this.finalUpfrontCost,
-            totalMonthly: this.finalMonthlyCost,
-            status:       'Pending',
-            date:         new Date().toISOString(),
-            paymentInfo:  { cardNumber: val.paymentAndExtras.accountNumber, expiryDate: '', cvv: '' },
+            phone:            personal.phone,
+            dob:              personal.dob,
+            address:          address.currentAddress,
+            city:             address.city || '',
+            postcode:         address.postcode,
+            timeAtAddress:    address.timeAtAddress,
+            insurance:        address.insurancePlan,
+            insuranceBilling: address.insuranceBilling,
+            accountName:      val.paymentAndExtras?.accountName,
+            sortCode:         val.paymentAndExtras?.sortCode,
+            accountNumber:    val.paymentAndExtras?.accountNumber,
+            timeWithBank:     val.paymentAndExtras?.timeWithBank,
+            totalUpfront:     this.finalUpfrontCost,
+            totalMonthly:     this.finalMonthlyCost,
+            status:           'Pending',
+            date:             new Date().toISOString(),
+            paymentInfo:  {
+              accountName:   val.paymentAndExtras?.accountName,
+              sortCode:      val.paymentAndExtras?.sortCode,
+              accountNumber: val.paymentAndExtras?.accountNumber,
+              cardNumber:    val.paymentAndExtras?.accountNumber ? `•••• •••• •••• ${val.paymentAndExtras.accountNumber.slice(-4)}` : '•••• •••• •••• 4242',
+              expiryDate:    '12/28',
+              cvv:           '***',
+              timeWithBank:  val.paymentAndExtras?.timeWithBank
+            },
             items:        cartItems,
-            insurance:    address.insurancePlan,
-            addedCharger: val.paymentAndExtras.addCharger,
-            addedCover:   val.paymentAndExtras.addCover,
+            addedCharger: val.paymentAndExtras?.addCharger,
+            addedCover:   val.paymentAndExtras?.addCover,
           };
 
           // Mark submitted BEFORE navigation so the guard allows the redirect

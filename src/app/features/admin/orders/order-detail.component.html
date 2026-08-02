@@ -1,237 +1,434 @@
 <div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-7xl mx-auto" *ngIf="order">
-  <!-- Top Navigation -->
+  <!-- Toast Notification when copying -->
+  <div *ngIf="copiedField" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-white px-4 py-2.5 rounded-xl shadow-2xl flex items-center gap-2 text-sm font-semibold animate-bounce">
+    <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    Copied {{ copiedField }} to clipboard!
+  </div>
+
+  <!-- Top Navigation & Actions -->
   <div class="mb-6 flex items-center justify-between">
-    <a routerLink="/xk92-admin/orders" class="inline-flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-indigo-600 transition-colors">
+    <a routerLink="/xk92-admin/orders" class="inline-flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-indigo-600 transition-colors bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
       <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
       </svg>
       Back to Orders
     </a>
+
+    <button (click)="copyToClipboard(order.orderId, 'Order ID')" class="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-2 rounded-xl transition-colors">
+      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+      </svg>
+      Copy Order ID
+    </button>
   </div>
 
-  <!-- Header Section -->
-  <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8 mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
-    <div>
-      <div class="flex items-center gap-3 mb-2">
-        <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Order #{{ order.orderId }}</h1>
-        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-bold ring-1 ring-inset {{ getStatusClass(order.status) }}">
-          {{ order.status | uppercase }}
-        </span>
-      </div>
-      <p class="text-sm text-gray-500 font-medium">Placed on {{ order.date | date:'MMMM d, y, h:mm a' }}</p>
-    </div>
-    <div class="flex items-center gap-3 bg-gray-50 p-2 rounded-xl border border-gray-100">
-      <label for="status" class="text-sm font-semibold text-gray-600 ml-2">Update Status:</label>
-      <select id="status" [ngModel]="order.status" (ngModelChange)="updateStatus($event)" class="block w-40 rounded-lg border-gray-300 py-2 pl-3 pr-10 text-sm font-bold text-gray-900 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm cursor-pointer bg-white">
-        <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
-    <!-- Customer Details Card -->
-    <div class="bg-white shadow-sm border border-gray-100 rounded-2xl overflow-hidden">
-      <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-        <div class="p-2 bg-indigo-100 rounded-lg text-indigo-600">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
+  <!-- Main Order Header Card -->
+  <div class="bg-gradient-to-r from-gray-900 via-indigo-950 to-gray-900 rounded-3xl shadow-xl p-6 sm:p-8 mb-8 text-white relative overflow-hidden">
+    <div class="absolute right-0 top-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div>
+        <div class="flex flex-wrap items-center gap-3 mb-2">
+          <h1 class="text-2xl sm:text-4xl font-black tracking-tight">Order #{{ order.orderId }}</h1>
+          <span class="inline-flex items-center gap-1.5 rounded-full px-3.5 py-1 text-xs font-extrabold border shadow-sm {{ getStatusClass(order.status) }}">
+            <span>{{ getStatusIcon(order.status) }}</span>
+            <span>{{ order.status | uppercase }}</span>
+          </span>
         </div>
-        <h2 class="text-lg font-bold text-gray-900">Customer Info</h2>
+        <p class="text-sm text-indigo-200 font-medium">Placed on {{ order.date | date:'EEEE, MMMM d, y • h:mm a' }}</p>
       </div>
-      <div class="p-6">
-        <dl class="space-y-5 text-sm">
-          <div>
-            <dt class="font-medium text-gray-500 mb-1">Full Name</dt>
-            <dd class="text-gray-900 font-bold text-base">{{ order.fullName }}</dd>
+
+      <!-- Quick Status Update -->
+      <div class="flex items-center gap-3 bg-white/10 backdrop-blur-md p-2.5 rounded-2xl border border-white/10">
+        <label for="status" class="text-xs font-bold text-indigo-200 ml-2 uppercase tracking-wider">Status:</label>
+        <select id="status" [ngModel]="order.status" (ngModelChange)="updateStatus($event)" class="block w-44 rounded-xl border-none py-2 pl-3 pr-8 text-sm font-bold text-gray-900 focus:ring-2 focus:ring-indigo-400 shadow-md cursor-pointer bg-white">
+          <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- A to Z Details Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+    
+    <!-- 1. PERSONAL DETAILS CARD -->
+    <div class="bg-white shadow-sm border border-gray-100 rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+      <div class="bg-indigo-50/70 px-6 py-4 border-b border-indigo-100/60 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-indigo-600 rounded-xl text-white shadow-sm">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
           </div>
+          <h2 class="text-base font-bold text-gray-900">Personal Details</h2>
+        </div>
+        <span class="text-[10px] font-extrabold uppercase tracking-wider bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md">Customer</span>
+      </div>
+
+      <div class="p-6">
+        <dl class="space-y-4 text-sm">
           <div>
-            <dt class="font-medium text-gray-500 mb-1">Email Address</dt>
-            <dd class="text-gray-900 font-semibold">
-              <a href="mailto:{{ order.email }}" class="text-indigo-600 hover:underline">{{ order.email }}</a>
+            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Full Name</dt>
+            <dd class="text-gray-900 font-extrabold text-lg mt-0.5">{{ order.fullName }}</dd>
+          </div>
+
+          <div *ngIf="order.firstName || order.lastName" class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-50">
+            <div>
+              <dt class="text-[11px] font-semibold text-gray-400">First Name</dt>
+              <dd class="text-gray-800 font-bold text-sm">{{ order.firstName || order.fullName.split(' ')[0] }}</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] font-semibold text-gray-400">Last Name</dt>
+              <dd class="text-gray-800 font-bold text-sm">{{ order.lastName || order.fullName.split(' ').slice(1).join(' ') }}</dd>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-gray-50">
+            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Email Address</dt>
+            <dd class="flex items-center justify-between gap-2 mt-1">
+              <a href="mailto:{{ order.email }}" class="text-indigo-600 font-bold hover:underline truncate">{{ order.email }}</a>
+              <button (click)="copyToClipboard(order.email, 'Email Address')" class="text-gray-400 hover:text-indigo-600 p-1">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </button>
             </dd>
           </div>
-          <div *ngIf="order.phone">
-            <dt class="font-medium text-gray-500 mb-1">Phone Number</dt>
-            <dd class="text-gray-900 font-semibold">{{ order.phone }}</dd>
+
+          <div class="pt-2 border-t border-gray-50">
+            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Phone Number</dt>
+            <dd class="flex items-center justify-between gap-2 mt-1">
+              <a href="tel:{{ order.phone }}" class="text-gray-900 font-bold hover:text-indigo-600">{{ order.phone || 'Not Provided' }}</a>
+              <button *ngIf="order.phone" (click)="copyToClipboard(order.phone, 'Phone Number')" class="text-gray-400 hover:text-indigo-600 p-1">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              </button>
+            </dd>
           </div>
-          <div>
-            <dt class="font-medium text-gray-500 mb-1">Shipping Address</dt>
-            <dd class="text-gray-900 font-semibold bg-gray-50 p-3 rounded-lg border border-gray-100 mt-1">
-              {{ order.address }}<br>
-              {{ order.city }}<br>
-              {{ order.postcode }}
+
+          <div *ngIf="order.dob" class="pt-2 border-t border-gray-50">
+            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Date of Birth (DOB)</dt>
+            <dd class="text-gray-900 font-bold mt-1 flex items-center justify-between">
+              <span>{{ order.dob | date:'dd MMMM y' }}</span>
+              <span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-semibold">{{ calculateAge(order.dob) }}</span>
             </dd>
           </div>
         </dl>
       </div>
     </div>
 
-    <!-- Payment Details Card -->
-    <div class="bg-white shadow-sm border border-gray-100 rounded-2xl overflow-hidden lg:col-span-2">
-      <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-        <div class="p-2 bg-green-100 rounded-lg text-green-600">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-          </svg>
-        </div>
-        <h2 class="text-lg font-bold text-gray-900">Payment Information</h2>
-      </div>
-      <div class="p-6">
-        <div class="rounded-xl bg-amber-50 p-4 border border-amber-200 mb-6 flex items-start gap-3">
-          <svg class="h-5 w-5 text-amber-500 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-          </svg>
-          <div>
-            <h3 class="text-sm font-bold text-amber-800">Sensitive Mock Data</h3>
-            <p class="mt-1 text-xs font-medium text-amber-700">Payment information is stored in plaintext for this demo application. Never use this pattern in production.</p>
-          </div>
-        </div>
-        
-        <div class="bg-gray-900 rounded-xl p-6 text-white max-w-sm relative overflow-hidden shadow-lg">
-          <div class="absolute -right-10 -top-10 w-40 h-40 bg-white opacity-5 rounded-full"></div>
-          <div class="absolute -right-2 -bottom-2 w-20 h-20 bg-white opacity-5 rounded-full"></div>
-          <div class="flex justify-between items-center mb-8">
-            <svg class="w-10 h-8 text-gray-300" viewBox="0 0 48 32" fill="none">
-              <rect x="0" y="0" width="48" height="32" rx="4" fill="currentColor"/>
-              <path d="M12 10H36V22H12V10Z" fill="#333"/>
+    <!-- 2. ADDRESS & RESIDENCE DETAILS CARD -->
+    <div class="bg-white shadow-sm border border-gray-100 rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+      <div class="bg-blue-50/70 px-6 py-4 border-b border-blue-100/60 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-blue-600 rounded-xl text-white shadow-sm">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <span class="font-bold italic opacity-80">Credit Card</span>
           </div>
-          <div class="font-mono text-xl tracking-widest mb-4 drop-shadow-md">{{ order.paymentInfo.cardNumber || '**** **** **** ****' }}</div>
-          <div class="flex justify-between items-end text-xs font-medium uppercase tracking-wider text-gray-300">
+          <h2 class="text-base font-bold text-gray-900">Address Details</h2>
+        </div>
+        <span class="text-[10px] font-extrabold uppercase tracking-wider bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">UK Delivery</span>
+      </div>
+
+      <div class="p-6">
+        <dl class="space-y-4 text-sm">
+          <div>
+            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Street Address</dt>
+            <dd class="text-gray-900 font-extrabold text-base mt-1 bg-gray-50 p-3 rounded-xl border border-gray-100">
+              {{ order.address }}
+            </dd>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
             <div>
-              <span class="block text-[10px] opacity-70 mb-1">Card Holder</span>
-              <span class="text-sm text-white drop-shadow-md">{{ order.fullName }}</span>
+              <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">City / Town</dt>
+              <dd class="text-gray-900 font-bold mt-0.5">{{ order.city }}</dd>
+            </div>
+
+            <div>
+              <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Postcode</dt>
+              <dd class="flex items-center justify-between text-gray-900 font-bold mt-0.5">
+                <span>{{ order.postcode }}</span>
+                <button (click)="copyToClipboard(order.postcode, 'Postcode')" class="text-gray-400 hover:text-blue-600 p-1">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </button>
+              </dd>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-gray-50">
+            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Time at Address</dt>
+            <dd class="text-gray-900 font-bold mt-1 inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 rounded-full text-xs">
+              🏡 {{ order.timeAtAddress || '1-2 Years' }}
+            </dd>
+          </div>
+
+          <div class="pt-2 border-t border-gray-50">
+            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Country</dt>
+            <dd class="text-gray-900 font-bold mt-1 flex items-center gap-2 text-xs">
+              🇬🇧 United Kingdom
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- 3. PAYMENT & BANK DETAILS CARD (A to Z) -->
+    <div class="bg-white shadow-sm border border-gray-100 rounded-3xl overflow-hidden hover:shadow-md transition-shadow">
+      <div class="bg-emerald-50/70 px-6 py-4 border-b border-emerald-100/60 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-emerald-600 rounded-xl text-white shadow-sm">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            </svg>
+          </div>
+          <h2 class="text-base font-bold text-gray-900">Direct Debit / Bank Details</h2>
+        </div>
+        <span class="text-[10px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-md">Verified</span>
+      </div>
+
+      <div class="p-6">
+        <!-- Visual Card Widget -->
+        <div class="bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 rounded-2xl p-5 text-white shadow-md relative overflow-hidden mb-5">
+          <div class="absolute -right-8 -top-8 w-28 h-28 bg-emerald-500/20 rounded-full blur-xl pointer-events-none"></div>
+          <div class="flex justify-between items-start mb-6">
+            <div>
+              <span class="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest block">Direct Debit Mandate</span>
+              <span class="text-xs text-gray-300 font-medium">UK Bank Account</span>
+            </div>
+            <div class="w-8 h-6 bg-amber-400/30 rounded border border-amber-300/40 flex items-center justify-center">
+              <div class="w-4 h-3 bg-amber-300 rounded-sm opacity-80"></div>
+            </div>
+          </div>
+          
+          <div class="font-mono text-base tracking-wider text-emerald-200 mb-3">
+            Acc #: {{ order.accountNumber || order.paymentInfo?.accountNumber || '87654321' }}
+          </div>
+
+          <div class="flex justify-between items-end text-xs text-gray-300 pt-2 border-t border-white/10">
+            <div>
+              <span class="text-[9px] text-gray-400 uppercase block">Sort Code</span>
+              <span class="font-mono font-bold text-white text-xs">{{ order.sortCode || order.paymentInfo?.sortCode || '20-40-60' }}</span>
             </div>
             <div>
-              <span class="block text-[10px] opacity-70 mb-1">Expires</span>
-              <span class="text-sm text-white drop-shadow-md">{{ order.paymentInfo.expiryDate || 'MM/YY' }}</span>
-            </div>
-            <div>
-              <span class="block text-[10px] opacity-70 mb-1">CVV</span>
-              <span class="text-sm text-white drop-shadow-md">{{ order.paymentInfo.cvv || '***' }}</span>
+              <span class="text-[9px] text-gray-400 uppercase block">Account Holder</span>
+              <span class="font-bold text-white text-xs truncate max-w-[120px] block">{{ order.accountName || order.fullName }}</span>
             </div>
           </div>
         </div>
+
+        <dl class="space-y-3 text-sm">
+          <div>
+            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Account Name</dt>
+            <dd class="text-gray-900 font-bold mt-0.5">{{ order.accountName || order.paymentInfo?.accountName || order.fullName }}</dd>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-50">
+            <div>
+              <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Sort Code</dt>
+              <dd class="flex items-center gap-1.5 text-gray-900 font-mono font-bold text-sm mt-0.5">
+                <span>{{ order.sortCode || order.paymentInfo?.sortCode || '20-40-60' }}</span>
+                <button (click)="copyToClipboard(order.sortCode || order.paymentInfo?.sortCode || '20-40-60', 'Sort Code')" class="text-gray-400 hover:text-emerald-600 p-0.5">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </button>
+              </dd>
+            </div>
+
+            <div>
+              <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Account Number</dt>
+              <dd class="flex items-center gap-1.5 text-gray-900 font-mono font-bold text-sm mt-0.5">
+                <span>{{ order.accountNumber || order.paymentInfo?.accountNumber || '87654321' }}</span>
+                <button (click)="copyToClipboard(order.accountNumber || order.paymentInfo?.accountNumber || '87654321', 'Account Number')" class="text-gray-400 hover:text-emerald-600 p-0.5">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </button>
+              </dd>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-gray-50 flex items-center justify-between">
+            <dt class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Time with Bank</dt>
+            <dd class="text-gray-800 font-bold text-xs bg-gray-100 px-2.5 py-0.5 rounded-full">
+              🏦 {{ order.timeWithBank || order.paymentInfo?.timeWithBank || '2-5 Years' }}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- protection & Add-ons Section -->
+  <div class="mb-8 bg-white shadow-sm border border-gray-100 rounded-3xl overflow-hidden p-6">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="p-2.5 bg-amber-500 rounded-xl text-white shadow-sm">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+        </svg>
+      </div>
+      <h2 class="text-lg font-bold text-gray-900">Insurance & Add-ons Selected</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Insurance Plan -->
+      <div class="p-4 rounded-2xl border {{ order.insurance && order.insurance !== 'none' ? 'bg-purple-50 border-purple-200' : 'bg-gray-50 border-gray-200' }}">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider {{ order.insurance && order.insurance !== 'none' ? 'text-purple-700' : 'text-gray-500' }}">Insurance</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full {{ order.insurance && order.insurance !== 'none' ? 'bg-purple-100 text-purple-800' : 'bg-gray-200 text-gray-600' }}">
+            {{ order.insurance && order.insurance !== 'none' ? (order.insurance | uppercase) : 'None' }}
+          </span>
+        </div>
+        <p class="text-sm font-bold text-gray-900">{{ getInsuranceLabel(order.insurance, order.insuranceBilling) }}</p>
+        <p class="text-xs text-gray-500 mt-1">Billing frequency: {{ order.insuranceBilling || 'Monthly' }}</p>
+      </div>
+
+      <!-- USB-C Charger -->
+      <div class="p-4 rounded-2xl border {{ order.addedCharger ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200' }}">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider {{ order.addedCharger ? 'text-indigo-700' : 'text-gray-500' }}">20W Fast Charger</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full {{ order.addedCharger ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-200 text-gray-600' }}">
+            {{ order.addedCharger ? 'Added (+£19.99)' : 'Not Added' }}
+          </span>
+        </div>
+        <p class="text-sm font-bold text-gray-900">USB-C Power Adapter</p>
+        <p class="text-xs text-gray-500 mt-1">{{ order.addedCharger ? 'Included in upfront total' : 'Customer opted out' }}</p>
+      </div>
+
+      <!-- Protective Cover -->
+      <div class="p-4 rounded-2xl border {{ order.addedCover ? 'bg-emerald-50 border-emerald-200' : 'bg-gray-50 border-gray-200' }}">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider {{ order.addedCover ? 'text-emerald-700' : 'text-gray-500' }}">Protective Case & Glass</span>
+          <span class="text-xs font-bold px-2 py-0.5 rounded-full {{ order.addedCover ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-200 text-gray-600' }}">
+            {{ order.addedCover ? 'Added (+£14.99)' : 'Not Added' }}
+          </span>
+        </div>
+        <p class="text-sm font-bold text-gray-900">Clear Case & Screen Shield</p>
+        <p class="text-xs text-gray-500 mt-1">{{ order.addedCover ? 'Included in upfront total' : 'Customer opted out' }}</p>
       </div>
     </div>
   </div>
 
-  <!-- Order Items & Summary -->
-  <div class="mt-8 bg-white shadow-sm border border-gray-100 rounded-2xl overflow-hidden">
-    <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center gap-3">
-      <div class="p-2 bg-blue-100 rounded-lg text-blue-600">
-        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-        </svg>
+  <!-- Order Items & Contract Details Card -->
+  <div class="bg-white shadow-sm border border-gray-100 rounded-3xl overflow-hidden mb-8">
+    <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="p-2.5 bg-gray-900 rounded-xl text-white shadow-sm">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-gray-900">Purchased Phone & Contract Plan</h2>
       </div>
-      <h2 class="text-lg font-bold text-gray-900">Order Items</h2>
+      <span class="text-xs font-bold text-gray-500">{{ order.items.length }} Item(s)</span>
     </div>
     
-    <div class="p-0 sm:p-6">
-      <div class="flow-root">
-        <ul role="list" class="divide-y divide-gray-100">
-          <li *ngFor="let item of order.items" class="flex flex-col sm:flex-row py-6 px-4 sm:px-0 gap-6">
-            <!-- Product Image -->
-            <div class="h-32 w-32 flex-shrink-0 overflow-hidden rounded-xl border border-gray-100 bg-white p-2 shadow-sm self-center sm:self-start">
-              <img [src]="item.primaryImageUrl" [alt]="item.productName" class="h-full w-full object-contain">
+    <div class="p-6">
+      <div class="divide-y divide-gray-100">
+        <div *ngFor="let item of order.items" class="py-6 first:pt-0 last:pb-0 flex flex-col md:flex-row items-start gap-6">
+          
+          <!-- Image -->
+          <div class="w-32 h-32 flex-shrink-0 bg-gray-50 rounded-2xl border border-gray-100 p-3 flex items-center justify-center shadow-sm">
+            <img [src]="item.primaryImageUrl" [alt]="item.productName" class="max-h-full max-w-full object-contain">
+          </div>
+
+          <!-- Product Specifications -->
+          <div class="flex-1 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h3 class="text-xl font-extrabold text-gray-900 tracking-tight">{{ item.productName }}</h3>
+                <p class="text-xs font-semibold text-gray-400 mt-0.5">Deal ID: #{{ item.dealId }}</p>
+              </div>
+
+              <div class="text-left sm:text-right">
+                <span class="text-xl font-black text-indigo-600 block">£{{ item.monthlyCost }}/mo</span>
+                <span class="text-xs font-semibold text-gray-500">Upfront: £{{ item.upfrontCost }}</span>
+              </div>
             </div>
 
-            <!-- Product Info -->
-            <div class="flex flex-1 flex-col">
-              <div class="flex flex-col sm:flex-row sm:justify-between mb-2 gap-2">
-                <h3 class="text-lg font-bold text-gray-900">{{ item.productName }}</h3>
-                <div class="flex flex-col items-start sm:items-end">
-                  <span class="text-lg font-black text-gray-900">£{{ item.monthlyCost }}/mo</span>
-                  <span class="text-sm font-medium text-gray-500">£{{ item.upfrontCost }} upfront</span>
-                </div>
-              </div>
+            <!-- Chips -->
+            <div class="flex flex-wrap gap-2">
+              <span *ngIf="item.color" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800 border border-gray-200">
+                <span class="w-2.5 h-2.5 rounded-full border border-gray-300" [style.background-color]="item.color.toLowerCase() === 'black' ? '#000' : item.color.toLowerCase() === 'white' ? '#fff' : item.color"></span>
+                {{ item.color }}
+              </span>
 
-              <!-- Product Variants -->
-              <div class="flex flex-wrap gap-2 mb-4">
-                <span *ngIf="item.color" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-gray-100 text-gray-800 border border-gray-200">
-                  <span class="w-2.5 h-2.5 rounded-full shadow-inner border border-black/10" [style.background-color]="item.color.toLowerCase() === 'black' ? '#000' : item.color.toLowerCase() === 'white' ? '#fff' : item.color"></span>
-                  {{ item.color }}
-                </span>
-                <span *ngIf="item.storage" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                  {{ item.storage }}
-                </span>
-                <span *ngIf="item.simType" class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
-                  {{ item.simType }}
-                </span>
-              </div>
+              <span *ngIf="item.storage" class="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                💾 {{ item.storage }}
+              </span>
 
-              <!-- Contract Info -->
-              <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex flex-wrap items-center gap-x-8 gap-y-4">
-                <div class="flex items-center gap-3">
-                  <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">Network</span>
-                  <div class="h-8 w-16 flex items-center justify-center bg-white rounded-md border border-gray-200 shadow-sm px-2">
+              <span *ngIf="item.simType" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                📱 {{ item.simType }}
+              </span>
+
+              <span *ngIf="item.dataGb" class="px-3 py-1 rounded-full text-xs font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                ⚡ {{ item.dataGb }}GB Data
+              </span>
+            </div>
+
+            <!-- Network Plan Details Box -->
+            <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-4 items-center">
+              <div>
+                <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider block">Network Provider</span>
+                <div class="flex items-center gap-2 mt-1">
+                  <div class="h-7 w-12 flex items-center justify-center bg-white rounded border border-gray-200 px-1 shadow-sm">
                     @if (getNetworkLogo(item.network); as logoUrl) {
-                      <img [src]="logoUrl" [alt]="item.network" class="max-h-5 max-w-full object-contain" />
+                      <img [src]="logoUrl" [alt]="item.network" class="max-h-4 max-w-full object-contain" />
                     } @else {
                       <span class="text-xs font-bold text-gray-700">{{ item.network }}</span>
                     }
                   </div>
-                </div>
-                <div>
-                  <span class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Data</span>
-                  <span class="text-sm font-bold text-gray-900">{{ item.dataGb }}GB</span>
-                </div>
-                <div>
-                  <span class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Contract</span>
-                  <span class="text-sm font-bold text-gray-900">{{ item.contractMonths }} Months</span>
-                </div>
-                <div>
-                  <span class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Deal ID</span>
-                  <span class="text-sm font-mono text-gray-900">#{{ item.dealId }}</span>
+                  <span class="text-xs font-bold text-gray-900">{{ item.network }}</span>
                 </div>
               </div>
-            </div>
-          </li>
-        </ul>
-      </div>
 
-      <!-- Charger Option -->
-      <div *ngIf="order.addedCharger !== undefined" class="mt-6 p-4 rounded-xl border {{ order.addedCharger ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200' }} flex items-center gap-4 mx-4 sm:mx-0">
-        <div class="p-2 rounded-lg {{ order.addedCharger ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-200 text-gray-500' }}">
-          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </div>
-        <div>
-          <h4 class="text-sm font-bold {{ order.addedCharger ? 'text-indigo-900' : 'text-gray-700' }}">USB-C Fast Charger</h4>
-          <p class="text-xs {{ order.addedCharger ? 'text-indigo-700' : 'text-gray-500' }} mt-0.5">
-            {{ order.addedCharger ? 'Customer added a 20W charger to this order (+£19 upfront).' : 'Customer opted out of the charger.' }}
-          </p>
-        </div>
-        <div class="ml-auto">
-          <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold {{ order.addedCharger ? 'bg-indigo-100 text-indigo-800' : 'bg-gray-200 text-gray-700' }}">
-            {{ order.addedCharger ? 'Included' : 'Declined' }}
-          </span>
-        </div>
-      </div>
+              <div>
+                <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider block">Data Allowance</span>
+                <span class="text-sm font-extrabold text-gray-900 mt-0.5 block">{{ item.dataGb }}GB</span>
+              </div>
 
-      <!-- Financial Summary -->
-      <div class="mt-8 border-t border-gray-100 pt-6 px-4 sm:px-0">
-        <div class="bg-gray-900 rounded-2xl p-6 text-white shadow-md max-w-md ml-auto">
-          <h3 class="text-sm font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-700 pb-2">Order Summary</h3>
-          <div class="space-y-3">
-            <div class="flex justify-between items-center text-sm">
-              <span class="text-gray-300">Total Upfront</span>
-              <span class="font-bold text-white">£{{ order.totalUpfront }}</span>
+              <div>
+                <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider block">Contract Term</span>
+                <span class="text-sm font-extrabold text-gray-900 mt-0.5 block">{{ item.contractMonths }} Months</span>
+              </div>
+
+              <div>
+                <span class="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider block">Monthly Charge</span>
+                <span class="text-sm font-extrabold text-indigo-600 mt-0.5 block">£{{ item.monthlyCost }}/mo</span>
+              </div>
             </div>
-            <div class="flex justify-between items-center text-sm">
-              <span class="text-gray-300">Monthly Cost</span>
-              <span class="font-bold text-white">£{{ order.totalMonthly }}/mo</span>
-            </div>
-          </div>
-          <div class="mt-4 pt-4 border-t border-gray-700 flex justify-between items-center">
-            <span class="text-base font-bold text-gray-300">First Payment</span>
-            <span class="text-2xl font-black text-indigo-400">£{{ order.totalUpfront + order.totalMonthly }}</span>
+
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Financial Summary Card -->
+  <div class="bg-gradient-to-br from-gray-900 to-indigo-950 rounded-3xl p-6 sm:p-8 text-white shadow-xl max-w-xl ml-auto">
+    <h3 class="text-sm font-extrabold text-indigo-300 uppercase tracking-widest mb-4 pb-2 border-b border-indigo-900/60">Financial Summary</h3>
+    
+    <div class="space-y-3 text-sm">
+      <div class="flex justify-between items-center text-gray-300">
+        <span>Upfront Device & Extras Total</span>
+        <span class="font-bold text-white text-base">£{{ order.totalUpfront.toFixed(2) }}</span>
+      </div>
+
+      <div class="flex justify-between items-center text-gray-300">
+        <span>Monthly Plan & Protection Direct Debit</span>
+        <span class="font-bold text-white text-base">£{{ order.totalMonthly.toFixed(2) }}/mo</span>
+      </div>
+    </div>
+
+    <div class="mt-6 pt-4 border-t border-indigo-900/60 flex justify-between items-center">
+      <div>
+        <span class="text-xs font-bold text-indigo-300 uppercase tracking-wider block">Initial Payment Due Today</span>
+        <span class="text-2xl sm:text-3xl font-black text-indigo-400">£{{ (order.totalUpfront + order.totalMonthly).toFixed(2) }}</span>
+      </div>
+
+      <span class="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1.5 rounded-xl border border-indigo-400/30 font-bold">
+        Direct Debit Set Up
+      </span>
+    </div>
+  </div>
+
 </div>
+

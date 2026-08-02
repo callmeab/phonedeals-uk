@@ -18,6 +18,7 @@ export class AdminOrderDetailComponent implements OnInit {
 
   order: OrderDetails | undefined;
   statusOptions: OrderDetails['status'][] = ['Pending', 'Dispatched', 'Completed', 'Cancelled'];
+  copiedField: string | null = null;
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
@@ -38,15 +39,26 @@ export class AdminOrderDetailComponent implements OnInit {
 
   getStatusClass(status: string): string {
     switch (status) {
-      case 'Pending': return 'bg-yellow-100 text-yellow-800';
-      case 'Dispatched': return 'bg-blue-100 text-blue-800';
-      case 'Completed': return 'bg-green-100 text-green-800';
-      case 'Cancelled': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'Pending': return 'bg-amber-100 text-amber-800 border-amber-300';
+      case 'Dispatched': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'Completed': return 'bg-emerald-100 text-emerald-800 border-emerald-300';
+      case 'Cancelled': return 'bg-rose-100 text-rose-800 border-rose-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  }
+
+  getStatusIcon(status: string): string {
+    switch (status) {
+      case 'Pending': return '⏳';
+      case 'Dispatched': return '🚚';
+      case 'Completed': return '✅';
+      case 'Cancelled': return '❌';
+      default: return '📦';
     }
   }
 
   getNetworkLogo(network: string): string {
+    if (!network) return '';
     const net = network.toLowerCase().replace(/\s+/g, '-');
     if (net === 'ee') return '/EE-sim-logo.png';
     if (net === 'o2') return '/O2-sim-logo.jpg';
@@ -57,4 +69,43 @@ export class AdminOrderDetailComponent implements OnInit {
     if (net === 'bt-mobile') return '/BT-mobile-sim-logo.png';
     return '';
   }
+
+  calculateAge(dob?: string): string {
+    if (!dob) return '';
+    try {
+      const birth = new Date(dob);
+      const now = new Date();
+      let age = now.getFullYear() - birth.getFullYear();
+      const m = now.getMonth() - birth.getMonth();
+      if (m < 0 || (m === 0 && now.getDate() < birth.getDate())) {
+        age--;
+      }
+      return `${age} years old`;
+    } catch {
+      return '';
+    }
+  }
+
+  copyToClipboard(text?: string, label?: string): void {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    this.copiedField = label || 'Copied';
+    setTimeout(() => {
+      this.copiedField = null;
+    }, 2000);
+  }
+
+  getInsuranceLabel(plan?: string, billing?: string): string {
+    if (!plan || plan === 'none') return 'No Protection Plan Selected';
+    if (plan === 'lite') {
+      const price = billing === 'annual' ? '£10.83/mo (£130/yr)' : '£12.00/mo';
+      return `Insurance Lite — ${price}`;
+    }
+    if (plan === 'complete') {
+      const price = billing === 'annual' ? '£15.00/mo (£180/yr)' : '£16.00/mo';
+      return `Insurance Complete (Full Theft & Loss) — ${price}`;
+    }
+    return plan;
+  }
 }
+
