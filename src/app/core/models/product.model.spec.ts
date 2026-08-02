@@ -9,6 +9,18 @@ describe('normalizeProductCondition', () => {
     expect(normalizeProductCondition('both')).toBe('both');
   });
 
+  it('treats actual refurbished details as refurbished even when the condition is stale', () => {
+    expect(
+      normalizeProductCondition('new', {
+        availableGrades: ['like_new'],
+        availableBatteryHealths: ['>90%'],
+        boxIncluded: true,
+        accessories: ['Charging cable'],
+        notes: 'Tested'
+      })
+    ).toBe('refurbished');
+  });
+
   it('defaults legacy or missing values to new', () => {
     expect(normalizeProductCondition(undefined)).toBe('new');
     expect(normalizeProductCondition('unknown' as any)).toBe('new');

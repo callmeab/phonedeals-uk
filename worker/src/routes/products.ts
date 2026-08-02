@@ -7,6 +7,28 @@ import { normalizeProductImages } from '../utils/image-url';
 export const publicProductsRouter = new Hono<{ Bindings: Env }>();
 export const adminProductsRouter = new Hono<{ Bindings: Env }>();
 
+function normalizeProductCondition(value?: string | null, details?: unknown): 'new' | 'refurbished' | 'both' {
+  if (value === 'refurbished' || value === 'both') return value;
+
+  const parsedDetails = typeof details === 'string' ? (() => {
+    try {
+      return JSON.parse(details);
+    } catch {
+      return null;
+    }
+  })() : details;
+
+  const hasRefurbishedDetails = !!parsedDetails && (
+    Array.isArray((parsedDetails as any)?.availableGrades) ||
+    Array.isArray((parsedDetails as any)?.availableBatteryHealths) ||
+    Array.isArray((parsedDetails as any)?.accessories) ||
+    typeof (parsedDetails as any)?.boxIncluded === 'boolean' ||
+    !!(parsedDetails as any)?.notes
+  );
+
+  return hasRefurbishedDetails ? 'refurbished' : 'new';
+}
+
 // --- PUBLIC ROUTES ---
 publicProductsRouter.get('/', async (c) => {
   try {
@@ -164,11 +186,8 @@ adminProductsRouter.post('/', async (c) => {
     }
 
     const db = c.env.DB;
-    const normalizedCondition =
-      body.condition === 'refurbished' || body.condition === 'both'
-        ? body.condition
-        : body.refurbished_details ? 'refurbished' : 'new';
-    
+    const normalizedCondition = normalizeProductCondition(body.condition, body.refurbished_details);
+
     // Check slug uniqueness
     const existing = await db.prepare('SELECT id FROM products WHERE slug = ?').bind(slug).first();
     if (existing) {
@@ -236,10 +255,7 @@ adminProductsRouter.put('/:id', async (c) => {
       params.push(val);
     };
 
-    const normalizedCondition =
-      body.condition === 'refurbished' || body.condition === 'both'
-        ? body.condition
-        : body.refurbished_details ? 'refurbished' : 'new';
+    const normalizedCondition = normalizeProductCondition(body.condition, body.refurbished_details);
 
     if (body.category_id !== undefined) addUpdate('category_id', body.category_id);
     if (body.name !== undefined) addUpdate('name', body.name);

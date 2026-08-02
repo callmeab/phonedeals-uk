@@ -1,8 +1,28 @@
 export type ProductCondition = 'new' | 'refurbished' | 'both';
 
-export function normalizeProductCondition(value?: string | null): ProductCondition {
+export function normalizeProductCondition(
+  value?: string | null,
+  details?: Partial<RefurbishedDetails> | string | null
+): ProductCondition {
   if (value === 'refurbished' || value === 'both') return value;
-  return 'new';
+
+  const parsedDetails = typeof details === 'string' ? (() => {
+    try {
+      return JSON.parse(details) as Partial<RefurbishedDetails>;
+    } catch {
+      return null;
+    }
+  })() : details;
+
+  const hasRefurbishedDetails = !!parsedDetails && (
+    Array.isArray((parsedDetails as Partial<RefurbishedDetails>).availableGrades) ||
+    Array.isArray((parsedDetails as Partial<RefurbishedDetails>).availableBatteryHealths) ||
+    Array.isArray((parsedDetails as Partial<RefurbishedDetails>).accessories) ||
+    typeof (parsedDetails as Partial<RefurbishedDetails>).boxIncluded === 'boolean' ||
+    !!(parsedDetails as Partial<RefurbishedDetails>).notes
+  );
+
+  return hasRefurbishedDetails ? 'refurbished' : 'new';
 }
 
 export interface RefurbishedDetails {

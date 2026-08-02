@@ -1228,12 +1228,22 @@ export class AdminProductFormComponent implements OnInit {
 
     this.isSubmitting.set(true);
     
-    const condition: ProductCondition = normalizeProductCondition(this.form.value.condition);
+    let refurbDetails: RefurbishedDetails | null = null;
+    const rdForm = this.form.get('refurbished_details')?.value;
+    if (this.form.get('condition')?.value === 'refurbished' || this.form.get('condition')?.value === 'both') {
+      refurbDetails = {
+        availableGrades: this.availableGrades(),
+        availableBatteryHealths: this.availableBatteryHealths(),
+        boxIncluded: rdForm?.boxIncluded ?? true,
+        accessories: this.refurbAccessories(),
+        notes: rdForm?.notes || ''
+      };
+    }
+
+    const condition: ProductCondition = normalizeProductCondition(this.form.value.condition, refurbDetails);
     const hasRefurb = condition === 'refurbished' || condition === 'both';
 
-    let refurbDetails: RefurbishedDetails | null = null;
-    if (hasRefurb) {
-      const rdForm = this.form.get('refurbished_details')?.value;
+    if (hasRefurb && !refurbDetails) {
       refurbDetails = {
         availableGrades: this.availableGrades(),
         availableBatteryHealths: this.availableBatteryHealths(),
