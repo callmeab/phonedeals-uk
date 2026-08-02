@@ -164,6 +164,10 @@ adminProductsRouter.post('/', async (c) => {
     }
 
     const db = c.env.DB;
+    const normalizedCondition =
+      body.condition === 'refurbished' || body.condition === 'both'
+        ? body.condition
+        : body.refurbished_details ? 'refurbished' : 'new';
     
     // Check slug uniqueness
     const existing = await db.prepare('SELECT id FROM products WHERE slug = ?').bind(slug).first();
@@ -186,7 +190,7 @@ adminProductsRouter.post('/', async (c) => {
       body.colours ? JSON.stringify(body.colours) : null,
       body.sim_types ? JSON.stringify(body.sim_types) : null,
       body.variants ? JSON.stringify(body.variants) : null,
-      body.condition || 'new',
+      normalizedCondition,
       body.refurbished_details ? JSON.stringify(body.refurbished_details) : null,
       body.is_featured ? 1 : 0,
       body.is_active !== undefined ? (body.is_active ? 1 : 0) : 1
@@ -232,11 +236,18 @@ adminProductsRouter.put('/:id', async (c) => {
       params.push(val);
     };
 
+    const normalizedCondition =
+      body.condition === 'refurbished' || body.condition === 'both'
+        ? body.condition
+        : body.refurbished_details ? 'refurbished' : 'new';
+
     if (body.category_id !== undefined) addUpdate('category_id', body.category_id);
     if (body.name !== undefined) addUpdate('name', body.name);
     addUpdate('slug', slug);
     if (body.description !== undefined) addUpdate('description', body.description);
-    if (body.condition !== undefined) addUpdate('condition', body.condition || 'new');
+    if (body.condition !== undefined || body.refurbished_details !== undefined) {
+      addUpdate('condition', normalizedCondition);
+    }
     if (body.refurbished_details !== undefined) {
       addUpdate('refurbished_details', body.refurbished_details ? JSON.stringify(body.refurbished_details) : null);
     }
