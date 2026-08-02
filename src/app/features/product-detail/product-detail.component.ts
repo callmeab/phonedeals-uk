@@ -1163,34 +1163,51 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/cart']);
   }
 
-  /** Maps colour names to approximate hex values for the swatch circles */
+  /** Maps colour names to approximate hex values dynamically based on keywords */
   colourToHex(colour: string): string {
-    const map: Record<string, string> = {
-      // Blacks / darks
-      'black': '#1C1C1E', 'midnight': '#1C1C1E', 'space black': '#1C1C1E',
-      'graphite': '#4A4A4A', 'space grey': '#6E6E73', 'space gray': '#6E6E73',
-      // Whites / lights
-      'white': '#F5F5F7', 'starlight': '#FAF7F0', 'silver': '#E0E0E0',
-      'pearl': '#F8F4EC', 'pearl white': '#F8F4EC',
-      // Blues
-      'blue': '#3B82F6', 'deep purple': '#6B21A8', 'alpine blue': '#5B8DB8',
-      'sierra blue': '#67A3BF', 'pacific blue': '#3D6B8C', 'sky blue': '#87CEEB',
-      // Purples / pinks
-      'purple': '#9333EA', 'lavender': '#C4B5FD', 'lilac': '#D8B4FE',
-      'pink': '#EC4899', 'rose': '#FB7185', 'product red': '#DC2626',
-      // Greens / teals
-      'green': '#22C55E', 'sage': '#84A98C', 'mint': '#6EE7B7',
-      'teal': '#14B8A6', 'forest green': '#166534',
-      // Yellows / golds
-      'yellow': '#EAB308', 'gold': '#D4AF37', 'titanium': '#8C8C8C',
-      'natural titanium': '#C4BAB0', 'white titanium': '#E8E3DC',
-      'black titanium': '#2C2C2E', 'desert titanium': '#C4A882',
-      // Oranges
-      'orange': '#F97316', 'coral': '#FF6B6B',
+    const key = colour.toLowerCase().trim();
+
+    // 1. Exact matches for some common manufacturer specific shades
+    const exactMap: Record<string, string> = {
+      'black': '#1C1C1E', 'midnight': '#1C1C1E', 'starlight': '#FAF7F0',
+      'product red': '#DC2626', 'sierra blue': '#67A3BF', 'pacific blue': '#3D6B8C',
+      'alpine blue': '#5B8DB8'
+    };
+    if (exactMap[key]) return exactMap[key];
+
+    // 2. Dynamic Keyword Matching
+    // We look for color words inside the string. 
+    // By finding the *last* occurring keyword, we correctly handle names like "Titanium Silverblue" (blue wins).
+    const colorKeywords: Record<string, string> = {
+      'gold': '#D4AF37', 'champagne': '#D4AF37',
+      'yellow': '#FACC15', 'lemon': '#FACC15',
+      'rose': '#EC4899', 'pink': '#EC4899', 'magenta': '#EC4899',
+      'purple': '#8B5CF6', 'violet': '#8B5CF6', 'lavender': '#8B5CF6', 'lilac': '#8B5CF6', 'plum': '#8B5CF6',
+      'red': '#DC2626', 'crimson': '#DC2626', 'ruby': '#DC2626',
+      'orange': '#F97316', 'coral': '#F97316',
+      'blue': '#3B82F6', 'navy': '#1E3A8A', 'cyan': '#06B6D4', 'sapphire': '#2563EB',
+      'green': '#22C55E', 'jade': '#10B981', 'emerald': '#059669', 'mint': '#34D399', 'sage': '#84A98C',
+      'teal': '#14B8A6',
+      'white': '#F3F4F6', 'pearl': '#F3F4F6', 'snow': '#F3F4F6', 'porcelain': '#F3F4F6',
+      'black': '#1C1C1E', 'obsidian': '#1C1C1E', 'jet': '#1C1C1E', 'charcoal': '#374151',
+      'grey': '#9CA3AF', 'gray': '#9CA3AF', 'silver': '#E5E7EB', 'titanium': '#8C8C8C', 'graphite': '#4B5563', 'slate': '#64748B'
     };
 
-    const key = colour.toLowerCase().trim();
-    return map[key] ?? '#94A3B8'; // slate-400 fallback
+    let lastMatchHex = null;
+    let lastMatchIndex = -1;
+
+    for (const [kw, hex] of Object.entries(colorKeywords)) {
+      const idx = key.lastIndexOf(kw);
+      if (idx > lastMatchIndex) {
+        lastMatchIndex = idx;
+        lastMatchHex = hex;
+      }
+    }
+
+    if (lastMatchHex) return lastMatchHex;
+
+    // 3. Fallback
+    return '#94A3B8'; // slate-400
   }
 
   onImageError(event: Event): void {
