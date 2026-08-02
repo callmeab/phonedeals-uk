@@ -1230,9 +1230,12 @@ export class AdminProductFormComponent implements OnInit {
     }
 
     this.isSubmitting.set(true);
-    
+
+    // Always trust the user's explicit form selection — never infer/override it.
+    // normalizeProductCondition is only used on the *load* path for legacy data.
+    const condition: ProductCondition = (this.form.get('condition')?.value as ProductCondition) ?? 'new';
+
     const rdForm = this.form.get('refurbished_details')?.value;
-    const conditionFromForm = (this.form.get('condition')?.value as ProductCondition | undefined) ?? 'new';
     const refurbDetailsCandidate: RefurbishedDetails = {
       availableGrades: this.availableGrades(),
       availableBatteryHealths: this.availableBatteryHealths(),
@@ -1241,20 +1244,7 @@ export class AdminProductFormComponent implements OnInit {
       notes: rdForm?.notes || ''
     };
 
-    const hasRefurbMetadata = !!(
-      refurbDetailsCandidate.availableGrades?.length ||
-      refurbDetailsCandidate.availableBatteryHealths?.length ||
-      refurbDetailsCandidate.accessories?.length ||
-      (refurbDetailsCandidate.notes && String(refurbDetailsCandidate.notes).trim().length > 0) ||
-      refurbDetailsCandidate.boxIncluded === false
-    );
-
-    const condition: ProductCondition = normalizeProductCondition(
-      hasRefurbMetadata && conditionFromForm === 'new' ? 'refurbished' : conditionFromForm,
-      refurbDetailsCandidate,
-      this.variantMatrix()
-    );
-
+    // Persist refurb metadata only when the condition actually involves refurbished units.
     const hasRefurb = condition === 'refurbished' || condition === 'both';
     const refurbDetails: RefurbishedDetails | null = hasRefurb ? refurbDetailsCandidate : null;
 
