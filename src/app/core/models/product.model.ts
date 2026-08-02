@@ -4,7 +4,11 @@ export function normalizeProductCondition(
   value?: string | null,
   details?: Partial<RefurbishedDetails> | string | null
 ): ProductCondition {
-  if (value === 'refurbished' || value === 'both') return value;
+  const normalizedValue = value === 'both' || value === 'refurbished' || value === 'new' ? value : 'new';
+
+  if (normalizedValue === 'both' || normalizedValue === 'refurbished') {
+    return normalizedValue;
+  }
 
   const parsedDetails = typeof details === 'string' ? (() => {
     try {
@@ -15,9 +19,9 @@ export function normalizeProductCondition(
   })() : details;
 
   const hasRefurbishedDetails = !!parsedDetails && (
-    Array.isArray((parsedDetails as Partial<RefurbishedDetails>).availableGrades) ||
-    Array.isArray((parsedDetails as Partial<RefurbishedDetails>).availableBatteryHealths) ||
-    Array.isArray((parsedDetails as Partial<RefurbishedDetails>).accessories) ||
+    (Array.isArray((parsedDetails as Partial<RefurbishedDetails>).availableGrades) && (parsedDetails as Partial<RefurbishedDetails>).availableGrades!.length > 0) ||
+    (Array.isArray((parsedDetails as Partial<RefurbishedDetails>).availableBatteryHealths) && (parsedDetails as Partial<RefurbishedDetails>).availableBatteryHealths!.length > 0) ||
+    (Array.isArray((parsedDetails as Partial<RefurbishedDetails>).accessories) && (parsedDetails as Partial<RefurbishedDetails>).accessories!.length > 0) ||
     typeof (parsedDetails as Partial<RefurbishedDetails>).boxIncluded === 'boolean' ||
     !!(parsedDetails as Partial<RefurbishedDetails>).notes
   );

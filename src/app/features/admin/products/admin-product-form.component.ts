@@ -862,8 +862,11 @@ export class AdminProductFormComponent implements OnInit {
       next: (res) => {
         const p = res.data;
 
-        // Preserve the exact saved condition for refurbished/both products; otherwise default to new
-        const savedCondition: ProductCondition = normalizeProductCondition(p.condition);
+        // Preserve the saved condition, but prefer the actual refurbishment metadata when it exists.
+        const savedCondition: ProductCondition = normalizeProductCondition(
+          p.condition,
+          p.refurbished_details
+        );
 
         this.form.patchValue({
           name: p.name,
@@ -1240,7 +1243,19 @@ export class AdminProductFormComponent implements OnInit {
       };
     }
 
-    const condition: ProductCondition = normalizeProductCondition(this.form.value.condition, refurbDetails);
+    const conditionFromForm = this.form.get('condition')?.value as ProductCondition | undefined;
+    const hasRefurbMetadata = !!(
+      this.availableGrades().length ||
+      this.availableBatteryHealths().length ||
+      this.refurbAccessories().length ||
+      (rdForm?.notes && String(rdForm.notes).trim().length > 0) ||
+      rdForm?.boxIncluded === false
+    );
+
+    const condition: ProductCondition = normalizeProductCondition(
+      hasRefurbMetadata ? (conditionFromForm === 'new' ? 'refurbished' : conditionFromForm) : conditionFromForm,
+      refurbDetails
+    );
     const hasRefurb = condition === 'refurbished' || condition === 'both';
 
     if (hasRefurb && !refurbDetails) {

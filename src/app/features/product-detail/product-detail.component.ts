@@ -1057,7 +1057,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         const sims = this.simTypes();
         if (sims.length) this.selectedSimType.set(sims[0]);
         
-        const normalizedCondition = normalizeProductCondition(p.condition);
+        const normalizedCondition = normalizeProductCondition(p.condition, p.refurbished_details);
         if (normalizedCondition === 'both') this.selectedCondition.set('new');
         else if (normalizedCondition === 'refurbished') this.selectedCondition.set('refurbished');
 
