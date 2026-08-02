@@ -7,48 +7,17 @@ import { normalizeProductImages } from '../utils/image-url';
 export const publicProductsRouter = new Hono<{ Bindings: Env }>();
 export const adminProductsRouter = new Hono<{ Bindings: Env }>();
 
-function normalizeProductCondition(
-  value?: string | null,
-  details?: unknown,
-  variants?: Array<{ condition?: 'new' | 'refurbished'; grade?: string; batteryHealth?: string; color?: string; storage?: string; price?: number }> | null
+/**
+ * Sanitise a condition string received from the client.
+ * This is intentionally a simple whitelist — the caller (frontend) is the
+ * source of truth for what the user explicitly selected.  Inference is only
+ * used as a last-resort fallback for legacy rows that were stored without a
+ * condition field.
+ */
+function sanitizeCondition(
+  value?: string | null
 ): 'new' | 'refurbished' | 'both' {
-  const normalizedValue = value === 'both' || value === 'refurbished' || value === 'new' ? value : 'new';
-
-  if (normalizedValue === 'both' || normalizedValue === 'refurbished') {
-    return normalizedValue;
-  }
-
-  const parsedDetails = typeof details === 'string' ? (() => {
-    try {
-      return JSON.parse(details);
-    } catch {
-      return null;
-    }
-  })() : details;
-
-  const hasRefurbishedDetails = !!parsedDetails && (
-    (Array.isArray((parsedDetails as any)?.availableGrades) && (parsedDetails as any).availableGrades.length > 0) ||
-    (Array.isArray((parsedDetails as any)?.availableBatteryHealths) && (parsedDetails as any).availableBatteryHealths.length > 0) ||
-    (Array.isArray((parsedDetails as any)?.accessories) && (parsedDetails as any).accessories.length > 0) ||
-    typeof (parsedDetails as any)?.boxIncluded === 'boolean' ||
-    !!(parsedDetails as any)?.notes
-  );
-
-  if (hasRefurbishedDetails) return 'refurbished';
-
-  if (Array.isArray(variants)) {
-    const hasRefurbishedVariant = variants.some(v =>
-      v.condition === 'refurbished' ||
-      !!v.grade ||
-      !!v.batteryHealth
-    );
-    const hasNewVariant = variants.some(v => v.condition === 'new');
-
-    if (hasRefurbishedVariant) {
-      return hasNewVariant ? 'both' : 'refurbished';
-    }
-  }
-
+  if (value === 'refurbished' || value === 'both') return value;
   return 'new';
 }
 
@@ -209,7 +178,8 @@ adminProductsRouter.post('/', async (c) => {
     }
 
     const db = c.env.DB;
-    const normalizedCondition = normalizeProductCondition(body.condition, body.refurbished_details, body.variants);
+    // Trust the explicit condition sent by the admin UI — never re-infer it.
+    const normalizedCondition = sanitizeCondition(body.condition);
 
     // Check slug uniqueness
     const existing = await db.prepare('SELECT id FROM products WHERE slug = ?').bind(slug).first();
@@ -278,7 +248,8 @@ adminProductsRouter.put('/:id', async (c) => {
       params.push(val);
     };
 
-    const normalizedCondition = normalizeProductCondition(body.condition, body.refurbished_details, body.variants);
+    // Trust the explicit condition sent by the admin UI — never re-infer it.
+    const normalizedCondition = sanitizeCondition(body.condition);
 
     if (body.category_id !== undefined) addUpdate('category_id', body.category_id);
     if (body.name !== undefined) addUpdate('name', body.name);
