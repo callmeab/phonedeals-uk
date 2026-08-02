@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { SeoService } from '../../core/services/seo.service';
 import { ApiService } from '../../core/services/api.service';
-import { Product, ProductVariant, RefurbishedDetails } from '../../core/models/product.model';
+import { Product, ProductVariant, RefurbishedDetails, normalizeProductCondition } from '../../core/models/product.model';
 import { Deal } from '../../core/models/deal.model';
 import { CartItem } from '../../core/models/cart.model';
 import { ToastService } from '../../core/services/toast.service';
@@ -732,7 +732,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const grade = this.selectedGrade();
     const battery = this.selectedBattery();
     const variants = this.productVariants();
-    const productCondition = this.product()?.condition;
+    const productCondition = normalizeProductCondition(this.product()?.condition);
     
     if (!col || !sto || !variants.length) return null;
     
@@ -1057,9 +1057,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         const sims = this.simTypes();
         if (sims.length) this.selectedSimType.set(sims[0]);
         
-        // Auto-select 'new' for 'both' condition products
-        if (p.condition === 'both') this.selectedCondition.set('new');
-        else if (p.condition === 'refurbished') this.selectedCondition.set('refurbished');
+        const normalizedCondition = normalizeProductCondition(p.condition);
+        if (normalizedCondition === 'both') this.selectedCondition.set('new');
+        else if (normalizedCondition === 'refurbished') this.selectedCondition.set('refurbished');
 
         // Auto-select first grade and battery
         const grades = this.availableGrades();

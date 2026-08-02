@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ToastService } from '../../../core/services/toast.service';
-import { ProductVariant, RefurbishedDetails } from '../../../core/models/product.model';
+import { ProductVariant, RefurbishedDetails, normalizeProductCondition, ProductCondition } from '../../../core/models/product.model';
 
 function frontendSlugify(text: string): string {
   if (!text) return '';
@@ -862,9 +862,8 @@ export class AdminProductFormComponent implements OnInit {
       next: (res) => {
         const p = res.data;
 
-        // Determine the saved condition — default to 'new' only if truly absent
-        const savedCondition: 'new' | 'refurbished' | 'both' =
-          (p.condition === 'refurbished' || p.condition === 'both') ? p.condition : 'new';
+        // Preserve the exact saved condition for refurbished/both products; otherwise default to new
+        const savedCondition: ProductCondition = normalizeProductCondition(p.condition);
 
         this.form.patchValue({
           name: p.name,
@@ -1229,7 +1228,7 @@ export class AdminProductFormComponent implements OnInit {
 
     this.isSubmitting.set(true);
     
-    const condition = this.form.value.condition || 'new';
+    const condition: ProductCondition = normalizeProductCondition(this.form.value.condition);
     const hasRefurb = condition === 'refurbished' || condition === 'both';
 
     let refurbDetails: RefurbishedDetails | null = null;

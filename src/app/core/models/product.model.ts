@@ -1,3 +1,10 @@
+export type ProductCondition = 'new' | 'refurbished' | 'both';
+
+export function normalizeProductCondition(value?: string | null): ProductCondition {
+  if (value === 'refurbished' || value === 'both') return value;
+  return 'new';
+}
+
 export interface RefurbishedDetails {
   availableGrades?: string[];         // e.g. ['like_new', 'excellent', 'good', 'fair']
   availableBatteryHealths?: string[]; // e.g. ['>90%', '80%-90%', '<80%']
@@ -27,7 +34,7 @@ export interface Product {
   name: string;
   slug: string;
   description: string | null;
-  condition?: 'new' | 'refurbished' | 'both';
+  condition?: ProductCondition;
   refurbished_details?: string | null; // JSON string of RefurbishedDetails
   storage_options: string | null; // JSON
   colours: string | null; // JSON
