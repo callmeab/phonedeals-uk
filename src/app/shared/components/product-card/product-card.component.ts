@@ -33,6 +33,14 @@ import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE
             {{ product.category_name || (product.category_id === 1 ? 'iPhone' : 'Samsung') }}
           </span>
 
+          <!-- Condition badge — bottom-left overlay -->
+          <span
+            class="absolute bottom-3 left-3 z-10 inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide shadow-sm"
+            [ngClass]="conditionBadge.classes"
+          >
+            {{ conditionBadge.icon }} {{ conditionBadge.label }}
+          </span>
+
           <!-- Featured ribbon — top-right -->
           @if (product.is_featured) {
             <div class="absolute top-0 right-0 z-10">
@@ -140,9 +148,16 @@ import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE
 
         <!-- Name + chips -->
         <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-1">
+          <div class="flex items-center gap-1.5 mb-1 flex-wrap">
             <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide" [ngClass]="getCategoryClasses()">
               {{ product.category_name || (product.category_id === 1 ? 'iPhone' : 'Samsung') }}
+            </span>
+            <!-- Condition badge for list variant -->
+            <span
+              class="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wide"
+              [ngClass]="conditionBadge.classes"
+            >
+              {{ conditionBadge.icon }} {{ conditionBadge.label }}
             </span>
             @if (product.is_featured) {
               <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-accent">★ Featured</span>
@@ -210,7 +225,34 @@ export class ProductCardComponent {
     return 'bg-blue-600 text-white';
   }
 
+  /** Returns icon, label and CSS classes for the condition badge */
+  get conditionBadge(): { icon: string; label: string; classes: string } {
+    const condition = this.product.condition ?? 'new';
+    switch (condition) {
+      case 'refurbished':
+        return {
+          icon: '🔄',
+          label: 'Refurbished',
+          classes: 'bg-amber-100 text-amber-800 border border-amber-300',
+        };
+      case 'both':
+        return {
+          icon: '✨',
+          label: 'New & Refurb',
+          classes: 'bg-purple-100 text-purple-800 border border-purple-300',
+        };
+      case 'new':
+      default:
+        return {
+          icon: '🟢',
+          label: 'New',
+          classes: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+        };
+    }
+  }
+
   navigate(): void {
     this.router.navigate(['/phones', this.product.slug]);
   }
 }
+
