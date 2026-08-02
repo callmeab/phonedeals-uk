@@ -1231,42 +1231,32 @@ export class AdminProductFormComponent implements OnInit {
 
     this.isSubmitting.set(true);
     
-    let refurbDetails: RefurbishedDetails | null = null;
     const rdForm = this.form.get('refurbished_details')?.value;
-    if (this.form.get('condition')?.value === 'refurbished' || this.form.get('condition')?.value === 'both') {
-      refurbDetails = {
-        availableGrades: this.availableGrades(),
-        availableBatteryHealths: this.availableBatteryHealths(),
-        boxIncluded: rdForm?.boxIncluded ?? true,
-        accessories: this.refurbAccessories(),
-        notes: rdForm?.notes || ''
-      };
-    }
+    const conditionFromForm = (this.form.get('condition')?.value as ProductCondition | undefined) ?? 'new';
+    const refurbDetailsCandidate: RefurbishedDetails = {
+      availableGrades: this.availableGrades(),
+      availableBatteryHealths: this.availableBatteryHealths(),
+      boxIncluded: rdForm?.boxIncluded ?? true,
+      accessories: this.refurbAccessories(),
+      notes: rdForm?.notes || ''
+    };
 
-    const conditionFromForm = this.form.get('condition')?.value as ProductCondition | undefined;
     const hasRefurbMetadata = !!(
-      this.availableGrades().length ||
-      this.availableBatteryHealths().length ||
-      this.refurbAccessories().length ||
-      (rdForm?.notes && String(rdForm.notes).trim().length > 0) ||
-      rdForm?.boxIncluded === false
+      refurbDetailsCandidate.availableGrades?.length ||
+      refurbDetailsCandidate.availableBatteryHealths?.length ||
+      refurbDetailsCandidate.accessories?.length ||
+      (refurbDetailsCandidate.notes && String(refurbDetailsCandidate.notes).trim().length > 0) ||
+      refurbDetailsCandidate.boxIncluded === false
     );
 
     const condition: ProductCondition = normalizeProductCondition(
-      hasRefurbMetadata ? (conditionFromForm === 'new' ? 'refurbished' : conditionFromForm) : conditionFromForm,
-      refurbDetails
+      hasRefurbMetadata && conditionFromForm === 'new' ? 'refurbished' : conditionFromForm,
+      refurbDetailsCandidate,
+      this.variantMatrix()
     );
-    const hasRefurb = condition === 'refurbished' || condition === 'both';
 
-    if (hasRefurb && !refurbDetails) {
-      refurbDetails = {
-        availableGrades: this.availableGrades(),
-        availableBatteryHealths: this.availableBatteryHealths(),
-        boxIncluded: rdForm?.boxIncluded ?? true,
-        accessories: this.refurbAccessories(),
-        notes: rdForm?.notes || ''
-      };
-    }
+    const hasRefurb = condition === 'refurbished' || condition === 'both';
+    const refurbDetails: RefurbishedDetails | null = hasRefurb ? refurbDetailsCandidate : null;
 
     const { refurbished_details: _rd, ...formValues } = this.form.value as any;
 

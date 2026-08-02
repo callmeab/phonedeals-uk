@@ -7,8 +7,16 @@ import { normalizeProductImages } from '../utils/image-url';
 export const publicProductsRouter = new Hono<{ Bindings: Env }>();
 export const adminProductsRouter = new Hono<{ Bindings: Env }>();
 
-function normalizeProductCondition(value?: string | null, details?: unknown): 'new' | 'refurbished' | 'both' {
-  if (value === 'refurbished' || value === 'both') return value;
+function normalizeProductCondition(
+  value?: string | null,
+  details?: unknown,
+  variants?: Array<{ condition?: 'new' | 'refurbished'; grade?: string; batteryHealth?: string; color?: string; storage?: string; price?: number }> | null
+): 'new' | 'refurbished' | 'both' {
+  const normalizedValue = value === 'both' || value === 'refurbished' || value === 'new' ? value : 'new';
+
+  if (normalizedValue === 'both' || normalizedValue === 'refurbished') {
+    return normalizedValue;
+  }
 
   const parsedDetails = typeof details === 'string' ? (() => {
     try {
@@ -19,14 +27,29 @@ function normalizeProductCondition(value?: string | null, details?: unknown): 'n
   })() : details;
 
   const hasRefurbishedDetails = !!parsedDetails && (
-    Array.isArray((parsedDetails as any)?.availableGrades) ||
-    Array.isArray((parsedDetails as any)?.availableBatteryHealths) ||
-    Array.isArray((parsedDetails as any)?.accessories) ||
+    (Array.isArray((parsedDetails as any)?.availableGrades) && (parsedDetails as any).availableGrades.length > 0) ||
+    (Array.isArray((parsedDetails as any)?.availableBatteryHealths) && (parsedDetails as any).availableBatteryHealths.length > 0) ||
+    (Array.isArray((parsedDetails as any)?.accessories) && (parsedDetails as any).accessories.length > 0) ||
     typeof (parsedDetails as any)?.boxIncluded === 'boolean' ||
     !!(parsedDetails as any)?.notes
   );
 
-  return hasRefurbishedDetails ? 'refurbished' : 'new';
+  if (hasRefurbishedDetails) return 'refurbished';
+
+  if (Array.isArray(variants)) {
+    const hasRefurbishedVariant = variants.some(v =>
+      v.condition === 'refurbished' ||
+      !!v.grade ||
+      !!v.batteryHealth
+    );
+    const hasNewVariant = variants.some(v => v.condition === 'new');
+
+    if (hasRefurbishedVariant) {
+      return hasNewVariant ? 'both' : 'refurbished';
+    }
+  }
+
+  return 'new';
 }
 
 // --- PUBLIC ROUTES ---
@@ -186,7 +209,7 @@ adminProductsRouter.post('/', async (c) => {
     }
 
     const db = c.env.DB;
-    const normalizedCondition = normalizeProductCondition(body.condition, body.refurbished_details);
+    const normalizedCondition = normalizeProductCondition(body.condition, body.refurbished_details, body.variants);
 
     // Check slug uniqueness
     const existing = await db.prepare('SELECT id FROM products WHERE slug = ?').bind(slug).first();
@@ -255,7 +278,7 @@ adminProductsRouter.put('/:id', async (c) => {
       params.push(val);
     };
 
-    const normalizedCondition = normalizeProductCondition(body.condition, body.refurbished_details);
+    const normalizedCondition = normalizeProductCondition(body.condition, body.refurbished_details, body.variants);
 
     if (body.category_id !== undefined) addUpdate('category_id', body.category_id);
     if (body.name !== undefined) addUpdate('name', body.name);

@@ -21,6 +21,22 @@ describe('normalizeProductCondition', () => {
     ).toBe('refurbished');
   });
 
+  it('treats refurbished variant metadata as refurbished even when the top-level condition is stale', () => {
+    expect(
+      normalizeProductCondition('new', null, [{
+        color: 'Black',
+        storage: '128GB',
+        price: 499,
+        stock: 1,
+        condition: 'refurbished',
+        grade: 'like_new',
+        batteryHealth: '>90%',
+        images: ['https://example.com/phone.jpg'],
+        isActive: true
+      }])
+    ).toBe('refurbished');
+  });
+
   it('defaults legacy or missing values to new', () => {
     expect(normalizeProductCondition(undefined)).toBe('new');
     expect(normalizeProductCondition('unknown' as any)).toBe('new');
