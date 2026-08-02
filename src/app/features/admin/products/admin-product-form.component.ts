@@ -121,7 +121,7 @@ function frontendSlugify(text: string): string {
                     [class.border-gray-200]="form.get('condition')?.value !== 'new'"
                     [class.bg-white]="form.get('condition')?.value !== 'new'"
                   >
-                    <input type="radio" formControlName="condition" value="new" class="sr-only">
+                    <input type="radio" formControlName="condition" name="condition" [value]="'new'" class="sr-only">
                     <div class="flex flex-col gap-1.5">
                       <div class="flex items-center gap-2">
                         <span class="flex h-8 w-8 items-center justify-center rounded-full"
@@ -153,7 +153,7 @@ function frontendSlugify(text: string): string {
                     [class.border-gray-200]="form.get('condition')?.value !== 'refurbished'"
                     [class.bg-white]="form.get('condition')?.value !== 'refurbished'"
                   >
-                    <input type="radio" formControlName="condition" value="refurbished" class="sr-only">
+                    <input type="radio" formControlName="condition" name="condition" [value]="'refurbished'" class="sr-only">
                     <div class="flex flex-col gap-1.5">
                       <div class="flex items-center gap-2">
                         <span class="flex h-8 w-8 items-center justify-center rounded-full"
@@ -185,7 +185,7 @@ function frontendSlugify(text: string): string {
                     [class.border-gray-200]="form.get('condition')?.value !== 'both'"
                     [class.bg-white]="form.get('condition')?.value !== 'both'"
                   >
-                    <input type="radio" formControlName="condition" value="both" class="sr-only">
+                    <input type="radio" formControlName="condition" name="condition" [value]="'both'" class="sr-only">
                     <div class="flex flex-col gap-1.5">
                       <div class="flex items-center gap-2">
                         <span class="flex h-8 w-8 items-center justify-center rounded-full"
@@ -871,13 +871,10 @@ export class AdminProductFormComponent implements OnInit {
           slug: p.slug,
           category_id: p.category_id,
           description: p.description || '',
+          condition: savedCondition,
           is_featured: !!p.is_featured,
           is_active: !!p.is_active
         });
-
-        // Set condition explicitly via setValue on the control to guarantee
-        // the radio button group re-renders with the correct selection.
-        this.form.get('condition')!.setValue(savedCondition);
 
         // Load refurbished details if present
         if (p.refurbished_details) {
