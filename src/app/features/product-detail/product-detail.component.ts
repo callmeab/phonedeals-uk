@@ -739,8 +739,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const isNew = productCondition === 'new' || (productCondition === 'both' && cond === 'new');
 
     return variants.find(v =>
-      v.color.toLowerCase() === col.toLowerCase() &&
-      v.storage.toLowerCase() === sto.toLowerCase() &&
+      (v.color || '').toLowerCase() === (col || '').toLowerCase() &&
+      (v.storage || '').toLowerCase() === (sto || '').toLowerCase() &&
       (!sim || (v.simType || '').toLowerCase() === sim.toLowerCase()) &&
       // Match condition only when product has 'both'
       (productCondition !== 'both' || (cond ? v.condition === cond : true)) &&
@@ -761,7 +761,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     // 1. Try finding specific images for the selected color (use first matching variant)
     if (selectedCol && variants.length > 0) {
       const colorVariant = variants.find(v =>
-        v.color.toLowerCase() === selectedCol.toLowerCase() &&
+        (v.color || '').toLowerCase() === (selectedCol || '').toLowerCase() &&
         v.images && v.images.length > 0
       );
       if (colorVariant) {
@@ -901,8 +901,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const variants = this.productVariants();
     if (!col || !variants.length) return false;
     const v = variants.find(
-      vv => vv.color.toLowerCase() === col.toLowerCase() &&
-            vv.storage.toLowerCase() === storage.toLowerCase() &&
+      vv => (vv.color || '').toLowerCase() === (col || '').toLowerCase() &&
+            (vv.storage || '').toLowerCase() === (storage || '').toLowerCase() &&
             (!sim || (vv.simType || '').toLowerCase() === sim.toLowerCase())
     );
     if (!v) return false; // variant not defined — assume available
@@ -929,9 +929,9 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     const variants = this.productVariants();
     if (!col || !sto || !variants.length) return false;
     const v = variants.find(
-      vv => vv.color.toLowerCase() === col.toLowerCase() &&
-            vv.storage.toLowerCase() === sto.toLowerCase() &&
-            (vv.simType || '').toLowerCase() === sim.toLowerCase()
+      vv => (vv.color || '').toLowerCase() === (col || '').toLowerCase() &&
+            (vv.storage || '').toLowerCase() === (sto || '').toLowerCase() &&
+            (vv.simType || '').toLowerCase() === (sim || '').toLowerCase()
     );
     if (!v) return false;
     return (v.isActive === false) || (v.stock <= 0);
@@ -954,7 +954,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   colorFirstImage(color: string): string | null {
     const variants = this.productVariants();
     const colorVariant = variants.find(v =>
-      v.color.toLowerCase() === color.toLowerCase() &&
+      (v.color || '').toLowerCase() === (color || '').toLowerCase() &&
       v.images && v.images.length > 0
     );
     if (!colorVariant) return null;
@@ -968,8 +968,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     if (!col || !variants.length) return null;
     const sim = this.selectedSimType();
     const v = variants.find(
-      vv => vv.color.toLowerCase() === this.selectedColour()?.toLowerCase() &&
-            vv.storage.toLowerCase() === storage.toLowerCase() &&
+      vv => (vv.color || '').toLowerCase() === (this.selectedColour() || '').toLowerCase() &&
+            (vv.storage || '').toLowerCase() === (storage || '').toLowerCase() &&
             (!sim || (vv.simType || '').toLowerCase() === sim.toLowerCase())
     );
     return v?.price ?? null;
@@ -1169,6 +1169,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   /** Maps colour names to approximate hex values dynamically based on keywords */
   colourToHex(colour: string): string {
+    if (!colour) return '#E5E7EB';
     const key = colour.toLowerCase().trim();
 
     // 1. Exact matches for some common manufacturer specific shades

@@ -1,8 +1,9 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, Router } from '@angular/router';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ToastService } from '../../../core/services/toast.service';
@@ -39,7 +40,7 @@ interface RefurbishedDetails {
   notes: string;
 }
 
-const WATCHES_CATEGORY_ID = 5;
+const WATCHES_CATEGORY_ID = 9;
 
 @Component({
   selector: 'app-admin-product-form-watches',
@@ -355,80 +356,110 @@ const WATCHES_CATEGORY_ID = 5;
                 {{ variantMatrix().length }} variants
               </span>
             </div>
-            <div class="overflow-x-auto">
-              <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                  <tr>
-                    <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Case Colour</th>
-                    <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Size</th>
-                    <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Band</th>
-                    <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Connectivity</th>
-                    @if (form.get('condition')?.value !== 'new') {
-                      <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Condition</th>
-                    }
-                    <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Price (£)</th>
-                    <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Sale (£)</th>
-                    <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Stock</th>
-                    <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">SKU</th>
-                    <th class="px-3 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Active</th>
-                  </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-100">
-                  @for (variant of variantMatrix(); track $index) {
-                    <tr class="hover:bg-gray-50 transition-colors">
-                      <td class="px-3 py-2.5">
-                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold bg-amber-100 text-amber-800">
-                          {{ variant.caseColour }}
-                        </span>
-                      </td>
-                      <td class="px-3 py-2.5 text-gray-700 text-xs font-medium">{{ variant.size }}</td>
-                      <td class="px-3 py-2.5 text-gray-500 text-xs">{{ variant.bandMaterial }}</td>
-                      <td class="px-3 py-2.5 text-gray-500 text-xs">{{ variant.connectivity }}</td>
-                      @if (form.get('condition')?.value !== 'new') {
-                        <td class="px-3 py-2.5">
-                          <span class="text-xs"
-                            [class.text-blue-700]="variant.condition === 'new'"
-                            [class.text-amber-700]="variant.condition === 'refurbished'">
-                            {{ variant.condition === 'new' ? 'New' : 'Refurb' }}
-                            {{ variant.grade ? ' — ' + variant.grade : '' }}
-                          </span>
-                        </td>
+            <div class="flex flex-col">
+              @for (colorGroup of variantsByCaseColour(); track colorGroup.caseColour) {
+                <div class="border-b border-gray-100 last:border-b-0">
+                  <div class="px-6 py-3 bg-amber-50 border-b border-amber-100 flex items-center justify-between gap-3 flex-wrap">
+                    <div class="flex items-center gap-3 flex-shrink-0">
+                      <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+                        {{ colorGroup.caseColour }}
+                      </span>
+                      <span class="text-sm text-gray-500">{{ colorGroup.variants.length }} variant{{ colorGroup.variants.length === 1 ? '' : 's' }}</span>
+                    </div>
+                    <!-- Per-color image upload -->
+                    <div class="flex items-center gap-2 flex-wrap min-w-0">
+                      @if (colorImages(colorGroup.caseColour).length > 0) {
+                        <div class="flex gap-1 items-center flex-wrap min-w-0">
+                          <span class="text-xs text-gray-500 mr-1 whitespace-nowrap">{{ colorImages(colorGroup.caseColour).length }} image(s) uploaded</span>
+                          @for (img of colorImages(colorGroup.caseColour); track img; let i = $index) {
+                            <div class="relative group flex-shrink-0">
+                              <img [src]="img" class="h-10 w-10 rounded-md object-cover border border-gray-200 shadow-sm">
+                              <button type="button" (click)="removeVariantImage(colorGroup.caseColour, i)"
+                                class="absolute -top-1.5 -right-1.5 bg-red-100 text-red-600 rounded-full p-0.5 shadow-sm hover:bg-red-200 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none focus:opacity-100">
+                                <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                              </button>
+                            </div>
+                          }
+                        </div>
                       }
-                      <td class="px-3 py-2.5">
-                        <input type="number" min="0" step="0.01" [value]="variant.price"
-                          (change)="updateVariantField(variant, 'price', +$any($event.target).value)"
-                          class="w-20 rounded border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-xs py-1.5 px-2 border"
-                        >
-                      </td>
-                      <td class="px-3 py-2.5">
-                        <input type="number" min="0" step="0.01" [value]="variant.salePrice ?? ''"
-                          (change)="onSalePriceChange($event, variant)" placeholder="—"
-                          class="w-20 rounded border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-xs py-1.5 px-2 border"
-                        >
-                      </td>
-                      <td class="px-3 py-2.5">
-                        <input type="number" min="0" step="1" [value]="variant.stock"
-                          (change)="updateVariantField(variant, 'stock', +$any($event.target).value)"
-                          class="w-16 rounded border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-xs py-1.5 px-2 border"
-                        >
-                      </td>
-                      <td class="px-3 py-2.5">
-                        <input type="text" [value]="variant.sku ?? ''"
-                          (change)="updateVariantField(variant, 'sku', $any($event.target).value || null)"
-                          placeholder="—"
-                          class="w-24 rounded border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-xs py-1.5 px-2 border"
-                        >
-                      </td>
-                      <td class="px-3 py-2.5 text-center">
-                        <input type="checkbox" [checked]="variant.isActive"
-                          (change)="updateVariantField(variant, 'isActive', $any($event.target).checked)"
-                          class="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded"
-                        >
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+                      <label class="inline-flex flex-shrink-0 items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-xs font-medium text-gray-600 hover:bg-gray-50 cursor-pointer transition-colors focus-within:ring-2 focus-within:ring-accent focus-within:ring-offset-1 whitespace-nowrap">
+                        <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        {{ colorImages(colorGroup.caseColour).length > 0 ? 'Add more' : 'Upload images' }}
+                        <input type="file" class="sr-only" accept="image/*" multiple (change)="onVariantImageSelected($event, colorGroup.caseColour)">
+                      </label>
+                    </div>
+                  </div>
+                  <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                      <thead class="bg-gray-50">
+                        <tr>
+                          <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Size</th>
+                          <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Band</th>
+                          <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Connectivity</th>
+                          @if (form.get('condition')?.value !== 'new') {
+                            <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Condition</th>
+                          }
+                          <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Price (£)</th>
+                          <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Sale (£)</th>
+                          <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Stock</th>
+                          <th class="px-3 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">SKU</th>
+                          <th class="px-3 py-3 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Active</th>
+                        </tr>
+                      </thead>
+                      <tbody class="bg-white divide-y divide-gray-100">
+                        @for (variant of colorGroup.variants; track variant) {
+                          <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-3 py-2.5 text-gray-700 text-xs font-medium">{{ variant.size }}</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs">{{ variant.bandMaterial }}</td>
+                            <td class="px-3 py-2.5 text-gray-500 text-xs">{{ variant.connectivity }}</td>
+                            @if (form.get('condition')?.value !== 'new') {
+                              <td class="px-3 py-2.5">
+                                <span class="text-xs"
+                                  [class.text-blue-700]="variant.condition === 'new'"
+                                  [class.text-amber-700]="variant.condition === 'refurbished'">
+                                  {{ variant.condition === 'new' ? 'New' : 'Refurb' }}
+                                  {{ variant.grade ? ' — ' + variant.grade : '' }}
+                                </span>
+                              </td>
+                            }
+                            <td class="px-3 py-2.5">
+                              <input type="number" min="0" step="0.01" [value]="variant.price"
+                                (change)="updateVariantField(variant, 'price', +$any($event.target).value)"
+                                class="w-20 rounded border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-xs py-1.5 px-2 border"
+                              >
+                            </td>
+                            <td class="px-3 py-2.5">
+                              <input type="number" min="0" step="0.01" [value]="variant.salePrice ?? ''"
+                                (change)="onSalePriceChange($event, variant)" placeholder="—"
+                                class="w-20 rounded border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-xs py-1.5 px-2 border"
+                              >
+                            </td>
+                            <td class="px-3 py-2.5">
+                              <input type="number" min="0" step="1" [value]="variant.stock"
+                                (change)="updateVariantField(variant, 'stock', +$any($event.target).value)"
+                                class="w-16 rounded border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-xs py-1.5 px-2 border"
+                              >
+                            </td>
+                            <td class="px-3 py-2.5">
+                              <input type="text" [value]="variant.sku ?? ''"
+                                (change)="updateVariantField(variant, 'sku', $any($event.target).value || null)"
+                                placeholder="—"
+                                class="w-24 rounded border-gray-300 shadow-sm focus:border-accent focus:ring-accent text-xs py-1.5 px-2 border"
+                              >
+                            </td>
+                            <td class="px-3 py-2.5 text-center">
+                              <input type="checkbox" [checked]="variant.isActive"
+                                (change)="updateVariantField(variant, 'isActive', $any($event.target).checked)"
+                                class="h-4 w-4 text-accent focus:ring-accent border-gray-300 rounded"
+                              >
+                            </td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              }
             </div>
           </div>
         }
@@ -455,7 +486,7 @@ const WATCHES_CATEGORY_ID = 5;
             class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
             ← Back to Categories
           </button>
-          <button type="submit" [disabled]="isSubmitting()"
+          <button type="submit" [disabled]="isSubmitting() || isUploadingVariant()"
             class="inline-flex justify-center items-center py-2 px-6 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-amber-600 hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 disabled:opacity-60 disabled:cursor-not-allowed transition-colors">
             @if (isSubmitting()) {
               <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -503,6 +534,20 @@ export class AdminProductFormWatchesComponent {
   manualSlug = signal(false);
   isSubmitting = signal(false);
   submitError = signal<string | null>(null);
+  isUploadingVariant = signal(false);
+
+  variantsByCaseColour = computed(() => {
+    const matrix = this.variantMatrix();
+    const colorOrder = this.caseColours();
+    const groups: { caseColour: string; variants: WatchVariant[] }[] = [];
+    for (const caseColour of colorOrder) {
+      const variants = matrix.filter(v => v.caseColour === caseColour);
+      if (variants.length > 0) {
+        groups.push({ caseColour, variants });
+      }
+    }
+    return groups;
+  });
 
   readonly conditions = [
     { value: 'new', label: 'New', desc: 'Brand new, sealed' },
@@ -669,6 +714,91 @@ export class AdminProductFormWatchesComponent {
   onSalePriceChange(event: Event, variant: WatchVariant) {
     const val = (event.target as HTMLInputElement).value;
     this.updateVariantField(variant, 'salePrice', val ? +val : null);
+  }
+
+  colorImages(caseColour: string): string[] {
+    const variant = this.variantMatrix().find(v => v.caseColour === caseColour);
+    return variant?.images ?? [];
+  }
+
+  removeVariantImage(caseColour: string, index: number) {
+    this.variantMatrix.update(matrix =>
+      matrix.map(v => {
+        if (v.caseColour === caseColour) {
+          const imgs = [...v.images];
+          imgs.splice(index, 1);
+          return { ...v, images: imgs };
+        }
+        return v;
+      })
+    );
+    this.form.markAsDirty();
+  }
+
+  onVariantImageSelected(event: Event, caseColour: string) {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const files = Array.from(input.files);
+    this.isUploadingVariant.set(true);
+    void (async () => {
+      try {
+        const uploadedUrls: string[] = [];
+        for (const file of files.slice(0, 6)) {
+          const url = await this.uploadSingleFile(file);
+          if (url) uploadedUrls.push(url);
+        }
+        this.variantMatrix.update(matrix =>
+          matrix.map(v => {
+            if (v.caseColour === caseColour) {
+              return { ...v, images: [...v.images, ...uploadedUrls] };
+            }
+            return v;
+          })
+        );
+        this.form.markAsDirty();
+      } catch {
+        this.toast.warning('One or more variant images failed to upload.');
+      } finally {
+        this.isUploadingVariant.set(false);
+        input.value = '';
+      }
+    })();
+  }
+
+  private async uploadSingleFile(file: File): Promise<string | null> {
+    const contentType = file.type || 'application/octet-stream';
+    const presignRes = await firstValueFrom(
+      this.api.post<{
+        success: boolean;
+        data: { uploadUrl: string | null; publicUrl: string; filename: string; useDirectUpload?: boolean; };
+      }>('/api/admin/upload-url', {
+        filename: file.name,
+        contentType: contentType,
+        type: 'products'
+      })
+    );
+    if (!presignRes.success) throw new Error('Failed to get presigned URL');
+    
+    const { uploadUrl, publicUrl, filename, useDirectUpload } = presignRes.data;
+
+    if (useDirectUpload || !uploadUrl) {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('key', filename);
+      await firstValueFrom(
+        this.api.post<{ success: boolean; data: { publicUrl: string } }>('/api/admin/upload', formData)
+      );
+    } else {
+      const putRes = await fetch(uploadUrl, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': contentType },
+      });
+      if (!putRes.ok) {
+        throw new Error(`R2 PUT failed: ${putRes.status}`);
+      }
+    }
+    return publicUrl;
   }
 
   onSubmit() {
