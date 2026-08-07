@@ -56,36 +56,12 @@ function slugToPath(slug: string): string {
                 <span class="h-4 w-16 bg-white/10 rounded animate-pulse inline-block"></span>
               }
             } @else {
-              @for (cat of visibleCategories(); track cat.id) {
+              @for (cat of categories(); track cat.id) {
                 <a 
                   [routerLink]="slugToPath(cat.slug)" 
                   routerLinkActive="text-accent border-accent" 
                   class="text-gray-300 hover:text-white h-full inline-flex items-center px-1 text-sm font-medium border-b-2 border-transparent transition-colors duration-200"
                 >{{ cat.name }}</a>
-              }
-
-              @if (hiddenCategories().length > 0) {
-                <div class="relative h-full flex items-center" (mouseenter)="isDropdownOpen.set(true)" (mouseleave)="isDropdownOpen.set(false)">
-                  <button class="text-gray-300 hover:text-white inline-flex items-center px-1 text-sm font-medium transition-colors duration-200 focus:outline-none h-full border-b-2 border-transparent">
-                    More
-                    <svg class="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                    </svg>
-                  </button>
-                  
-                  @if (isDropdownOpen()) {
-                    <div class="absolute top-20 left-0 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 z-50">
-                      @for (cat of hiddenCategories(); track cat.id) {
-                        <a 
-                          [routerLink]="slugToPath(cat.slug)" 
-                          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                        >
-                          {{ cat.name }}
-                        </a>
-                      }
-                    </div>
-                  }
-                </div>
               }
             }
           </nav>
@@ -171,12 +147,8 @@ export class HeaderComponent implements OnInit {
 
   isScrolled = signal(false);
   isMobileMenuOpen = signal(false);
-  isDropdownOpen = signal(false);
   categories = signal<NavCategory[]>([]);
   isCategoriesLoading = signal(true);
-
-  visibleCategories = computed(() => this.categories().slice(0, 3));
-  hiddenCategories = computed(() => this.categories().slice(3));
 
   // Expose helper to template
   slugToPath = slugToPath;
@@ -191,9 +163,6 @@ export class HeaderComponent implements OnInit {
       .subscribe(() => {
         if (this.isMobileMenuOpen()) {
           this.isMobileMenuOpen.set(false);
-        }
-        if (this.isDropdownOpen()) {
-          this.isDropdownOpen.set(false);
         }
       });
   }
@@ -215,6 +184,9 @@ export class HeaderComponent implements OnInit {
         this.categories.set([
           { id: 1, name: 'iPhone', slug: 'iphone', display_order: 1 },
           { id: 2, name: 'Samsung', slug: 'samsung', display_order: 2 },
+          { id: 3, name: 'Accessories', slug: 'mobile-accessories', display_order: 3 },
+          { id: 4, name: 'iPad', slug: 'ipad', display_order: 4 },
+          { id: 5, name: 'Watches', slug: 'smart-watches', display_order: 5 },
         ]);
         this.isCategoriesLoading.set(false);
       }

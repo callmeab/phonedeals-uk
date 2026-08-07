@@ -21,7 +21,26 @@ export const routes: Routes = [
       },
       {
         path: 'products/new',
+        loadComponent: () => import('./features/admin/products/admin-product-category-select.component').then(m => m.AdminProductCategorySelectComponent),
+      },
+      {
+        path: 'products/new/mobile',
         loadComponent: () => import('./features/admin/products/admin-product-form.component').then(m => m.AdminProductFormComponent),
+        canDeactivate: [() => import('./core/guards/unsaved-changes.guard').then(m => m.unsavedChangesGuard)]
+      },
+      {
+        path: 'products/new/accessories',
+        loadComponent: () => import('./features/admin/products/admin-product-form-accessories.component').then(m => m.AdminProductFormAccessoriesComponent),
+        canDeactivate: [() => import('./core/guards/unsaved-changes.guard').then(m => m.unsavedChangesGuard)]
+      },
+      {
+        path: 'products/new/ipad',
+        loadComponent: () => import('./features/admin/products/admin-product-form-ipad.component').then(m => m.AdminProductFormIpadComponent),
+        canDeactivate: [() => import('./core/guards/unsaved-changes.guard').then(m => m.unsavedChangesGuard)]
+      },
+      {
+        path: 'products/new/watches',
+        loadComponent: () => import('./features/admin/products/admin-product-form-watches.component').then(m => m.AdminProductFormWatchesComponent),
         canDeactivate: [() => import('./core/guards/unsaved-changes.guard').then(m => m.unsavedChangesGuard)]
       },
       {
@@ -69,6 +88,18 @@ export const routes: Routes = [
         loadComponent: () => import('./features/samsung/samsung.component').then(m => m.SamsungComponent),
       },
       {
+        path: 'mobile-accessories',
+        loadComponent: () => import('./features/accessories/accessories.component').then(m => m.AccessoriesComponent),
+      },
+      {
+        path: 'ipad',
+        loadComponent: () => import('./features/ipad-listing/ipad-listing.component').then(m => m.IpadListingComponent),
+      },
+      {
+        path: 'smart-watches',
+        loadComponent: () => import('./features/watches-listing/watches-listing.component').then(m => m.WatchesListingComponent),
+      },
+      {
         path: 'phones/:slug',
         loadComponent: () => import('./features/product-detail/product-detail.component').then(m => m.ProductDetailComponent),
       },
@@ -105,9 +136,9 @@ export const routes: Routes = [
         path: ':slug',
         loadComponent: () => import('./features/category-listing/category-listing.component').then(m => m.CategoryListingComponent),
       },
-      { 
-        path: '**', 
-        loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent) 
+      {
+        path: '**',
+        loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent)
       }
     ]
   }

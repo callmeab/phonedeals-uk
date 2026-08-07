@@ -1,0 +1,309 @@
+<!-- ============================================================
+     HERO SECTION — iPad: Clean White/Purple, Split layout with SVG iPad
+     Style: Apple meets editorial — light, airy, premium
+     ============================================================ -->
+<section
+  class="relative overflow-hidden bg-gradient-to-br from-[#faf5ff] via-white to-[#f0f4ff] text-gray-900 pt-24 pb-20 md:pt-36 md:pb-28">
+
+  <!-- Purple radial glow top-right -->
+  <div
+    class="absolute top-0 right-0 w-[700px] h-[700px] rounded-full bg-gradient-to-bl from-violet-200/60 to-transparent pointer-events-none">
+  </div>
+  <!-- Indigo glow bottom-left -->
+  <div
+    class="absolute -bottom-32 -left-32 w-[500px] h-[500px] rounded-full bg-indigo-100/80 blur-3xl pointer-events-none">
+  </div>
+
+  <!-- Floating decorative circles -->
+  <div class="absolute top-20 left-[10%] w-6 h-6 rounded-full bg-violet-300/40 animate-pulse"></div>
+  <div class="absolute top-40 right-[15%] w-4 h-4 rounded-full bg-indigo-400/30 animate-pulse"
+    style="animation-delay: 0.5s"></div>
+  <div class="absolute bottom-20 left-[25%] w-5 h-5 rounded-full bg-purple-300/40 animate-pulse"
+    style="animation-delay: 1s"></div>
+
+  <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col lg:flex-row items-center gap-16 lg:gap-24">
+
+      <!-- Left: SVG iPad illustration -->
+      <div class="flex-shrink-0 w-64 md:w-80 lg:w-[360px] order-2 lg:order-1">
+        <div class="relative">
+          <!-- Soft purple halo behind iPad -->
+          <div class="absolute inset-0 flex items-center justify-center">
+            <div class="w-72 h-72 rounded-full bg-gradient-to-br from-violet-300/40 to-indigo-300/30 blur-2xl"></div>
+          </div>
+          <!-- iPad SVG -->
+          <svg viewBox="0 0 340 460" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="relative w-full drop-shadow-2xl">
+            <!-- iPad body -->
+            <rect x="20" y="10" width="300" height="440" rx="24" fill="url(#ipadBodyGrad)" stroke="#e2d9f3"
+              stroke-width="2" />
+            <!-- Screen bezel -->
+            <rect x="30" y="55" width="280" height="350" rx="8" fill="url(#ipadScreenGrad)" />
+            <!-- Home indicator bar -->
+            <rect x="145" y="425" width="50" height="5" rx="2.5" fill="#c4b5fd" />
+            <!-- Front camera dot -->
+            <circle cx="170" cy="33" r="5" fill="#d4c8f7" stroke="#c4b5fd" stroke-width="1" />
+            <!-- Wallpaper content — abstract gradient rectangles -->
+            <rect x="45" y="70" width="250" height="120" rx="6" fill="url(#widget1)" />
+            <rect x="45" y="202" width="118" height="90" rx="6" fill="url(#widget2)" />
+            <rect x="175" y="202" width="120" height="90" rx="6" fill="url(#widget3)" />
+            <rect x="45" y="304" width="250" height="90" rx="6" fill="url(#widget4)" opacity="0.8" />
+            <!-- Apple logo on back (reflected) -->
+            <text x="170" y="490" text-anchor="middle" class="text-gray-400" fill="#d8b4fe" font-size="14"
+              font-family="system-ui" opacity="0.6"></text>
+            <defs>
+              <linearGradient id="ipadBodyGrad" x1="20" y1="10" x2="340" y2="460" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#f5f3ff" />
+                <stop offset="100%" stop-color="#ede9fe" />
+              </linearGradient>
+              <linearGradient id="ipadScreenGrad" x1="30" y1="55" x2="310" y2="400" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#4c1d95" />
+                <stop offset="100%" stop-color="#1e1b4b" />
+              </linearGradient>
+              <linearGradient id="widget1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#7c3aed" />
+                <stop offset="100%" stop-color="#4f46e5" />
+              </linearGradient>
+              <linearGradient id="widget2" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#6d28d9" />
+                <stop offset="100%" stop-color="#5b21b6" />
+              </linearGradient>
+              <linearGradient id="widget3" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#4338ca" />
+                <stop offset="100%" stop-color="#312e81" />
+              </linearGradient>
+              <linearGradient id="widget4" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#3730a3" />
+                <stop offset="100%" stop-color="#1e1b4b" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <!-- Floating label chips around iPad -->
+          <div
+            class="absolute -top-3 -right-6 bg-violet-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg shadow-violet-500/30">
+            M4 Chip
+          </div>
+          <div
+            class="absolute top-1/3 -left-8 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg shadow-indigo-500/30">
+            Ultra Retina
+          </div>
+          <div
+            class="absolute bottom-12 -right-6 bg-purple-600 text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-lg shadow-purple-500/30">
+            All-Day Battery
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Text content -->
+      <div class="flex-1 text-center lg:text-left order-1 lg:order-2">
+        <app-breadcrumb [items]="[{ label: 'iPad', route: '/ipad' }]" class="inline-block mb-6"></app-breadcrumb>
+
+        <!-- Badge -->
+        <div
+          class="inline-flex items-center ml-10 gap-2 bg-violet-100 border border-violet-200 text-violet-700 text-xs font-bold uppercase tracking-widest px-4 py-2 rounded-full mb-6">
+          <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd"
+              d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z"
+              clip-rule="evenodd" />
+          </svg>
+          Powered by Apple Silicon
+        </div>
+
+        <h1 class="text-5xl sm:text-7xl lg:text-[5.5rem] font-black leading-[0.95] tracking-tighter mb-6">
+          <span class="text-gray-900">The Best</span><br>
+          <span class="bg-gradient-to-r from-violet-600 to-indigo-500 bg-clip-text text-transparent">iPad
+            Deals</span><br>
+          <span class="text-gray-900 text-4xl sm:text-5xl lg:text-6xl font-bold">in the UK.</span>
+        </h1>
+
+        <p class="text-lg md:text-xl text-gray-500 leading-relaxed max-w-xl mx-auto lg:mx-0">
+          iPad Pro, iPad Air, iPad mini — all models, new &amp; refurbished. Compare prices and find your perfect
+          tablet.
+        </p>
+
+        <!-- CTA chips -->
+        <div class="mt-8 flex flex-wrap gap-3 justify-center lg:justify-start">
+          <span
+            class="inline-flex items-center gap-1.5 bg-violet-50 border border-violet-200 text-violet-700 text-sm font-semibold px-4 py-2 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-violet-500 inline-block"></span> New iPads
+          </span>
+          <span
+            class="inline-flex items-center gap-1.5 bg-amber-50 border border-amber-200 text-amber-700 text-sm font-semibold px-4 py-2 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span> Refurbished
+          </span>
+          <span
+            class="inline-flex items-center gap-1.5 bg-indigo-50 border border-indigo-200 text-indigo-700 text-sm font-semibold px-4 py-2 rounded-full">
+            <span class="w-2 h-2 rounded-full bg-indigo-500 inline-block"></span> Wi-Fi + Cellular
+          </span>
+        </div>
+
+        <!-- Stats -->
+        <div class="mt-12 flex flex-wrap justify-center lg:justify-start gap-10">
+          <div class="text-center lg:text-left">
+            <p class="text-4xl font-black text-violet-600">{{ totalCount() }}+</p>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest mt-1">Models Available</p>
+          </div>
+          <div class="w-px bg-gray-200 hidden sm:block"></div>
+          <div class="text-center lg:text-left">
+            <p class="text-4xl font-black text-indigo-600">2yr</p>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest mt-1">Warranty Option</p>
+          </div>
+          <div class="w-px bg-gray-200 hidden sm:block"></div>
+          <div class="text-center lg:text-left">
+            <p class="text-4xl font-black text-purple-600">A+</p>
+            <p class="text-xs text-gray-400 font-semibold uppercase tracking-widest mt-1">Grade Available</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FILTER BAR
+     ============================================================ -->
+<div class="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-violet-100 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-3 sm:py-4">
+
+      <div class="w-full sm:w-auto overflow-x-auto scrollbar-hide -mx-2 px-2">
+        <div class="flex items-center gap-2 w-max">
+          <button (click)="setFilter('all')"
+            class="px-5 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all duration-200 focus:outline-none"
+            [ngClass]="activeFilter() === 'all'
+              ? 'bg-violet-600 text-white shadow-md shadow-violet-200'
+              : 'bg-violet-50 text-violet-700 hover:bg-violet-100'">
+            All iPads
+          </button>
+
+          @for (model of dynamicModels(); track model) {
+          <button (click)="setFilter(model)"
+            class="px-5 py-2 rounded-full text-[13px] font-semibold whitespace-nowrap transition-all duration-200 focus:outline-none"
+            [ngClass]="activeFilter() === model
+                ? 'bg-violet-600 text-white shadow-md shadow-violet-200'
+                : 'bg-violet-50 text-violet-700 hover:bg-violet-100'">
+            {{ model }}
+          </button>
+          }
+        </div>
+      </div>
+
+      <div class="flex-shrink-0 relative mt-2 sm:mt-0 self-end sm:self-auto">
+        <select [value]="sortKey()" (change)="onSortChange($event)"
+          class="appearance-none bg-transparent text-sm font-medium text-gray-700 pb-1 border-b-2 border-violet-500 focus:outline-none cursor-pointer pr-5">
+          <option value="featured">Featured First</option>
+          <option value="newest">Newest First</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+        </select>
+        <svg class="w-3 h-3 absolute right-0 top-1/2 -translate-y-1/2 pointer-events-none text-violet-600" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PRODUCT GRID
+     ============================================================ -->
+<section class="bg-[#faf5ff] min-h-screen">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+
+    @if (!isLoading() && displayedProducts().length > 0) {
+    <div class="mb-8 flex items-center justify-between">
+      <p class="text-[13px] font-medium text-gray-500">
+        Showing {{ displayedProducts().length }} of {{ filteredProducts().length }} results
+      </p>
+      @if (activeFilter() !== 'all') {
+      <button (click)="setFilter('all')" class="text-[13px] font-semibold text-violet-600 hover:underline">
+        Clear Filters
+      </button>
+      }
+    </div>
+    }
+
+    @if (isLoading()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+      @for (i of [1,2,3,4,5,6,7,8]; track i) {
+      <div class="bg-white rounded-3xl p-6 shadow-sm"><app-product-card-skeleton></app-product-card-skeleton></div>
+      }
+    </div>
+
+    } @else if (error()) {
+    <div class="flex flex-col items-center justify-center py-32 text-center">
+      <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-6">
+        <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h3 class="text-2xl font-bold text-gray-900">Something went wrong.</h3>
+      <p class="mt-2 text-gray-500">{{ error() }}</p>
+      <button (click)="load()"
+        class="mt-8 px-6 py-3 bg-violet-600 text-white text-sm font-semibold rounded-full hover:bg-violet-700 transition-colors">Try
+        Again</button>
+    </div>
+
+    } @else if (filteredProducts().length === 0) {
+    <div class="bg-white rounded-[2.5rem] shadow-sm py-20 px-4 text-center">
+      <app-empty-state
+        icon='<svg class="w-12 h-12 text-violet-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>'
+        heading="No iPads found." subheading="Try a different model filter or check back soon."></app-empty-state>
+    </div>
+
+    } @else {
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8">
+      @for (product of displayedProducts(); track product.id) {
+      <div
+        class="bg-white rounded-[2rem] shadow-sm hover:shadow-xl hover:shadow-violet-100 hover:-translate-y-1 transition-all duration-300 p-2 overflow-hidden border border-violet-100">
+        <app-product-card [product]="product" variant="grid"></app-product-card>
+      </div>
+      }
+    </div>
+
+    @if (canLoadMore()) {
+    <div class="mt-16 flex justify-center">
+      <button (click)="loadMore()" [disabled]="isLoadingMore()"
+        class="px-8 py-3 rounded-full bg-violet-600 text-white text-sm font-semibold hover:bg-violet-700 transition-colors duration-200 disabled:opacity-50 flex items-center justify-center min-w-[200px]">
+        @if (isLoadingMore()) {
+        <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        Loading...
+        } @else {
+        View More iPads
+        }
+      </button>
+    </div>
+    }
+    }
+
+  </div>
+</section>
+
+<!-- ============================================================
+     TRUST STRIP
+     ============================================================ -->
+<section class="bg-white py-12 border-t border-violet-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16">
+      @for (item of trustItems; track item.label) {
+      <div class="flex items-center gap-3 text-gray-700 hover:text-violet-600 transition-colors">
+        <div
+          class="w-10 h-10 rounded-full bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-500"
+          [innerHTML]="item.icon"></div>
+        <span class="text-sm font-bold tracking-tight">{{ item.label }}</span>
+      </div>
+      }
+    </div>
+  </div>
+</section>
