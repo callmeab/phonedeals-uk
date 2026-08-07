@@ -12,6 +12,7 @@ interface Category {
   slug: string;
   display_order: number;
   is_active: boolean | number;
+  theme_color?: string;
 }
 
 // The ID of the row currently being edited inline (null = none).
@@ -43,18 +44,6 @@ type EditingKey = number | 'new' | null;
         </button>
       </div>
 
-      <!-- ⚠️ Warning Banner -->
-      <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 flex gap-3">
-        <svg class="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-        </svg>
-        <div>
-          <p class="text-sm font-semibold text-amber-800">Heads up — this site currently supports iPhone and Samsung categories.</p>
-          <p class="text-sm text-amber-700 mt-0.5">
-            Adding a new category here requires corresponding <strong>frontend route configuration</strong> (new listing page, navigation link, and header menu entry) to be effective on the storefront.
-          </p>
-        </div>
-      </div>
 
       <!-- Table -->
       @if (isLoading()) {
@@ -68,6 +57,7 @@ type EditingKey = number | 'new' | null;
               <tr>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Slug</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Theme Color</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Order</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Status</th>
                 <th scope="col" class="relative px-6 py-3 w-32"><span class="sr-only">Actions</span></th>
@@ -94,6 +84,27 @@ type EditingKey = number | 'new' | null;
                     <td class="px-6 py-3">
                       <span class="text-sm text-gray-400 font-mono">{{ cat.slug }}</span>
                       <p class="text-xs text-gray-400 mt-0.5">Slug cannot be changed</p>
+                    </td>
+                    <td class="px-6 py-3">
+                      <div class="space-y-2 min-w-48">
+                        <label class="relative block h-24 rounded-xl border border-gray-200 shadow-inner overflow-hidden cursor-pointer"
+                          [style.background]="getThemePickerBackground(editForm.controls.theme_color.value)"
+                        >
+                          <input
+                            type="color"
+                            class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                            [value]="getThemeHex(editForm.controls.theme_color.value)"
+                            (input)="setThemeColor('edit', $event)"
+                          >
+                          <span class="absolute right-3 top-3 h-5 w-5 rounded-full border-2 border-white shadow"
+                            [style.background]="getThemeHex(editForm.controls.theme_color.value)"
+                          ></span>
+                        </label>
+                        <div class="flex items-center justify-between text-xs text-gray-500">
+                          <span>{{ getThemeHex(editForm.controls.theme_color.value) }}</span>
+                          <span>Click to choose</span>
+                        </div>
+                      </div>
                     </td>
                     <td class="px-6 py-3">
                       <input [formControl]="editForm.controls.display_order" type="number" min="1"
@@ -145,6 +156,12 @@ type EditingKey = number | 'new' | null;
                     <td class="px-6 py-4 whitespace-nowrap">
                       <code class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded font-mono">{{ cat.slug }}</code>
                     </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-2">
+                        <div class="h-4 w-4 rounded-full border border-gray-300" [style.background]="getThemeHex(cat.theme_color)"></div>
+                        <span class="text-xs text-gray-500">{{ getThemeColorLabel(cat.theme_color) }}</span>
+                      </div>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {{ cat.display_order }}
                     </td>
@@ -161,16 +178,28 @@ type EditingKey = number | 'new' | null;
                       </span>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                      <button
-                        (click)="startEdit(cat)"
-                        [disabled]="editingKey() !== null"
-                        class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-accent rounded px-1"
-                      >
-                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
-                        </svg>
-                        Edit
-                      </button>
+                      <div class="flex justify-end gap-3">
+                        <button
+                          (click)="startEdit(cat)"
+                          [disabled]="editingKey() !== null || deletingCategoryId() === cat.id"
+                          class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-accent disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-accent rounded px-1"
+                        >
+                          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                          </svg>
+                          Edit
+                        </button>
+                        <button
+                          (click)="deleteCategory(cat)"
+                          [disabled]="editingKey() !== null || deletingCategoryId() === cat.id"
+                          class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-red-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-red-400 rounded px-1"
+                        >
+                          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                          </svg>
+                          {{ deletingCategoryId() === cat.id ? 'Deleting...' : 'Delete' }}
+                        </button>
+                      </div>
                     </td>
                   }
 
@@ -199,6 +228,27 @@ type EditingKey = number | 'new' | null;
                     @if (newForm.controls.slug.invalid && newForm.controls.slug.touched) {
                       <p class="mt-0.5 text-xs text-red-600">Valid slug is required</p>
                     }
+                  </td>
+                  <td class="px-6 py-3">
+                    <div class="space-y-2 min-w-48">
+                      <label class="relative block h-24 rounded-xl border border-gray-200 shadow-inner overflow-hidden cursor-pointer"
+                        [style.background]="getThemePickerBackground(newForm.controls.theme_color.value)"
+                      >
+                        <input
+                          type="color"
+                          class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                          [value]="getThemeHex(newForm.controls.theme_color.value)"
+                          (input)="setThemeColor('new', $event)"
+                        >
+                        <span class="absolute right-3 top-3 h-5 w-5 rounded-full border-2 border-white shadow"
+                          [style.background]="getThemeHex(newForm.controls.theme_color.value)"
+                        ></span>
+                      </label>
+                      <div class="flex items-center justify-between text-xs text-gray-500">
+                        <span>{{ getThemeHex(newForm.controls.theme_color.value) }}</span>
+                        <span>Click to choose</span>
+                      </div>
+                    </div>
                   </td>
                   <td class="px-6 py-3">
                     <input [formControl]="newForm.controls.display_order" type="number" min="1"
@@ -258,15 +308,19 @@ export class AdminCategoriesComponent implements OnInit {
   private api = inject(ApiService);
   private fb = inject(NonNullableFormBuilder);
 
+  private defaultThemeColor = '#2563eb';
+
   categories = signal<Category[]>([]);
   isLoading = signal(true);
   isSaving = signal(false);
+  deletingCategoryId = signal<number | null>(null);
   editingKey = signal<EditingKey>(null);
   rowError = signal<string | null>(null);
 
   // Form for editing an existing row
   editForm = this.fb.group({
     name:          ['', Validators.required],
+    theme_color:   [this.createThemeValue(this.defaultThemeColor)],
     display_order: [1],
     is_active:     [true],
   });
@@ -275,6 +329,7 @@ export class AdminCategoriesComponent implements OnInit {
   newForm = this.fb.group({
     name:          ['', Validators.required],
     slug:          ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
+    theme_color:   [this.createThemeValue(this.defaultThemeColor)],
     display_order: [99],
   });
 
@@ -297,6 +352,7 @@ export class AdminCategoriesComponent implements OnInit {
     this.rowError.set(null);
     this.editForm.reset({
       name:          cat.name,
+      theme_color:   cat.theme_color || this.createThemeValue(this.defaultThemeColor),
       display_order: cat.display_order,
       is_active:     !!cat.is_active,
     });
@@ -305,7 +361,7 @@ export class AdminCategoriesComponent implements OnInit {
 
   addNewRow() {
     this.rowError.set(null);
-    this.newForm.reset({ name: '', slug: '', display_order: 99 });
+    this.newForm.reset({ name: '', slug: '', theme_color: this.createThemeValue(this.defaultThemeColor), display_order: 99 });
     this.editingKey.set('new');
   }
 
@@ -323,6 +379,7 @@ export class AdminCategoriesComponent implements OnInit {
 
     const payload = {
       name:          this.editForm.value.name,
+      theme_color:   this.editForm.value.theme_color,
       display_order: this.editForm.value.display_order,
       is_active:     this.editForm.value.is_active,
     };
@@ -350,6 +407,7 @@ export class AdminCategoriesComponent implements OnInit {
     const payload = {
       name:          this.newForm.value.name,
       slug:          this.newForm.value.slug,
+      theme_color:   this.newForm.value.theme_color,
       display_order: this.newForm.value.display_order,
     };
 
@@ -364,5 +422,115 @@ export class AdminCategoriesComponent implements OnInit {
         this.isSaving.set(false);
       },
     });
+  }
+
+  deleteCategory(cat: Category) {
+    const confirmed = window.confirm(`Delete "${cat.name}" category? This cannot be undone.`);
+    if (!confirmed) return;
+
+    this.rowError.set(null);
+    this.deletingCategoryId.set(cat.id);
+
+    this.api.delete<{ success: boolean }>(`/api/admin/categories/${cat.id}`).subscribe({
+      next: () => {
+        this.categories.update(list => list.filter(c => c.id !== cat.id));
+        this.deletingCategoryId.set(null);
+      },
+      error: (err: Error) => {
+        this.rowError.set(err.message || 'Failed to delete category.');
+        this.deletingCategoryId.set(null);
+      },
+    });
+  }
+
+  getThemeColorBg(themeColor?: string) {
+    return '';
+  }
+
+  getThemeColorLabel(themeColor?: string) {
+    return this.getThemeHex(themeColor).toUpperCase();
+  }
+
+  getThemeHex(themeColor?: string | null) {
+    const theme = this.getThemePreset(themeColor || undefined);
+    return theme.accent;
+  }
+
+  getThemePickerBackground(themeColor?: string | null) {
+    const accent = this.getThemeHex(themeColor);
+    return `linear-gradient(to bottom, rgba(255,255,255,0.75), rgba(0,0,0,0.45)), linear-gradient(135deg, #ffffff 0%, ${accent} 55%, #020617 100%)`;
+  }
+
+  setThemeColor(form: 'edit' | 'new', event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    const themeValue = this.createThemeValue(value);
+
+    if (form === 'edit') {
+      this.editForm.controls.theme_color.setValue(themeValue);
+    } else {
+      this.newForm.controls.theme_color.setValue(themeValue);
+    }
+  }
+
+  private getThemePreset(themeColor?: string) {
+    try {
+      const theme = themeColor ? JSON.parse(themeColor) as { accent?: string; bg?: string } : {};
+      if (theme.accent && /^#[0-9a-fA-F]{6}$/.test(theme.accent)) {
+        return { accent: theme.accent };
+      }
+      if (theme.bg) {
+        return { accent: this.classToHex(theme.bg) };
+      }
+    } catch {
+      return { accent: this.defaultThemeColor };
+    }
+
+    return { accent: this.defaultThemeColor };
+  }
+
+  private createThemeValue(accent: string) {
+    const color = /^#[0-9a-fA-F]{6}$/.test(accent) ? accent : this.defaultThemeColor;
+    const dark = this.mixHex(color, '#020617', 0.62);
+    const soft = this.mixHex(color, '#ffffff', 0.38);
+
+    return JSON.stringify({
+      accent: color,
+      heroBackground: `radial-gradient(circle at 70% 18%, ${soft}55 0, transparent 32%), linear-gradient(135deg, ${dark} 0%, #020617 58%, ${color} 145%)`,
+      heroGlow: `radial-gradient(circle, ${color}80 0%, ${color}28 38%, transparent 72%)`,
+      heroPanel: `linear-gradient(135deg, ${color} 0%, ${dark} 100%)`,
+    });
+  }
+
+  private classToHex(className: string) {
+    const colorMap: Record<string, string> = {
+      'bg-black': '#111827',
+      'bg-blue-600': '#2563eb',
+      'bg-green-600': '#16a34a',
+      'bg-purple-600': '#9333ea',
+      'bg-slate-900': '#0f172a',
+      'bg-zinc-900': '#18181b',
+      'bg-gray-900': '#111827',
+      'bg-neutral-900': '#171717',
+    };
+
+    return colorMap[className] || this.defaultThemeColor;
+  }
+
+  private mixHex(from: string, to: string, weight: number) {
+    const fromRgb = this.hexToRgb(from);
+    const toRgb = this.hexToRgb(to);
+    const mixed = fromRgb.map((channel, index) =>
+      Math.round(channel * (1 - weight) + toRgb[index] * weight)
+    );
+
+    return `#${mixed.map(channel => channel.toString(16).padStart(2, '0')).join('')}`;
+  }
+
+  private hexToRgb(hex: string) {
+    return [
+      parseInt(hex.slice(1, 3), 16),
+      parseInt(hex.slice(3, 5), 16),
+      parseInt(hex.slice(5, 7), 16),
+    ];
   }
 }

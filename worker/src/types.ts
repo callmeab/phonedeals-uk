@@ -39,7 +39,9 @@ export interface Category {
   slug: string;
   display_order: number;
   is_active: boolean | number;
+  theme_color?: string; // JSON string representing the theme configuration
 }
+
 
 export interface Product {
   id: number;

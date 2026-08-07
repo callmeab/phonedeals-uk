@@ -5,4 +5,5 @@ export interface Category {
   description?: string;
   createdAt?: string;
   updatedAt?: string;
+  theme_color?: string;
 }

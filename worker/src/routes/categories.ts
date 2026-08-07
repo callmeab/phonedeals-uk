@@ -17,17 +17,19 @@ import { validate, ValidationError } from '../utils/validate';
 export const publicCategoriesRouter = new Hono<{ Bindings: Env }>();
 export const adminCategoriesRouter = new Hono<{ Bindings: Env }>();
 
+const DEFAULT_THEME_COLOR = '{"accent":"#2563eb","heroBackground":"radial-gradient(circle at 70% 18%, #b7cdf655 0, transparent 32%), linear-gradient(135deg, #10214f 0%, #020617 58%, #2563eb 145%)","heroGlow":"radial-gradient(circle, #2563eb80 0%, #2563eb28 38%, transparent 72%)","heroPanel":"linear-gradient(135deg, #2563eb 0%, #10214f 100%)"}';
+
 // --- PUBLIC ---
 // GET /api/categories
 // Returns all active categories, ordered by display_order ASC
 publicCategoriesRouter.get('/', async (c) => {
   try {
     const { results } = await c.env.DB.prepare(`
-      SELECT id, name, slug, display_order
+      SELECT id, name, slug, display_order, theme_color
       FROM categories
       WHERE is_active = 1
       ORDER BY display_order ASC
-    `).all<Pick<Category, 'id' | 'name' | 'slug' | 'display_order'>>();
+    `).all<Pick<Category, 'id' | 'name' | 'slug' | 'display_order' | 'theme_color'>>();
 
     return c.json({ success: true, data: results });
   } catch (err) {
@@ -42,7 +44,7 @@ publicCategoriesRouter.get('/', async (c) => {
 adminCategoriesRouter.get('/', async (c) => {
   try {
     const { results } = await c.env.DB.prepare(`
-      SELECT id, name, slug, display_order, is_active
+      SELECT id, name, slug, display_order, is_active, theme_color
       FROM categories
       ORDER BY display_order ASC
     `).all<Category>();
@@ -78,12 +80,13 @@ adminCategoriesRouter.post('/', async (c) => {
     }
 
     const displayOrder = body.display_order ? Number(body.display_order) : 99;
+    const themeColor = body.theme_color ? body.theme_color : DEFAULT_THEME_COLOR;
 
     const result = await c.env.DB.prepare(`
-      INSERT INTO categories (name, slug, display_order, is_active)
-      VALUES (?, ?, ?, 1)
+      INSERT INTO categories (name, slug, display_order, is_active, theme_color)
+      VALUES (?, ?, ?, 1, ?)
       RETURNING *
-    `).bind(body.name, body.slug, displayOrder).first<Category>();
+    `).bind(body.name, body.slug, displayOrder, themeColor).first<Category>();
 
     return c.json({ success: true, data: result }, 201);
   } catch (err: any) {
@@ -121,6 +124,10 @@ adminCategoriesRouter.put('/:id', async (c) => {
       updates.push('is_active = ?');
       params.push(body.is_active ? 1 : 0);
     }
+    if (body.theme_color !== undefined) {
+      updates.push('theme_color = ?');
+      params.push(body.theme_color);
+    }
 
     if (updates.length === 0) {
       return c.json({ success: true, data: current });
@@ -134,5 +141,46 @@ adminCategoriesRouter.put('/:id', async (c) => {
   } catch (err) {
     console.error('PUT /api/admin/categories/:id error:', err);
     return c.json({ success: false, error: 'Failed to update category' }, 500);
+  }
+});
+
+// DELETE /api/admin/categories/:id
+// Deletes a category only when no products are assigned to it.
+adminCategoriesRouter.delete('/:id', async (c) => {
+  try {
+    const id = c.req.param('id');
+    const db = c.env.DB;
+
+    const current = await db.prepare(
+      'SELECT id FROM categories WHERE id = ?'
+    ).bind(id).first<Category>();
+
+    if (!current) {
+      return c.json({ success: false, error: 'Category not found' }, 404);
+    }
+
+    const productCount = await db.prepare(
+      'SELECT COUNT(*) as count FROM products WHERE category_id = ?'
+    ).bind(id).first<{ count: number }>();
+
+    if ((productCount?.count || 0) > 0) {
+      return c.json({
+        success: false,
+        error: 'Cannot delete this category because products are assigned to it.',
+      }, 409);
+    }
+
+    const result = await db.prepare(
+      'DELETE FROM categories WHERE id = ?'
+    ).bind(id).run();
+
+    if (!result.success) {
+      return c.json({ success: false, error: 'Failed to delete category' }, 500);
+    }
+
+    return c.json({ success: true });
+  } catch (err) {
+    console.error('DELETE /api/admin/categories/:id error:', err);
+    return c.json({ success: false, error: 'Failed to delete category' }, 500);
   }
 });

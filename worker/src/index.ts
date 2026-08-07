@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { Env } from './types';
 import { authMiddleware } from './middleware/auth';
 import authRouter from './routes/auth';
@@ -16,6 +17,15 @@ import ordersRouter from './routes/orders';
 
 // Create a new Hono app with our Env bindings
 const app = new Hono<{ Bindings: Env }>();
+
+// CORS — allow Angular dev server (4200) and production domain
+app.use('*', cors({
+  origin: ['http://localhost:4200', 'https://mobello.uk', 'https://www.mobello.uk'],
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+}));
+
 
 // Base path for all API routes
 const api = app.basePath('/api');

@@ -101,6 +101,10 @@ export const routes: Routes = [
         path: 'contact-us',
         loadComponent: () => import('./features/pages/contact-us/contact-us.component').then(m => m.ContactUsComponent),
       },
+      {
+        path: ':slug',
+        loadComponent: () => import('./features/category-listing/category-listing.component').then(m => m.CategoryListingComponent),
+      },
       { 
         path: '**', 
         loadComponent: () => import('./shared/components/not-found/not-found.component').then(m => m.NotFoundComponent) 

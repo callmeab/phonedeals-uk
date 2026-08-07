@@ -1,13 +1,26 @@
-import { Component, ChangeDetectionStrategy, signal, inject, HostListener } from '@angular/core';
+import { Component, ChangeDetectionStrategy, signal, inject, HostListener, OnInit, PLATFORM_ID, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive, Router, NavigationEnd } from '@angular/router';
-import { NgClass, AsyncPipe } from '@angular/common';
+import { NgClass, isPlatformBrowser } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ApiService } from '../../../core/services/api.service';
+
+interface NavCategory {
+  id: number;
+  name: string;
+  slug: string;
+  display_order: number;
+}
+
+// Map slug to route path
+function slugToPath(slug: string): string {
+  return `/${slug}`;
+}
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, NgClass, AsyncPipe],
+  imports: [RouterLink, RouterLinkActive, NgClass],
   template: `
     <!-- Skip to content link for accessibility -->
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-accent text-white px-4 py-2 rounded z-[100] font-semibold">
@@ -35,8 +48,46 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
           <!-- Desktop Nav -->
           <nav role="navigation" aria-label="Main Navigation" class="hidden lg:flex items-center space-x-8 h-full">
             <a routerLink="/" routerLinkActive="text-accent border-accent" [routerLinkActiveOptions]="{exact: true}" class="text-gray-300 hover:text-white h-full inline-flex items-center px-1 text-sm font-medium border-b-2 border-transparent transition-colors duration-200">Home</a>
-            <a routerLink="/iphone" routerLinkActive="text-accent border-accent" class="text-gray-300 hover:text-white h-full inline-flex items-center px-1 text-sm font-medium border-b-2 border-transparent transition-colors duration-200">iPhone</a>
-            <a routerLink="/samsung" routerLinkActive="text-accent border-accent" class="text-gray-300 hover:text-white h-full inline-flex items-center px-1 text-sm font-medium border-b-2 border-transparent transition-colors duration-200">Samsung</a>
+            
+            <!-- Dynamic Category Links -->
+            @if (isCategoriesLoading()) {
+              <!-- Skeleton placeholders while loading -->
+              @for (sk of [1,2]; track sk) {
+                <span class="h-4 w-16 bg-white/10 rounded animate-pulse inline-block"></span>
+              }
+            } @else {
+              @for (cat of visibleCategories(); track cat.id) {
+                <a 
+                  [routerLink]="slugToPath(cat.slug)" 
+                  routerLinkActive="text-accent border-accent" 
+                  class="text-gray-300 hover:text-white h-full inline-flex items-center px-1 text-sm font-medium border-b-2 border-transparent transition-colors duration-200"
+                >{{ cat.name }}</a>
+              }
+
+              @if (hiddenCategories().length > 0) {
+                <div class="relative h-full flex items-center" (mouseenter)="isDropdownOpen.set(true)" (mouseleave)="isDropdownOpen.set(false)">
+                  <button class="text-gray-300 hover:text-white inline-flex items-center px-1 text-sm font-medium transition-colors duration-200 focus:outline-none h-full border-b-2 border-transparent">
+                    More
+                    <svg class="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                  </button>
+                  
+                  @if (isDropdownOpen()) {
+                    <div class="absolute top-20 left-0 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 z-50">
+                      @for (cat of hiddenCategories(); track cat.id) {
+                        <a 
+                          [routerLink]="slugToPath(cat.slug)" 
+                          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                        >
+                          {{ cat.name }}
+                        </a>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+            }
           </nav>
 
           <!-- Desktop CTA -->
@@ -80,10 +131,23 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         class="lg:hidden absolute top-20 left-0 w-full bg-primary/95 backdrop-blur-md transition-all duration-300 ease-in-out overflow-hidden flex flex-col"
         [ngClass]="isMobileMenuOpen() ? 'h-[calc(100vh-5rem)] opacity-100 border-t border-white/10' : 'h-0 opacity-0 border-transparent border-t-0'"
       >
-        <nav role="navigation" aria-label="Mobile Navigation" class="px-4 pt-4 pb-6 flex-1 flex flex-col space-y-2">
+        <nav role="navigation" aria-label="Mobile Navigation" class="px-4 pt-4 pb-6 flex-1 flex flex-col space-y-2 overflow-y-auto">
           <a routerLink="/" routerLinkActive="text-accent bg-white/5" [routerLinkActiveOptions]="{exact: true}" class="text-gray-300 hover:text-white hover:bg-white/5 block px-4 py-4 rounded-md text-lg font-medium transition-colors">Home</a>
-          <a routerLink="/iphone" routerLinkActive="text-accent bg-white/5" class="text-gray-300 hover:text-white hover:bg-white/5 block px-4 py-4 rounded-md text-lg font-medium transition-colors">iPhone</a>
-          <a routerLink="/samsung" routerLinkActive="text-accent bg-white/5" class="text-gray-300 hover:text-white hover:bg-white/5 block px-4 py-4 rounded-md text-lg font-medium transition-colors">Samsung</a>
+          
+          <!-- Dynamic Mobile Category Links -->
+          @if (isCategoriesLoading()) {
+            @for (sk of [1,2]; track sk) {
+              <div class="h-12 bg-white/5 rounded-md animate-pulse"></div>
+            }
+          } @else {
+            @for (cat of categories(); track cat.id) {
+              <a 
+                [routerLink]="slugToPath(cat.slug)" 
+                routerLinkActive="text-accent bg-white/5" 
+                class="text-gray-300 hover:text-white hover:bg-white/5 block px-4 py-4 rounded-md text-lg font-medium transition-colors"
+              >{{ cat.name }}</a>
+            }
+          }
           
           <div class="pt-6 pb-2 mt-auto">
             <a routerLink="/" class="flex items-center justify-center space-x-2 bg-accent hover:bg-blue-600 text-white w-full px-5 py-4 rounded-full text-lg font-semibold transition-colors shadow-sm shadow-accent/20">
@@ -100,11 +164,22 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   styles: [],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit {
   private router = inject(Router);
+  private api = inject(ApiService);
+  private platformId = inject(PLATFORM_ID);
 
   isScrolled = signal(false);
   isMobileMenuOpen = signal(false);
+  isDropdownOpen = signal(false);
+  categories = signal<NavCategory[]>([]);
+  isCategoriesLoading = signal(true);
+
+  visibleCategories = computed(() => this.categories().slice(0, 3));
+  hiddenCategories = computed(() => this.categories().slice(3));
+
+  // Expose helper to template
+  slugToPath = slugToPath;
 
   constructor() {
     // Automatically close mobile menu when navigating to a new route
@@ -117,7 +192,33 @@ export class HeaderComponent {
         if (this.isMobileMenuOpen()) {
           this.isMobileMenuOpen.set(false);
         }
+        if (this.isDropdownOpen()) {
+          this.isDropdownOpen.set(false);
+        }
       });
+  }
+
+  ngOnInit() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.loadCategories();
+    }
+  }
+
+  private loadCategories() {
+    this.api.get<{ success: boolean; data: NavCategory[] }>('/api/categories').subscribe({
+      next: res => {
+        this.categories.set(res.data || []);
+        this.isCategoriesLoading.set(false);
+      },
+      error: () => {
+        // Fallback: hardcoded list agar API fail ho jaye
+        this.categories.set([
+          { id: 1, name: 'iPhone', slug: 'iphone', display_order: 1 },
+          { id: 2, name: 'Samsung', slug: 'samsung', display_order: 2 },
+        ]);
+        this.isCategoriesLoading.set(false);
+      }
+    });
   }
 
   @HostListener('window:scroll')
