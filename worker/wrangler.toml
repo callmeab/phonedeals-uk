@@ -7,6 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 binding = "DB"
 database_name = "phonedeals-uk-db"
 database_id = "c42d58ea-707a-4d15-aa1c-9d79d618bd80"
+migrations_dir = "src/db/migrations"
 
 [[r2_buckets]]
 binding = "IMAGES"
