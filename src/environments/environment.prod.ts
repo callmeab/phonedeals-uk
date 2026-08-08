@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://mobello.uk/api'
+  apiUrl: 'https://mobello.uk'
 };
