@@ -33,7 +33,7 @@ export interface OrderDetails {
   totalMonthly: number;
   status: 'Pending' | 'Dispatched' | 'Completed' | 'Cancelled';
   date: string;
-  paymentInfo: PaymentInfo;
+  paymentInfo?: PaymentInfo;
   items: CartItem[];
   addedCharger?: boolean;
   addedCover?: boolean;
