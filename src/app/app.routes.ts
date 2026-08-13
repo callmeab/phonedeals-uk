@@ -45,7 +45,7 @@ export const routes: Routes = [
       },
       {
         path: 'products/:id/edit',
-        loadComponent: () => import('./features/admin/products/admin-product-form.component').then(m => m.AdminProductFormComponent),
+        loadComponent: () => import('./features/admin/products/admin-product-edit-wrapper.component').then(m => m.AdminProductEditWrapperComponent),
         canDeactivate: [() => import('./core/guards/unsaved-changes.guard').then(m => m.unsavedChangesGuard)]
       },
       {

@@ -1,12 +1,13 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ToastService } from '../../../core/services/toast.service';
+import { Product } from '../../../core/models/product.model';
 
 function frontendSlugify(text: string): string {
   if (!text) return '';
@@ -30,7 +31,7 @@ interface AccessoryVariant {
 }
 
 /** CATEGORY_ID for Mobile Accessories in the DB */
-const ACCESSORIES_CATEGORY_ID = 7;
+const ACCESSORIES_CATEGORY_ID = 6;
 
 @Component({
   selector: 'app-admin-product-form-accessories',
@@ -51,9 +52,9 @@ const ACCESSORIES_CATEGORY_ID = 7;
         <div>
           <div class="flex items-center gap-3 mb-1">
             <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-xl">🎧</span>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">New Mobile Accessory</h1>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ isEditMode() ? 'Edit Accessory' : 'New Mobile Accessory' }}</h1>
           </div>
-          <p class="text-sm text-gray-500 ml-12">Add a new accessory to your catalog (Cases, Chargers, Cables, etc.)</p>
+          <p class="text-sm text-gray-500 ml-12">{{ isEditMode() ? 'Update the details for this accessory.' : 'Add a new accessory to your catalog (Cases, Chargers, Cables, etc.)' }}</p>
         </div>
         <a routerLink="/xk92-admin/products" class="text-sm font-medium text-gray-500 hover:text-gray-700 underline focus:outline-none">
           Cancel &amp; Return
@@ -61,6 +62,15 @@ const ACCESSORIES_CATEGORY_ID = 7;
       </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-8">
+        
+        @if (isPageLoading()) {
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 py-32 flex flex-col items-center justify-center">
+            <app-loading-spinner size="lg"></app-loading-spinner>
+            <p class="mt-4 text-sm text-gray-500 font-medium">Loading accessory details...</p>
+          </div>
+        } @else {
+          <!-- Form sections wrapper -->
+          <div class="space-y-8">
 
         <!-- Basic Info -->
         <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
@@ -350,20 +360,23 @@ const ACCESSORIES_CATEGORY_ID = 7;
               </svg>
               Saving...
             } @else {
-              Save Accessory
+              {{ isEditMode() ? 'Update Accessory' : 'Save Accessory' }}
             }
           </button>
         </div>
 
+          </div>
+        }
       </form>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdminProductFormAccessoriesComponent {
+export class AdminProductFormAccessoriesComponent implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private api = inject(ApiService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
 
   form = this.fb.group({
@@ -382,6 +395,10 @@ export class AdminProductFormAccessoriesComponent {
   isSubmitting = signal(false);
   submitError = signal<string | null>(null);
   isUploadingVariant = signal(false);
+  
+  isEditMode = signal(false);
+  isPageLoading = signal(false);
+  productId = signal<number | null>(null);
 
   variantsByColour = computed(() => {
     const matrix = this.variantMatrix();
@@ -402,6 +419,88 @@ export class AdminProductFormAccessoriesComponent {
     this.form.get('name')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(name => {
       if (!this.manualSlug() && name) {
         this.form.patchValue({ slug: frontendSlugify(name) }, { emitEvent: false });
+      }
+    });
+  }
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditMode.set(true);
+      this.productId.set(+id);
+      this.loadProduct(+id);
+    }
+  }
+
+  loadProduct(id: number) {
+    this.isPageLoading.set(true);
+    this.api.get<{ success: boolean; data: Product }>(`/api/admin/products/${id}`).subscribe({
+      next: (res) => {
+        const product = res.data;
+        if (!product) {
+          this.toast.error('Product not found.');
+          this.router.navigate(['/xk92-admin/products']);
+          return;
+        }
+
+        // storage_options was used for accessory_type in accessories
+        let accessoryType = '';
+        if (product.storage_options) {
+          try {
+            const parsed = JSON.parse(product.storage_options);
+            accessoryType = Array.isArray(parsed) && parsed.length > 0 ? parsed[0] : '';
+          } catch {
+            accessoryType = product.storage_options;
+          }
+        }
+
+        let compatList: string[] = [];
+        if (product.sim_types) {
+          try {
+            compatList = JSON.parse(product.sim_types) || [];
+          } catch {}
+        }
+        
+        let colorsList: string[] = [];
+        if (product.colours) {
+          try {
+            colorsList = JSON.parse(product.colours) || [];
+          } catch {}
+        }
+
+        this.form.patchValue({
+          name: product.name,
+          slug: product.slug,
+          accessory_type: accessoryType,
+          description: product.description || '',
+          is_featured: !!product.is_featured,
+          is_active: !!product.is_active,
+        });
+
+        this.manualSlug.set(true);
+        this.colours.set(colorsList);
+        this.compatibility.set(compatList);
+
+        // Map existing variants
+        if (product.variants && product.variants.length > 0) {
+          const matrix: AccessoryVariant[] = product.variants.map((v: any) => ({
+            colour: v.colour,
+            compatibility: v.compatibility || 'Universal', // mapping condition/etc to compatibility for accessories
+            price: v.price,
+            salePrice: v.sale_price,
+            stock: v.stock,
+            sku: v.sku,
+            isActive: !!v.is_active,
+            images: v.images ? (typeof v.images === 'string' ? JSON.parse(v.images) : v.images) : []
+          }));
+          this.variantMatrix.set(matrix);
+        }
+
+        this.isPageLoading.set(false);
+      },
+      error: () => {
+        this.toast.error('Failed to load accessory.');
+        this.router.navigate(['/xk92-admin/products']);
       }
     });
   }
@@ -611,9 +710,13 @@ export class AdminProductFormAccessoriesComponent {
       variants: this.variantMatrix(),
     };
 
-    this.api.post('/api/admin/products', payload).subscribe({
+    const request = this.isEditMode() 
+      ? this.api.put(`/api/admin/products/${this.productId()}`, payload)
+      : this.api.post('/api/admin/products', payload);
+
+    request.subscribe({
       next: () => {
-        this.toast.success('Accessory saved successfully!');
+        this.toast.success(this.isEditMode() ? 'Accessory updated successfully!' : 'Accessory saved successfully!');
         this.router.navigate(['/xk92-admin/products']);
       },
       error: (err: Error) => {

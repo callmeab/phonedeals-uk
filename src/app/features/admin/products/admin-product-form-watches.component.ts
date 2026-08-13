@@ -1,12 +1,13 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ToastService } from '../../../core/services/toast.service';
+import { Product } from '../../../core/models/product.model';
 
 function frontendSlugify(text: string): string {
   if (!text) return '';
@@ -40,7 +41,8 @@ interface RefurbishedDetails {
   notes: string;
 }
 
-const WATCHES_CATEGORY_ID = 9;
+/** CATEGORY_ID for Smart Watches in the DB */
+const WATCHES_CATEGORY_ID = 8;
 
 @Component({
   selector: 'app-admin-product-form-watches',
@@ -61,9 +63,9 @@ const WATCHES_CATEGORY_ID = 9;
         <div>
           <div class="flex items-center gap-3 mb-1">
             <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-xl">⌚</span>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">New Smart Watch</h1>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ isEditMode() ? 'Edit Smart Watch' : 'New Smart Watch' }}</h1>
           </div>
-          <p class="text-sm text-gray-500 ml-12">Add a new smart watch with sizes, bands, and connectivity variants.</p>
+          <p class="text-sm text-gray-500 ml-12">{{ isEditMode() ? 'Update the details for this smart watch.' : 'Add a new smart watch with sizes, bands, and connectivity variants.' }}</p>
         </div>
         <a routerLink="/xk92-admin/products"
            class="text-sm font-medium text-gray-500 hover:text-gray-700 underline focus:outline-none">
@@ -72,6 +74,15 @@ const WATCHES_CATEGORY_ID = 9;
       </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-8">
+        
+        @if (isPageLoading()) {
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 py-32 flex flex-col items-center justify-center">
+            <app-loading-spinner size="lg"></app-loading-spinner>
+            <p class="mt-4 text-sm text-gray-500 font-medium">Loading watch details...</p>
+          </div>
+        } @else {
+          <!-- Form sections wrapper -->
+          <div class="space-y-8">
 
         <!-- Basic Info -->
         <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
@@ -495,20 +506,23 @@ const WATCHES_CATEGORY_ID = 9;
               </svg>
               Saving...
             } @else {
-              Save Smart Watch
+              {{ isEditMode() ? 'Update Watch' : 'Save Watch' }}
             }
           </button>
         </div>
 
+          </div>
+        }
       </form>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdminProductFormWatchesComponent {
+export class AdminProductFormWatchesComponent implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private api = inject(ApiService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
 
   form = this.fb.group({
@@ -535,6 +549,10 @@ export class AdminProductFormWatchesComponent {
   isSubmitting = signal(false);
   submitError = signal<string | null>(null);
   isUploadingVariant = signal(false);
+  
+  isEditMode = signal(false);
+  isPageLoading = signal(false);
+  productId = signal<number | null>(null);
 
   variantsByCaseColour = computed(() => {
     const matrix = this.variantMatrix();
@@ -580,6 +598,126 @@ export class AdminProductFormWatchesComponent {
     this.form.get('name')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(name => {
       if (!this.manualSlug() && name) {
         this.form.patchValue({ slug: frontendSlugify(name) }, { emitEvent: false });
+      }
+    });
+  }
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditMode.set(true);
+      this.productId.set(+id);
+      this.loadProduct(+id);
+    }
+  }
+
+  loadProduct(id: number) {
+    this.isPageLoading.set(true);
+    this.api.get<{ success: boolean; data: Product }>(`/api/admin/products/${id}`).subscribe({
+      next: (res) => {
+        const product = res.data;
+        if (!product) {
+          this.toast.error('Product not found.');
+          this.router.navigate(['/xk92-admin/products']);
+          return;
+        }
+
+        let compatList: string[] = [];
+        if (product.sim_types) {
+          try {
+            compatList = JSON.parse(product.sim_types) || [];
+          } catch {}
+        }
+        
+        let colorsList: string[] = [];
+        if (product.colours) {
+          try {
+            colorsList = JSON.parse(product.colours) || [];
+          } catch {}
+        }
+
+        let sizeList: string[] = [];
+        if (product.storage_options) {
+          try {
+            sizeList = JSON.parse(product.storage_options) || [];
+          } catch {}
+        }
+        
+        let bandList: string[] = [];
+        if (product.variants?.length) {
+          // extract unique band materials from variants
+          const uniqueBands = new Set<string>();
+          product.variants.forEach((v: any) => {
+            if (v.bandMaterial) uniqueBands.add(v.bandMaterial);
+          });
+          bandList = Array.from(uniqueBands);
+        }
+
+        let watchSeries = '';
+        if (product.variants?.length) {
+           watchSeries = (product.variants[0] as any).watch_series || '';
+        }
+
+        this.form.patchValue({
+          name: product.name,
+          slug: product.slug,
+          description: product.description || '',
+          condition: product.condition || 'new',
+          is_featured: !!product.is_featured,
+          is_active: !!product.is_active,
+          watch_series: watchSeries
+        });
+
+        if (product.refurbished_details) {
+          try {
+            const rd = typeof product.refurbished_details === 'string' 
+              ? JSON.parse(product.refurbished_details) 
+              : product.refurbished_details;
+            
+            if (rd) {
+              this.form.patchValue({
+                refurbished_details: {
+                  boxIncluded: rd.boxIncluded ?? true,
+                  notes: rd.notes || ''
+                }
+              });
+              if (rd.availableGrades) {
+                this.availableGrades.set(rd.availableGrades);
+              }
+            }
+          } catch {}
+        }
+
+        this.manualSlug.set(true);
+        this.caseColours.set(colorsList);
+        this.sizes.set(sizeList);
+        this.connectivity.set(compatList);
+        this.selectedBands.set(bandList);
+
+        // Map existing variants
+        if (product.variants && product.variants.length > 0) {
+          const matrix: WatchVariant[] = product.variants.map((v: any) => ({
+            caseColour: v.caseColour || v.colour,
+            size: v.size || v.storage,
+            bandMaterial: v.bandMaterial || 'Sport Band',
+            connectivity: v.connectivity || 'GPS',
+            condition: v.condition || product.condition || 'new',
+            grade: v.grade,
+            price: v.price,
+            salePrice: v.sale_price,
+            stock: v.stock,
+            sku: v.sku,
+            isActive: !!v.is_active,
+            images: v.images ? (typeof v.images === 'string' ? JSON.parse(v.images) : v.images) : []
+          }));
+          this.variantMatrix.set(matrix);
+        }
+
+        this.isPageLoading.set(false);
+      },
+      error: () => {
+        this.toast.error('Failed to load smart watch details.');
+        this.router.navigate(['/xk92-admin/products']);
       }
     });
   }
@@ -853,9 +991,13 @@ export class AdminProductFormWatchesComponent {
       variants: this.variantMatrix(),
     };
 
-    this.api.post('/api/admin/products', payload).subscribe({
+    const request = this.isEditMode() 
+      ? this.api.put(`/api/admin/products/${this.productId()}`, payload)
+      : this.api.post('/api/admin/products', payload);
+
+    request.subscribe({
       next: () => {
-        this.toast.success('Smart Watch saved successfully!');
+        this.toast.success(this.isEditMode() ? 'Smart Watch updated successfully!' : 'Smart Watch saved successfully!');
         this.router.navigate(['/xk92-admin/products']);
       },
       error: (err: Error) => {

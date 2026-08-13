@@ -1,12 +1,13 @@
-import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, NonNullableFormBuilder, Validators } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ToastService } from '../../../core/services/toast.service';
+import { Product } from '../../../core/models/product.model';
 
 function frontendSlugify(text: string): string {
   if (!text) return '';
@@ -40,7 +41,8 @@ interface RefurbishedDetails {
   notes: string;
 }
 
-const IPAD_CATEGORY_ID = 8;
+/** CATEGORY_ID for iPad in the DB */
+const IPAD_CATEGORY_ID = 7;
 
 @Component({
   selector: 'app-admin-product-form-ipad',
@@ -61,9 +63,9 @@ const IPAD_CATEGORY_ID = 8;
         <div>
           <div class="flex items-center gap-3 mb-1">
             <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-100 text-xl">📟</span>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">New iPad</h1>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">{{ isEditMode() ? 'Edit iPad' : 'New iPad' }}</h1>
           </div>
-          <p class="text-sm text-gray-500 ml-12">Add a new iPad to your catalog with storage, colours, and variants.</p>
+          <p class="text-sm text-gray-500 ml-12">{{ isEditMode() ? 'Update the details for this iPad.' : 'Add a new iPad to your catalog with storage, colours, and variants.' }}</p>
         </div>
         <a routerLink="/xk92-admin/products"
            class="text-sm font-medium text-gray-500 hover:text-gray-700 underline focus:outline-none">
@@ -72,6 +74,15 @@ const IPAD_CATEGORY_ID = 8;
       </div>
 
       <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-8">
+        
+        @if (isPageLoading()) {
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 py-32 flex flex-col items-center justify-center">
+            <app-loading-spinner size="lg"></app-loading-spinner>
+            <p class="mt-4 text-sm text-gray-500 font-medium">Loading iPad details...</p>
+          </div>
+        } @else {
+          <!-- Form sections wrapper -->
+          <div class="space-y-8">
 
         <!-- Basic Info -->
         <div class="bg-white shadow-sm border border-gray-200 rounded-xl overflow-hidden">
@@ -477,20 +488,23 @@ const IPAD_CATEGORY_ID = 8;
               </svg>
               Saving...
             } @else {
-              Save iPad
+              {{ isEditMode() ? 'Update iPad' : 'Save iPad' }}
             }
           </button>
         </div>
 
+          </div>
+        }
       </form>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AdminProductFormIpadComponent {
+export class AdminProductFormIpadComponent implements OnInit {
   private fb = inject(NonNullableFormBuilder);
   private api = inject(ApiService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private toast = inject(ToastService);
 
   form = this.fb.group({
@@ -516,6 +530,10 @@ export class AdminProductFormIpadComponent {
   isSubmitting = signal(false);
   submitError = signal<string | null>(null);
   isUploadingVariant = signal(false);
+  
+  isEditMode = signal(false);
+  isPageLoading = signal(false);
+  productId = signal<number | null>(null);
 
   variantsByColour = computed(() => {
     const matrix = this.variantMatrix();
@@ -551,6 +569,116 @@ export class AdminProductFormIpadComponent {
     this.form.get('name')?.valueChanges.pipe(takeUntilDestroyed()).subscribe(name => {
       if (!this.manualSlug() && name) {
         this.form.patchValue({ slug: frontendSlugify(name) }, { emitEvent: false });
+      }
+    });
+  }
+
+  ngOnInit() {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.isEditMode.set(true);
+      this.productId.set(+id);
+      this.loadProduct(+id);
+    }
+  }
+
+  loadProduct(id: number) {
+    this.isPageLoading.set(true);
+    this.api.get<{ success: boolean; data: Product }>(`/api/admin/products/${id}`).subscribe({
+      next: (res) => {
+        const product = res.data;
+        if (!product) {
+          this.toast.error('Product not found.');
+          this.router.navigate(['/xk92-admin/products']);
+          return;
+        }
+
+        let compatList: string[] = [];
+        if (product.sim_types) {
+          try {
+            compatList = JSON.parse(product.sim_types) || [];
+          } catch {}
+        }
+        
+        let colorsList: string[] = [];
+        if (product.colours) {
+          try {
+            colorsList = JSON.parse(product.colours) || [];
+          } catch {}
+        }
+
+        let storageList: string[] = [];
+        if (product.storage_options) {
+          try {
+            storageList = JSON.parse(product.storage_options) || [];
+          } catch {}
+        }
+
+        // See if there's generation in refurbished_details or if it's stored differently
+        let generation = '';
+        if (product.variants?.length) {
+           generation = (product.variants[0] as any).generation || '';
+        }
+
+        this.form.patchValue({
+          name: product.name,
+          slug: product.slug,
+          description: product.description || '',
+          condition: product.condition || 'new',
+          is_featured: !!product.is_featured,
+          is_active: !!product.is_active,
+          generation: generation
+        });
+
+        if (product.refurbished_details) {
+          try {
+            const rd = typeof product.refurbished_details === 'string' 
+              ? JSON.parse(product.refurbished_details) 
+              : product.refurbished_details;
+            
+            if (rd) {
+              this.form.patchValue({
+                refurbished_details: {
+                  boxIncluded: rd.boxIncluded ?? true,
+                  notes: rd.notes || ''
+                }
+              });
+              if (rd.availableGrades) {
+                this.availableGrades.set(rd.availableGrades);
+              }
+            }
+          } catch {}
+        }
+
+        this.manualSlug.set(true);
+        this.colours.set(colorsList);
+        this.storageOptions.set(storageList);
+        this.connectivity.set(compatList);
+
+        // Map existing variants
+        if (product.variants && product.variants.length > 0) {
+          const matrix: IpadVariant[] = product.variants.map((v: any) => ({
+            colour: v.colour,
+            storage: v.storage,
+            connectivity: v.connectivity || 'Wi-Fi Only',
+            condition: v.condition || product.condition || 'new',
+            grade: v.grade,
+            generation: v.generation,
+            price: v.price,
+            salePrice: v.sale_price,
+            stock: v.stock,
+            sku: v.sku,
+            isActive: !!v.is_active,
+            images: v.images ? (typeof v.images === 'string' ? JSON.parse(v.images) : v.images) : []
+          }));
+          this.variantMatrix.set(matrix);
+        }
+
+        this.isPageLoading.set(false);
+      },
+      error: () => {
+        this.toast.error('Failed to load iPad details.');
+        this.router.navigate(['/xk92-admin/products']);
       }
     });
   }
@@ -802,9 +930,13 @@ export class AdminProductFormIpadComponent {
       variants: this.variantMatrix(),
     };
 
-    this.api.post('/api/admin/products', payload).subscribe({
+    const request = this.isEditMode() 
+      ? this.api.put(`/api/admin/products/${this.productId()}`, payload)
+      : this.api.post('/api/admin/products', payload);
+
+    request.subscribe({
       next: () => {
-        this.toast.success('iPad saved successfully!');
+        this.toast.success(this.isEditMode() ? 'iPad updated successfully!' : 'iPad saved successfully!');
         this.router.navigate(['/xk92-admin/products']);
       },
       error: (err: Error) => {
