@@ -24,7 +24,7 @@ type EditingKey = number | 'new' | null;
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, LoadingSpinnerComponent],
   template: `
-    <div class="space-y-6 pb-12 max-w-4xl">
+    <div class="space-y-6 pb-12 max-w-7xl">
 
       <!-- Header -->
       <div class="flex items-center justify-between">
@@ -51,7 +51,7 @@ type EditingKey = number | 'new' | null;
           <app-loading-spinner size="lg"></app-loading-spinner>
         </div>
       } @else {
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
