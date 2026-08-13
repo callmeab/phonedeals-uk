@@ -24,8 +24,10 @@ CREATE TABLE IF NOT EXISTS products (
   description       TEXT,
   storage_options   TEXT,    -- JSON array, e.g. '["128GB","256GB","512GB"]'
   colours           TEXT,    -- JSON array, e.g. '["Black Titanium","White Titanium"]'
-  primary_image_url TEXT,
-  gallery_images    TEXT,    -- JSON array of additional image URLs
+  sim_types         TEXT,    -- JSON array
+  variants          TEXT,    -- JSON array
+  condition         TEXT     DEFAULT 'new',
+  refurbished_details TEXT,  -- JSON text
   is_featured       INTEGER  NOT NULL DEFAULT 0,   -- 0 | 1
   is_active         INTEGER  NOT NULL DEFAULT 1,   -- 0 | 1 (soft delete)
   created_at        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

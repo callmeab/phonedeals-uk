@@ -3632,6 +3632,7 @@ adminProductsRouter.post("/", async (c) => {
       data: normalizeProductImages(result, c.req.url, c.env.R2_PUBLIC_URL)
     }, 201);
   } catch (err) {
+    console.error("Create product error:", err);
     if (err instanceof ValidationError) {
       return c.json({ success: false, error: err.message }, 400);
     }
@@ -4929,7 +4930,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env2, _ctx, middlewareCtx
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-B0SA2y/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-0B46pk/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -4961,7 +4962,7 @@ function __facade_invoke__(request, env2, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-B0SA2y/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-0B46pk/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

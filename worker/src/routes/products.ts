@@ -213,6 +213,7 @@ adminProductsRouter.post('/', async (c) => {
       data: normalizeProductImages(result!, c.req.url, c.env.R2_PUBLIC_URL),
     }, 201);
   } catch (err: any) {
+    console.error('Create product error:', err);
     if (err instanceof ValidationError) {
       return c.json({ success: false, error: err.message }, 400);
     }
