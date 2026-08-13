@@ -70,12 +70,10 @@ function frontendSlugify(text: string): string {
                 <div>
                   <label for="category_id" class="block text-sm font-medium text-gray-700">Category <span class="text-red-500">*</span></label>
                   <select id="category_id" formControlName="category_id" 
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-accent focus:ring-accent sm:text-sm py-2 px-3 border bg-white"
-                    [class.border-red-300]="isFieldInvalid('category_id')"
-                  >
-                    <option [ngValue]="null" disabled>Select a brand...</option>
-                    <option [ngValue]="1">Apple iPhone</option>
-                    <option [ngValue]="2">Samsung Galaxy</option>
+                          class="w-full pl-10 pr-10 py-2.5 rounded-lg border border-gray-300 bg-white text-sm text-gray-900 focus:ring-2 focus:ring-accent focus:border-accent transition-colors appearance-none">
+                    <option [ngValue]="null" disabled>Select category</option>
+                    <option [ngValue]="1">iPhone</option>
+                    <option [ngValue]="2">Samsung</option>
                   </select>
                   @if (isFieldInvalid('category_id')) {
                     <p class="mt-1 text-xs text-red-600">Category is required.</p>

@@ -1,4 +1,4 @@
-﻿import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, OnInit } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../../core/services/api.service';
@@ -107,7 +107,7 @@ export class AdminProductCategorySelectComponent {
       slug: 'iphone',
       route: '/xk92-admin/products/new/mobile',
       icon: '📱',
-      description: 'Apple iPhone ya Samsung Galaxy — storage, colours, SIM type, aur refurbished variants ke saath.',
+      description: 'iPhone ya Samsung — storage, colours, SIM type, aur refurbished variants ke saath.',
       color: 'bg-blue-600',
       bgColor: 'bg-blue-50',
       borderColor: 'border-blue-200',
@@ -115,8 +115,8 @@ export class AdminProductCategorySelectComponent {
     },
     {
       id: 3,
-      name: 'Mobile Accessories',
-      slug: 'mobile-accessories',
+      name: 'Accessory',
+      slug: 'accessory',
       route: '/xk92-admin/products/new/accessories',
       icon: '🎧',
       description: 'Cases, chargers, cables, screen protectors — phone compatibility ke saath.',
@@ -125,6 +125,7 @@ export class AdminProductCategorySelectComponent {
       borderColor: 'border-emerald-200',
       textColor: 'text-emerald-900',
     },
+    /* iPad disabled for now
     {
       id: 4,
       name: 'iPad',
@@ -137,13 +138,14 @@ export class AdminProductCategorySelectComponent {
       borderColor: 'border-violet-200',
       textColor: 'text-violet-900',
     },
+    */
     {
       id: 5,
       name: 'Smart Watch',
       slug: 'smart-watches',
       route: '/xk92-admin/products/new/watches',
       icon: '⌚',
-      description: 'Apple Watch ya Samsung Galaxy Watch — size, band, GPS/Cellular ke saath.',
+      description: 'Apple Watch ya Samsung Watch — size, band, GPS/Cellular ke saath.',
       color: 'bg-amber-600',
       bgColor: 'bg-amber-50',
       borderColor: 'border-amber-200',
