@@ -644,18 +644,24 @@ export class AdminProductFormWatchesComponent implements OnInit {
         }
         
         let bandList: string[] = [];
-        if (product.variants?.length) {
+        let parsedVariants: any[] = [];
+        
+        if (product.variants && product.variants.length > 0) {
+          parsedVariants = typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants;
+        }
+
+        if (parsedVariants.length > 0) {
           // extract unique band materials from variants
           const uniqueBands = new Set<string>();
-          product.variants.forEach((v: any) => {
+          parsedVariants.forEach((v: any) => {
             if (v.bandMaterial) uniqueBands.add(v.bandMaterial);
           });
           bandList = Array.from(uniqueBands);
         }
 
         let watchSeries = '';
-        if (product.variants?.length) {
-           watchSeries = (product.variants[0] as any).watch_series || '';
+        if (parsedVariants.length > 0) {
+           watchSeries = parsedVariants[0].watch_series || '';
         }
 
         this.form.patchValue({
@@ -695,8 +701,8 @@ export class AdminProductFormWatchesComponent implements OnInit {
         this.selectedBands.set(bandList);
 
         // Map existing variants
-        if (product.variants && product.variants.length > 0) {
-          const matrix: WatchVariant[] = product.variants.map((v: any) => ({
+        if (parsedVariants.length > 0) {
+          const matrix: WatchVariant[] = parsedVariants.map((v: any) => ({
             caseColour: v.caseColour || v.colour,
             size: v.size || v.storage,
             bandMaterial: v.bandMaterial || 'Sport Band',

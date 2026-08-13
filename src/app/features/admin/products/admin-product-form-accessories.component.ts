@@ -483,7 +483,8 @@ export class AdminProductFormAccessoriesComponent implements OnInit {
 
         // Map existing variants
         if (product.variants && product.variants.length > 0) {
-          const matrix: AccessoryVariant[] = product.variants.map((v: any) => ({
+          const variantsArray = typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants;
+          const matrix: AccessoryVariant[] = variantsArray.map((v: any) => ({
             colour: v.colour,
             compatibility: v.compatibility || 'Universal', // mapping condition/etc to compatibility for accessories
             price: v.price,

@@ -614,10 +614,15 @@ export class AdminProductFormIpadComponent implements OnInit {
           } catch {}
         }
 
+        let parsedVariants: any[] = [];
+        if (product.variants && product.variants.length > 0) {
+          parsedVariants = typeof product.variants === 'string' ? JSON.parse(product.variants) : product.variants;
+        }
+
         // See if there's generation in refurbished_details or if it's stored differently
         let generation = '';
-        if (product.variants?.length) {
-           generation = (product.variants[0] as any).generation || '';
+        if (parsedVariants.length > 0) {
+           generation = parsedVariants[0].generation || '';
         }
 
         this.form.patchValue({
@@ -656,8 +661,8 @@ export class AdminProductFormIpadComponent implements OnInit {
         this.connectivity.set(compatList);
 
         // Map existing variants
-        if (product.variants && product.variants.length > 0) {
-          const matrix: IpadVariant[] = product.variants.map((v: any) => ({
+        if (parsedVariants.length > 0) {
+          const matrix: IpadVariant[] = parsedVariants.map((v: any) => ({
             colour: v.colour,
             storage: v.storage,
             connectivity: v.connectivity || 'Wi-Fi Only',
