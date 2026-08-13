@@ -35,14 +35,19 @@ function slugToPath(slug: string): string {
       class="fixed top-0 left-0 right-0 z-50 transition-all duration-300 text-white"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-20">
+        <div class="flex items-center justify-between h-20 relative">
           
           <!-- Logo -->
-          <div class="flex-shrink-0">
+          <div class="flex-shrink-0 z-10">
             <a routerLink="/" class="flex items-center">
               <img src="/image-logo/logo.png" alt="Mobello.uk Logo" class="h-20 w-auto object-contain">
               <span class="text-2xl font-bold tracking-tight hidden sm:block">Mobello<span class="text-accent">.uk</span></span>
             </a>
+          </div>
+
+          <!-- Mobile Centered Text -->
+          <div class="absolute inset-0 flex items-center justify-center pointer-events-none sm:hidden z-0">
+            <span class="text-xl font-bold tracking-tight">Mobello<span class="text-accent">.uk</span></span>
           </div>
           
           <!-- Desktop Nav -->
