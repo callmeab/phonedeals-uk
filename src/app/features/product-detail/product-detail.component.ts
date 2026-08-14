@@ -337,7 +337,7 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                 @if (storageOptions().length > 0) {
                   <div class="mt-5 pt-5 border-t border-gray-100">
                     <div class="flex items-center justify-between mb-3">
-                      <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">Storage</p>
+                      <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">{{ storageLabel() }}</p>
                       @if (selectedStorage()) {
                         <span class="text-xs font-semibold text-accent bg-blue-50 px-2 py-0.5 rounded-full">{{ selectedStorage() }}</span>
                       }
@@ -372,7 +372,7 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                 @if (simTypes().length > 0) {
                   <div class="mt-5 pt-5 border-t border-gray-100">
                     <div class="flex items-center justify-between mb-3">
-                      <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">SIM Type</p>
+                      <p class="text-xs font-semibold text-gray-500 uppercase tracking-widest">{{ simTypeLabel() }}</p>
                       @if (selectedSimType()) {
                         <span class="text-xs font-semibold text-accent bg-blue-50 px-2 py-0.5 rounded-full">{{ selectedSimType() }}</span>
                       }
@@ -864,6 +864,36 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   isNonDealProduct = computed(() =>
     isNonDealProduct(this.product())
   );
+
+  isAccessory = computed(() => {
+    const p = this.product();
+    if (!p) return false;
+    const catId = p.category_id;
+    const catName = (p.category_name || '').toLowerCase();
+    const slug = (p.slug || '').toLowerCase();
+    return catId === 3 || catId === 6 || catName.includes('accessor') || slug.includes('accessor');
+  });
+
+  isWatch = computed(() => {
+    const p = this.product();
+    if (!p) return false;
+    const catId = p.category_id;
+    const catName = (p.category_name || '').toLowerCase();
+    const slug = (p.slug || '').toLowerCase();
+    return catId === 5 || catId === 8 || catName.includes('watch') || slug.includes('watch');
+  });
+
+  storageLabel = computed(() => {
+    if (this.isAccessory()) return 'Type';
+    if (this.isWatch()) return 'Size';
+    return 'Storage';
+  });
+
+  simTypeLabel = computed(() => {
+    if (this.isAccessory()) return 'Compatibility';
+    if (this.isWatch()) return 'Connectivity';
+    return 'SIM Type';
+  });
 
   isSamsung = computed(() =>
     this.product()?.category_name?.toLowerCase().includes('samsung') ||
