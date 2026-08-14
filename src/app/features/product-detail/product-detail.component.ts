@@ -398,7 +398,7 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                 }
 
                 <!-- Price and availability block -->
-                @if (selectedVariant(); as sv) {
+                @if (selectedVariant() || isNonDealProduct()) {
                   <div class="mt-5 pt-5 border-t border-gray-100">
                     <div class="flex items-start justify-between gap-4 flex-wrap">
                       <div>
@@ -410,7 +410,7 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                             <span class="text-xs font-bold text-white bg-red-500 px-2 py-0.5 rounded-full">
                               {{ discountPercent() }}% OFF
                             </span>
-                          } @else {
+                          } @else if (variantPrice() !== null) {
                             <span class="text-4xl font-black text-gray-900">£{{ variantPrice()!.toFixed(2) }}</span>
                           }
                         </div>
@@ -433,7 +433,9 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                           </span>
                         }
                         <p class="text-xs text-gray-400 mt-0.5">
-                          <span class="font-medium">{{ selectedColour() }}</span> · {{ selectedStorage() }}
+                          @if (selectedColour()) { <span class="font-medium">{{ selectedColour() }}</span> }
+                          @if (selectedColour() && selectedStorage()) { <span> · </span> }
+                          @if (selectedStorage()) { <span>{{ selectedStorage() }}</span> }
                         </p>
                       </div>
                     </div>
@@ -744,29 +746,37 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   /** The single variant matching current color+storage+simType+condition+grade+battery selection */
   selectedVariant = computed<ProductVariant | null>(() => {
-    const col = this.selectedColour();
-    const sto = this.selectedStorage();
-    const sim = this.selectedSimType();
+    const col = (this.selectedColour() || '').toLowerCase();
+    const sto = (this.selectedStorage() || '').toLowerCase();
+    const sim = (this.selectedSimType() || '').toLowerCase();
     const cond = this.selectedCondition();
     const grade = this.selectedGrade();
     const battery = this.selectedBattery();
     const variants = this.productVariants();
     const productCondition = normalizeProductCondition(this.product()?.condition);
     
-    if (!col || !sto || !variants.length) return null;
+    if (!variants.length) return null;
     
     const isNew = productCondition === 'new' || (productCondition === 'both' && cond === 'new');
 
-    return variants.find(v =>
-      (v.color || '').toLowerCase() === (col || '').toLowerCase() &&
-      (v.storage || '').toLowerCase() === (sto || '').toLowerCase() &&
-      (!sim || (v.simType || '').toLowerCase() === sim.toLowerCase()) &&
-      // Match condition only when product has 'both'
-      (productCondition !== 'both' || (cond ? v.condition === cond : true)) &&
-      // Match grade & battery only if we are looking at a refurbished variant
-      (isNew || (grade ? v.grade === grade : true)) &&
-      (isNew || (battery ? v.batteryHealth === battery : true))
-    ) ?? null;
+    const matched = variants.find(v => {
+      const anyV = v as any;
+      const vColor = (anyV.color || anyV.colour || anyV.caseColour || '').toLowerCase();
+      const vStorage = (anyV.storage || anyV.size || anyV.accessory_type || '').toLowerCase();
+      const vSim = (anyV.simType || anyV.compatibility || anyV.connectivity || '').toLowerCase();
+
+      const matchColor = !col || !vColor || vColor === col;
+      const matchStorage = !sto || !vStorage || vStorage === sto;
+      const matchSim = !sim || !vSim || vSim === sim;
+
+      const matchCond = productCondition !== 'both' || (cond ? anyV.condition === cond : true);
+      const matchGrade = isNew || (grade ? anyV.grade === grade : true);
+      const matchBattery = isNew || (battery ? anyV.batteryHealth === battery : true);
+
+      return matchColor && matchStorage && matchSim && matchCond && matchGrade && matchBattery;
+    });
+
+    return matched ?? variants[0] ?? null;
   });
 
   /** Gallery images: use the selected color's images (from any variant of that color), fallback to global gallery */
@@ -779,11 +789,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
     // 1. Try finding specific images for the selected color (use first matching variant)
     if (selectedCol && variants.length > 0) {
-      const colorVariant = variants.find(v =>
-        (v.color || '').toLowerCase() === (selectedCol || '').toLowerCase() &&
-        v.images && v.images.length > 0
-      );
-      if (colorVariant) {
+      const colorVariant = variants.find(v => {
+        const anyV = v as any;
+        const vColor = (anyV.color || anyV.colour || anyV.caseColour || '').toLowerCase();
+        return (!vColor || vColor === selectedCol.toLowerCase()) && anyV.images && anyV.images.length > 0;
+      });
+      if (colorVariant && colorVariant.images) {
         return colorVariant.images
           .map(url => resolveProductImageUrl(url))
           .filter((url): url is string => !!url);
@@ -792,7 +803,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
     // 2. Fallback to first variant with images
     const withImages = variants.find(v => v.images && v.images.length > 0);
-    if (withImages) {
+    if (withImages && withImages.images) {
       return withImages.images
         .map(url => resolveProductImageUrl(url))
         .filter((url): url is string => !!url);
@@ -803,22 +814,23 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   // Variant pricing helpers
   variantPrice = computed<number | null>(() => {
-    const v = this.selectedVariant();
-    return v?.price != null ? v.price : null;
+    const v = this.selectedVariant() as any;
+    return v?.price != null ? Number(v.price) : null;
   });
 
   variantSalePrice = computed<number | null>(() => {
-    const v = this.selectedVariant();
-    return v?.salePrice != null ? v.salePrice : null;
+    const v = this.selectedVariant() as any;
+    const sale = v?.salePrice ?? v?.sale_price;
+    return sale != null ? Number(sale) : null;
   });
 
   variantStock = computed<number | null>(() => {
-    const v = this.selectedVariant();
-    return v?.stock != null ? v.stock : null;
+    const v = this.selectedVariant() as any;
+    return v?.stock != null ? Number(v.stock) : null;
   });
 
   variantSku = computed<string | null>(() => {
-    const v = this.selectedVariant();
+    const v = this.selectedVariant() as any;
     return v?.sku ?? null;
   });
 
@@ -1006,26 +1018,36 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   /** Returns the first resolved image URL for a given color (used in the vertical color strip thumbnails) */
   colorFirstImage(color: string): string | null {
     const variants = this.productVariants();
-    const colorVariant = variants.find(v =>
-      (v.color || '').toLowerCase() === (color || '').toLowerCase() &&
-      v.images && v.images.length > 0
-    );
+    const targetColor = color.toLowerCase();
+    const colorVariant = variants.find(vv => {
+      const anyV = vv as any;
+      const vColor = (anyV.color || anyV.colour || anyV.caseColour || '').toLowerCase();
+      return (!vColor || vColor === targetColor) && anyV.images && anyV.images.length > 0;
+    });
     if (!colorVariant) return null;
     return resolveProductImageUrl(colorVariant.images[0]);
   }
 
   /** Returns the price for a given storage option under the currently selected color */
   storagePrice(storage: string): number | null {
-    const col = this.selectedColour();
+    const col = (this.selectedColour() || '').toLowerCase();
+    const sim = (this.selectedSimType() || '').toLowerCase();
     const variants = this.productVariants();
-    if (!col || !variants.length) return null;
-    const sim = this.selectedSimType();
-    const v = variants.find(
-      vv => (vv.color || '').toLowerCase() === (this.selectedColour() || '').toLowerCase() &&
-            (vv.storage || '').toLowerCase() === (storage || '').toLowerCase() &&
-            (!sim || (vv.simType || '').toLowerCase() === sim.toLowerCase())
-    );
-    return v?.price ?? null;
+    if (!variants.length) return null;
+    const targetStorage = storage.toLowerCase();
+
+    const v = variants.find(vv => {
+      const anyV = vv as any;
+      const vColor = (anyV.color || anyV.colour || anyV.caseColour || '').toLowerCase();
+      const vStorage = (anyV.storage || anyV.size || anyV.accessory_type || '').toLowerCase();
+      const vSim = (anyV.simType || anyV.compatibility || anyV.connectivity || '').toLowerCase();
+
+      return (!col || !vColor || vColor === col) &&
+             (!vStorage || vStorage === targetStorage) &&
+             (!sim || !vSim || vSim === sim);
+    }) as any;
+
+    return v?.price != null ? Number(v.price) : null;
   }
 
   /** Calculates the discount percentage from regular price to sale price */
