@@ -1,6 +1,6 @@
 export interface CartItem {
   id: string;
-  dealId: number;
+  dealId?: number | null;
   productId: number;
   productName: string;
   productSlug: string;
@@ -15,3 +15,4 @@ export interface CartItem {
   storage?: string;
   simType?: string;
 }
+

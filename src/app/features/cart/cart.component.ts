@@ -49,24 +49,37 @@ import { CartService } from '../../core/services/cart.service';
                     </p>
                   }
 
-                  <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-gray-200 rounded-xl shadow-sm">
-                      @if (getNetworkLogo(item.network); as logoUrl) {
-                        <img [src]="logoUrl" [alt]="item.network" class="h-5 w-auto object-contain" />
-                      } @else {
-                        <span class="text-xs font-bold text-gray-700">{{ item.network }}</span>
-                      }
-                    </span>
-                    <span class="text-sm font-semibold text-gray-500">{{ item.contractMonths }} Month Contract</span>
-                    <span class="text-sm font-semibold text-gray-500 border-l border-gray-300 pl-2">{{ item.dataGb === 9999 ? 'Unlimited Data' : item.dataGb + 'GB Data' }}</span>
-                  </div>
+                  @if (!item.contractMonths || item.network === 'Outright') {
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold shadow-sm">
+                        ✓ Direct Purchase (No Contract)
+                      </span>
+                    </div>
+                  } @else {
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-white border border-gray-200 rounded-xl shadow-sm">
+                        @if (getNetworkLogo(item.network); as logoUrl) {
+                          <img [src]="logoUrl" [alt]="item.network" class="h-5 w-auto object-contain" />
+                        } @else {
+                          <span class="text-xs font-bold text-gray-700">{{ item.network }}</span>
+                        }
+                      </span>
+                      <span class="text-sm font-semibold text-gray-500">{{ item.contractMonths }} Month Contract</span>
+                      <span class="text-sm font-semibold text-gray-500 border-l border-gray-300 pl-2">{{ item.dataGb === 9999 ? 'Unlimited Data' : item.dataGb + 'GB Data' }}</span>
+                    </div>
+                  }
                 </div>
 
                 <div class="flex flex-col items-center sm:items-end w-full sm:w-auto">
-                  <div class="text-2xl font-black text-gray-900">&pound;{{ item.monthlyCost.toFixed(2) }}<span class="text-sm font-medium text-gray-500">/mo</span></div>
-                  <div class="text-sm text-gray-500 font-medium mb-4">
-                    {{ item.upfrontCost === 0 ? 'FREE upfront' : '&pound;' + item.upfrontCost.toFixed(2) + ' upfront' }}
-                  </div>
+                  @if (!item.contractMonths || item.network === 'Outright') {
+                    <div class="text-2xl font-black text-gray-900">&pound;{{ item.upfrontCost.toFixed(2) }}</div>
+                    <div class="text-xs text-gray-500 font-medium mb-4">Outright price (No monthly fee)</div>
+                  } @else {
+                    <div class="text-2xl font-black text-gray-900">&pound;{{ item.monthlyCost.toFixed(2) }}<span class="text-sm font-medium text-gray-500">/mo</span></div>
+                    <div class="text-sm text-gray-500 font-medium mb-4">
+                      {{ item.upfrontCost === 0 ? 'FREE upfront' : '&pound;' + item.upfrontCost.toFixed(2) + ' upfront' }}
+                    </div>
+                  }
                   <button (click)="cart.removeItem(item.id)" class="text-red-500 hover:text-red-700 text-sm font-bold flex items-center gap-1 transition-colors">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                     Remove

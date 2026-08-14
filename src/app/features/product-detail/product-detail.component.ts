@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink, Router, ActivatedRoute } from '@angular/router';
 import { SeoService } from '../../core/services/seo.service';
 import { ApiService } from '../../core/services/api.service';
-import { Product, ProductVariant, RefurbishedDetails, normalizeProductCondition } from '../../core/models/product.model';
+import { Product, ProductVariant, RefurbishedDetails, normalizeProductCondition, isNonDealProduct } from '../../core/models/product.model';
 import { Deal } from '../../core/models/deal.model';
 import { CartItem } from '../../core/models/cart.model';
 import { ToastService } from '../../core/services/toast.service';
@@ -437,8 +437,25 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                         </p>
                       </div>
                     </div>
+
+                    <!-- Direct Add to Cart Button -->
+                    <div class="mt-4 pt-4 border-t border-gray-100">
+                      <button
+                        (click)="onAddToCart()"
+                        [disabled]="isOutOfStock()"
+                        class="w-full py-3.5 px-6 rounded-xl font-extrabold text-base transition-all duration-200 shadow-md flex items-center justify-center gap-2 focus:outline-none focus:ring-4 focus:ring-emerald-500/30"
+                        [ngClass]="isOutOfStock() 
+                          ? 'bg-gray-200 text-gray-400 cursor-not-allowed border border-gray-300' 
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-600/20 active:scale-[0.99]'"
+                      >
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        {{ isOutOfStock() ? 'Out of Stock' : 'Add to Cart — £' + ((variantSalePrice() ?? variantPrice()) || 0).toFixed(2) }}
+                      </button>
+                    </div>
                   </div>
-                } @else {
+                } @else if (!isNonDealProduct()) {
                   <!-- No variant data — show deals-based price -->
                   <div class="mt-5 pt-5 border-t border-gray-100">
                     @if (dealsLoading()) {
@@ -459,7 +476,7 @@ type DealSort = 'monthly' | 'data' | 'upfront';
                 }
 
                 <!-- Contract price hint (when variant price is shown) -->
-                @if (selectedVariant() && !dealsLoading() && lowestPrice() !== null) {
+                @if (selectedVariant() && !isNonDealProduct() && !dealsLoading() && lowestPrice() !== null) {
                   <div class="mt-3 pt-3 border-t border-gray-50">
                     <p class="text-xs text-gray-400">
                       Or get it from <span class="font-semibold text-accent">£{{ lowestPrice()!.toFixed(2) }}/month</span> on contract below
@@ -622,55 +639,57 @@ type DealSort = 'monthly' | 'data' | 'upfront';
               <!-- ============================================
                    DEALS SECTION
                    ============================================ -->
-              <div>
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-                  <div>
-                    <h2 class="text-lg font-bold text-gray-900">Available Deals</h2>
-                    @if (!dealsLoading() && sortedDeals().length > 0) {
-                      <p class="text-xs text-gray-400 mt-0.5">{{ sortedDeals().length }} deal{{ sortedDeals().length === 1 ? '' : 's' }} from {{ uniqueNetworks() }} network{{ uniqueNetworks() === 1 ? '' : 's' }}</p>
+              @if (!isNonDealProduct()) {
+                <div>
+                  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                      <h2 class="text-lg font-bold text-gray-900">Available Deals</h2>
+                      @if (!dealsLoading() && sortedDeals().length > 0) {
+                        <p class="text-xs text-gray-400 mt-0.5">{{ sortedDeals().length }} deal{{ sortedDeals().length === 1 ? '' : 's' }} from {{ uniqueNetworks() }} network{{ uniqueNetworks() === 1 ? '' : 's' }}</p>
+                      }
+                    </div>
+                    @if (sortedDeals().length > 1) {
+                      <div class="flex bg-gray-100 p-1 rounded-lg self-start sm:self-auto">
+                        @for (tab of sortTabs; track tab.key) {
+                          <button
+                            (click)="dealSort.set(tab.key)"
+                            class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset"
+                            [ngClass]="dealSort() === tab.key
+                              ? 'bg-white text-gray-900 shadow-sm'
+                              : 'text-gray-500 hover:text-gray-700'"
+                          >
+                            {{ tab.label }}
+                          </button>
+                        }
+                      </div>
                     }
                   </div>
-                  @if (sortedDeals().length > 1) {
-                    <div class="flex bg-gray-100 p-1 rounded-lg self-start sm:self-auto">
-                      @for (tab of sortTabs; track tab.key) {
-                        <button
-                          (click)="dealSort.set(tab.key)"
-                          class="px-3 py-1.5 text-xs font-semibold rounded-md transition-all duration-150 whitespace-nowrap focus:outline-none focus:ring-2 focus:ring-accent focus:ring-inset"
-                          [ngClass]="dealSort() === tab.key
-                            ? 'bg-white text-gray-900 shadow-sm'
-                            : 'text-gray-500 hover:text-gray-700'"
-                        >
-                          {{ tab.label }}
-                        </button>
+
+                  @if (dealsLoading()) {
+                    <div class="space-y-4">
+                      @for (i of [1,2,3]; track i) {
+                        <app-deal-card-skeleton></app-deal-card-skeleton>
+                      }
+                    </div>
+                  } @else if (sortedDeals().length === 0) {
+                    <app-empty-state
+                      icon='<svg class="w-12 h-12 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>'
+                      heading="No contract deals yet"
+                      subheading="This product is listed on the site, but no network deals have been added. Add deals in the admin panel (Deals section) for this product to appear here."
+                    ></app-empty-state>
+                  } @else {
+                    <div class="space-y-4">
+                      @for (deal of sortedDeals(); track deal.id) {
+                        <app-deal-card
+                          [deal]="deal"
+                          [isHighlighted]="deal.id === bestValueDealId()"
+                          (getDeal)="onGetDeal($event)"
+                        ></app-deal-card>
                       }
                     </div>
                   }
-                </div>
-
-                @if (dealsLoading()) {
-                  <div class="space-y-4">
-                    @for (i of [1,2,3]; track i) {
-                      <app-deal-card-skeleton></app-deal-card-skeleton>
-                    }
-                  </div>
-                } @else if (sortedDeals().length === 0) {
-                  <app-empty-state
-                    icon='<svg class="w-12 h-12 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>'
-                    heading="No contract deals yet"
-                    subheading="This product is listed on the site, but no network deals have been added. Add deals in the admin panel (Deals section) for this product to appear here."
-                  ></app-empty-state>
-                } @else {
-                  <div class="space-y-4">
-                    @for (deal of sortedDeals(); track deal.id) {
-                      <app-deal-card
-                        [deal]="deal"
-                        [isHighlighted]="deal.id === bestValueDealId()"
-                        (getDeal)="onGetDeal($event)"
-                      ></app-deal-card>
-                    }
-                  </div>
-                }
-              </div><!-- /deals section -->
+                </div><!-- /deals section -->
+              }
 
             </div><!-- /right col -->
           </div><!-- /two-col flex -->
@@ -841,6 +860,10 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     if (!p?.colours) return [];
     try { return JSON.parse(p.colours) as string[]; } catch { return []; }
   });
+
+  isNonDealProduct = computed(() =>
+    isNonDealProduct(this.product())
+  );
 
   isSamsung = computed(() =>
     this.product()?.category_name?.toLowerCase().includes('samsung') ||
@@ -1082,6 +1105,10 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   }
 
   private fetchDeals(productId: number) {
+    if (this.isNonDealProduct()) {
+      this.dealsLoading.set(false);
+      return;
+    }
     this.dealsLoading.set(true);
     this.api.get<{ success: boolean; data: Deal[] }>('/api/deals', { product_id: String(productId) }).subscribe({
       next: res => {
@@ -1135,6 +1162,44 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       },
       offers: offers.length > 0 ? offers : undefined,
     });
+  }
+
+  onAddToCart(): void {
+    const p = this.product();
+    if (!p) return;
+
+    const price = this.variantSalePrice() ?? this.variantPrice() ?? 0;
+    if (price <= 0) {
+      this.toast.error('Please select a valid option.');
+      return;
+    }
+
+    const item: CartItem = {
+      id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(),
+      dealId: 0,
+      productId: p.id,
+      productName: p.name,
+      productSlug: p.slug,
+      primaryImageUrl: this.primaryImageUrl() ?? '',
+      network: 'Outright',
+      contractMonths: 0,
+      monthlyCost: 0,
+      upfrontCost: price,
+      dataGb: 0,
+      addedAt: Date.now(),
+      color: this.selectedColour() ?? undefined,
+      storage: this.selectedStorage() ?? undefined,
+      simType: this.selectedSimType() ?? undefined
+    };
+
+    const added = this.cart.addItem(item);
+    if (!added) {
+      this.toast.info('This item is already in your cart.');
+    } else {
+      this.toast.success('Added to cart!');
+    }
+
+    this.router.navigate(['/cart']);
   }
 
   onGetDeal(deal: Deal): void {

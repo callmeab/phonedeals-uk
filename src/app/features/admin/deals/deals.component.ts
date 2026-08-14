@@ -9,7 +9,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ApiService } from '../../../core/services/api.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { Deal, NETWORKS, NETWORK_COLOURS } from '../../../core/models/deal.model';
-import { Product } from '../../../core/models/product.model';
+import { Product, isNonDealProduct } from '../../../core/models/product.model';
 
 @Component({
   selector: 'app-admin-deals',
@@ -24,7 +24,7 @@ import { Product } from '../../../core/models/product.model';
           <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Deals</h1>
           <p class="text-sm text-gray-500 mt-1">Manage network deals for each product.</p>
         </div>
-        @if (selectedProduct()) {
+        @if (selectedProduct() && !isSelectedNonDeal()) {
           <button
             (click)="openDrawer(null)"
             class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-accent hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"
@@ -100,7 +100,17 @@ import { Product } from '../../../core/models/product.model';
       </div>
 
       <!-- Deals Content Area -->
-      @if (!selectedProduct()) {
+      @if (selectedProduct() && isSelectedNonDeal()) {
+        <div class="bg-amber-50 rounded-xl border border-amber-200 p-8 text-center">
+          <div class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-amber-100 text-amber-700 mb-3 text-2xl">
+            ℹ️
+          </div>
+          <h3 class="text-lg font-bold text-amber-900">Direct Purchase Product (No Contract Deals)</h3>
+          <p class="mt-2 text-sm text-amber-700 max-w-lg mx-auto leading-relaxed">
+            Accessories and Smart Watches sell directly at their regular Price or Sale Price. They do not support contract deals. Customers can add them to cart and checkout directly from the product page.
+          </p>
+        </div>
+      } @else if (!selectedProduct()) {
         <!-- No product selected -->
         <div class="flex flex-col items-center justify-center py-24 bg-white rounded-xl border border-dashed border-gray-300">
           <svg class="h-14 w-14 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -500,6 +510,7 @@ export class AdminDealsComponent implements OnInit {
   // --- Data signals ---
   allProducts = signal<Product[]>([]);
   selectedProduct = signal<Product | null>(null);
+  isSelectedNonDeal = computed(() => isNonDealProduct(this.selectedProduct()));
   deals = signal<Deal[]>([]);
 
   // --- UI state ---

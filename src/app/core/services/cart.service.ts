@@ -19,12 +19,22 @@ export class CartService {
     // Optionally we can set an effect to auto-save, or just save on mutation functions
   }
 
-  isInCart(dealId: number): boolean {
-    return this.items().some(item => item.dealId === dealId);
+  isInCart(dealId?: number | null, productId?: number, color?: string, storage?: string): boolean {
+    if (dealId) {
+      return this.items().some(item => item.dealId === dealId);
+    }
+    if (productId) {
+      return this.items().some(item =>
+        item.productId === productId &&
+        (color ? item.color === color : true) &&
+        (storage ? item.storage === storage : true)
+      );
+    }
+    return false;
   }
 
   addItem(item: CartItem): boolean {
-    if (this.isInCart(item.dealId)) {
+    if (this.isInCart(item.dealId, item.productId, item.color, item.storage)) {
       return false; // Prevent duplicates explicitly
     }
     this.items.update(currentItems => {

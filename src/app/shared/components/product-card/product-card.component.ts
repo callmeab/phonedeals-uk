@@ -3,7 +3,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Product } from '../../../core/models/product.model';
+import { Product, isNonDealProduct } from '../../../core/models/product.model';
 import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE } from '../../../core/utils/image-url';
 
 @Component({
@@ -109,7 +109,7 @@ import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE
                    group-hover:bg-accent group-hover:text-white
                    focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
           >
-            View Deals
+            {{ isNonDeal ? 'View Details' : 'View Deals' }}
           </button>
         </div>
       </div>
@@ -122,7 +122,7 @@ import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE
       <div
         (click)="navigate()"
         class="group flex items-center gap-4 bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer px-4 py-4"
-        [attr.aria-label]="'View deals for ' + product.name"
+        [attr.aria-label]="(isNonDeal ? 'View details for ' : 'View deals for ') + product.name"
         role="button"
         tabindex="0"
         (keydown.enter)="navigate()"
@@ -176,10 +176,10 @@ import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE
           }
         </div>
 
-        <!-- View deals link -->
+        <!-- View details link -->
         <div class="flex-shrink-0">
           <span class="inline-flex items-center gap-1 text-sm font-bold text-accent group-hover:translate-x-1 transition-transform duration-200">
-            View Deals
+            {{ isNonDeal ? 'View Details' : 'View Deals' }}
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
             </svg>
@@ -195,6 +195,10 @@ export class ProductCardComponent {
   @Input() variant: 'grid' | 'list' = 'grid';
 
   private router = inject(Router);
+
+  get isNonDeal(): boolean {
+    return isNonDealProduct(this.product);
+  }
 
   primaryImageUrl(): string | null {
     return resolveProductImageUrl(getPrimaryProductImage(this.product));

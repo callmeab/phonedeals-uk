@@ -91,9 +91,7 @@ checkoutRouter.post('/create-intent', async (c) => {
       product_name?: string;
     } | null = null;
 
-    if (!body.dealId) {
-      errors['dealId'] = 'Deal ID is required';
-    } else {
+    if (body.dealId) {
       const dealRow = await c.env.DB.prepare(`
         SELECT d.network, d.monthly_cost, d.upfront_cost, d.contract_months, p.name AS product_name
         FROM deals d
@@ -109,7 +107,7 @@ checkoutRouter.post('/create-intent', async (c) => {
 
       if (!dealRow) {
         errors['dealId'] = 'Deal not found';
-      } else if (body.networkProvider !== dealRow.network) {
+      } else if (body.networkProvider && body.networkProvider !== 'Outright' && body.networkProvider !== dealRow.network) {
         errors['networkProvider'] = 'Invalid network provider for this deal';
       } else {
         dealInfo = dealRow;
@@ -154,7 +152,7 @@ checkoutRouter.post('/create-intent', async (c) => {
     `).bind(
       orderId,
       customerId,
-      body.dealId,
+      body.dealId || null,
       'PENDING',
       sanitise.string(body.networkProvider),
       body.sameAsDelivery ? 1 : 0,

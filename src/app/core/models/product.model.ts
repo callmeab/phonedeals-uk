@@ -86,3 +86,26 @@ export interface Product {
   updated_at: string;
   category_name?: string; 
 }
+
+export function isNonDealProduct(product?: Partial<Product> | null): boolean {
+  if (!product) return false;
+  const catId = product.category_id;
+  const catName = (product.category_name || '').toLowerCase();
+  const slug = (product.slug || '').toLowerCase();
+
+  if (catId === 3 || catId === 6 || catId === 5 || catId === 8) {
+    return true;
+  }
+
+  if (
+    catName.includes('accessor') ||
+    catName.includes('watch') ||
+    slug.includes('accessor') ||
+    slug.includes('watch')
+  ) {
+    return true;
+  }
+
+  return false;
+}
+

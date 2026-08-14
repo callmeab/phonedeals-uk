@@ -328,8 +328,8 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
         dateOfBirth:    personal.dob,
         marketingOptIn: false,
       },
-      dealId:          firstItem?.dealId ?? firstItem?.id ?? null,
-      networkProvider: firstItem?.network ?? '',
+      dealId:          (firstItem?.dealId && firstItem.dealId > 0) ? firstItem.dealId : null,
+      networkProvider: firstItem?.network || 'Outright',
       deliveryAddress: {
         line1:    address.currentAddress,
         line2:    null,
