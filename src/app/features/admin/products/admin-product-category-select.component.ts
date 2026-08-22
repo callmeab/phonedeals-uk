@@ -115,8 +115,8 @@ export class AdminProductCategorySelectComponent {
     },
     {
       id: 3,
-      name: 'Accessory',
-      slug: 'accessory',
+      name: 'Accessories',
+      slug: 'accessories',
       route: '/xk92-admin/products/new/accessories',
       icon: '🎧',
       description: 'Cases, chargers, cables, screen protectors — phone compatibility ke saath.',
