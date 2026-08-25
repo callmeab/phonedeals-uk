@@ -393,7 +393,21 @@ export class CheckoutComponent implements OnInit, CanDeactivateCheckout {
           this.orderService.placeOrder(orderDetails);
           this.cartService.clearCart();
 
-          this.router.navigate(['/order-confirmation'], { state: { orderId, email } });
+          this.router.navigate(['/order-confirmation'], {
+            state: {
+              orderId,
+              email,
+              firstName: personal.firstName,
+              productName: firstItem?.productName || 'Your Product',
+              productImage: firstItem?.primaryImageUrl || '',
+              network: firstItem?.network || 'Outright',
+              contractMonths: firstItem?.contractMonths || 0,
+              monthlyCost: this.finalMonthlyCost,
+              upfrontCost: this.finalUpfrontCost,
+              color: firstItem?.color || '',
+              storage: firstItem?.storage || '',
+            }
+          });
         } else {
           this.submitError = 'Your order could not be placed. Please check your details and try again.';
           this.toast.error(this.submitError);
