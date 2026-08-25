@@ -199,8 +199,14 @@ checkoutRouter.post('/create-intent', async (c) => {
     return c.json({ success: true, orderId, email: customerEmail });
 
   } catch (error: any) {
-    console.error('Checkout error:', error);
-    return c.json({ success: false, message: 'Internal Server Error' }, 500);
+    console.error('Checkout error:', error?.message ?? error);
+    if (error?.stack) console.error('Stack:', error.stack);
+    return c.json({
+      success: false,
+      message: 'Internal Server Error',
+      // Surface the real error cause in logs (Cloudflare dashboard)
+      debug: error?.message ?? String(error),
+    }, 500);
   }
 });
 
