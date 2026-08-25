@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { Env } from '../types';
 import { validate } from '../utils/validate';
 import { sanitise } from '../utils/sanitise';
-import { sendOrderEmail, OrderEmailData } from '../utils/email';
+import { sendOrderEmail, sendAdminOrderNotification, OrderEmailData } from '../utils/email';
 
 const checkoutRouter = new Hono<{ Bindings: Env }>();
 
@@ -170,16 +170,16 @@ checkoutRouter.post('/create-intent', async (c) => {
 
     // ── Send confirmation email (non-blocking — order succeeds regardless) ───
     // If email fails, the error is logged but does NOT affect the HTTP response.
-    if (customerEmail && dealInfo) {
+    if (customerEmail) {
       const emailData: OrderEmailData = {
         orderId,
         customerName:   `${customerFirstName} ${customerLastName}`.trim(),
         customerEmail,
-        productName:    dealInfo.product_name || 'Smartphone',
-        network:        dealInfo.network,
-        contractMonths: dealInfo.contract_months,
-        monthlyAmount:  dealInfo.monthly_cost,
-        upfrontAmount:  dealInfo.upfront_cost,
+        productName:    dealInfo?.product_name || sanitise.string(body.productName) || 'Product',
+        network:        dealInfo?.network || sanitise.string(body.networkProvider) || 'Outright',
+        contractMonths: dealInfo?.contract_months ?? 0,
+        monthlyAmount:  dealInfo?.monthly_cost ?? 0,
+        upfrontAmount:  dealInfo?.upfront_cost ?? 0,
         deliveryAddress: {
           line1:    sanitise.string(delivery.line1)   || '',
           line2:    sanitise.string(delivery.line2)   || null,
@@ -188,9 +188,18 @@ checkoutRouter.post('/create-intent', async (c) => {
           postcode: sanitise.string(delivery.postcode) || '',
         },
       };
+
+      // 1. Customer confirmation email
       c.executionCtx.waitUntil(
         sendOrderEmail('confirmation', c.env, emailData).catch((err) => {
           console.error('[checkout] Unexpected error in sendOrderEmail:', err);
+        })
+      );
+
+      // 2. Admin notification email
+      c.executionCtx.waitUntil(
+        sendAdminOrderNotification(c.env, emailData).catch((err) => {
+          console.error('[checkout] Unexpected error in admin notification:', err);
         })
       );
     }

@@ -4555,6 +4555,135 @@ async function sendOrderEmail(type, env2, data) {
   return result;
 }
 __name(sendOrderEmail, "sendOrderEmail");
+var ADMIN_NOTIFICATION_EMAIL = "orders@mobello.uk";
+async function sendAdminOrderNotification(env2, data) {
+  if (!env2.RESEND_API_KEY) {
+    console.warn("[email] RESEND_API_KEY not set \u2014 skipping admin notification");
+    return { success: false, error: "RESEND_API_KEY not configured" };
+  }
+  const subject = `\u{1F6D2} New Order \u2014 ${data.orderId}`;
+  const html = wrapInLayout(`
+    <!-- Status badge -->
+    <div style="text-align:center;margin-bottom:32px;">
+      <div style="display:inline-block;background-color:#fef3c7;color:#d97706;
+                  font-size:13px;font-weight:600;padding:6px 16px;border-radius:999px;
+                  letter-spacing:0.5px;">
+        \u{1F6D2} NEW ORDER RECEIVED
+      </div>
+    </div>
+
+    <h2 style="margin:0 0 8px;color:#111827;font-size:22px;font-weight:700;">
+      New order from ${data.customerName || "Customer"}
+    </h2>
+    <p style="margin:0 0 32px;color:#6b7280;font-size:15px;line-height:1.6;">
+      A new order has been placed on Mobello.UK and needs your attention.
+    </p>
+
+    <!-- Order ID highlight -->
+    <div style="background:#f5f3ff;border:1px solid #ede9fe;border-radius:12px;
+                padding:20px;margin-bottom:28px;text-align:center;">
+      <p style="margin:0 0 4px;color:#7c3aed;font-size:12px;font-weight:600;
+                text-transform:uppercase;letter-spacing:1px;">Order Reference</p>
+      <p style="margin:0;color:#4c1d95;font-size:22px;font-weight:700;
+                font-family:monospace,monospace;">${data.orderId}</p>
+    </div>
+
+    <!-- Customer Details -->
+    <h3 style="margin:0 0 16px;color:#374151;font-size:14px;font-weight:600;
+               text-transform:uppercase;letter-spacing:0.5px;">Customer Details</h3>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+           style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;
+                  margin-bottom:28px;">
+      <tr style="background-color:#f9fafb;">
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Name</td>
+        <td style="padding:14px 20px;font-size:14px;color:#6b7280;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">
+          ${data.customerName}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Email</td>
+        <td style="padding:14px 20px;font-size:14px;color:#6b7280;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">
+          <a href="mailto:${data.customerEmail}" style="color:#6366f1;text-decoration:none;">
+            ${data.customerEmail}
+          </a>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Order Details -->
+    <h3 style="margin:0 0 16px;color:#374151;font-size:14px;font-weight:600;
+               text-transform:uppercase;letter-spacing:0.5px;">Order Details</h3>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+           style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;
+                  margin-bottom:28px;">
+      <tr style="background-color:#f9fafb;">
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Product</td>
+        <td style="padding:14px 20px;font-size:14px;color:#6b7280;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">
+          ${data.productName}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Network</td>
+        <td style="padding:14px 20px;font-size:14px;color:#6b7280;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">${data.network}</td>
+      </tr>
+      <tr style="background-color:#f9fafb;">
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Contract</td>
+        <td style="padding:14px 20px;font-size:14px;color:#6b7280;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">
+          ${data.contractMonths ? data.contractMonths + " months" : "Outright"}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Monthly Cost</td>
+        <td style="padding:14px 20px;font-size:14px;color:#6b7280;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">
+          ${formatCurrency(data.monthlyAmount)}/mo
+        </td>
+      </tr>
+      <tr style="background-color:#f9fafb;">
+        <td style="padding:14px 20px;font-size:14px;font-weight:700;color:#111827;">
+          Upfront Cost
+        </td>
+        <td style="padding:14px 20px;font-size:16px;font-weight:700;color:#6366f1;
+                   text-align:right;">
+          ${formatCurrency(data.upfrontAmount)}
+        </td>
+      </tr>
+    </table>
+
+    <!-- Delivery Address -->
+    <h3 style="margin:0 0 12px;color:#374151;font-size:14px;font-weight:600;
+               text-transform:uppercase;letter-spacing:0.5px;">Delivery Address</h3>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;
+                padding:16px 20px;margin-bottom:28px;">
+      <p style="margin:0;color:#374151;font-size:14px;line-height:1.8;">
+        ${formatAddress(data.deliveryAddress).replace(/, /g, "<br />")}
+      </p>
+    </div>
+
+    <p style="margin:0;color:#9ca3af;font-size:13px;text-align:center;line-height:1.6;">
+      Log in to the <a href="https://mobello.uk/admin" style="color:#6366f1;text-decoration:none;font-weight:600;">Admin Panel</a> to manage this order.
+    </p>
+  `);
+  const result = await callResendApi(env2.RESEND_API_KEY, ADMIN_NOTIFICATION_EMAIL, subject, html);
+  if (!result.success) {
+    console.error(`[email] Failed to send admin notification for order ${data.orderId}:`, result.error);
+  } else {
+    console.log(`[email] Sent admin notification for order ${data.orderId} to ${ADMIN_NOTIFICATION_EMAIL}`);
+  }
+  return result;
+}
+__name(sendAdminOrderNotification, "sendAdminOrderNotification");
 
 // src/routes/checkout.ts
 var checkoutRouter = new Hono2();
@@ -4674,16 +4803,16 @@ checkoutRouter.post("/create-intent", async (c) => {
       sanitise.string(billing.county) || null,
       sanitise.string(billing.postcode)
     ).run();
-    if (customerEmail && dealInfo) {
+    if (customerEmail) {
       const emailData = {
         orderId,
         customerName: `${customerFirstName} ${customerLastName}`.trim(),
         customerEmail,
-        productName: dealInfo.product_name || "Smartphone",
-        network: dealInfo.network,
-        contractMonths: dealInfo.contract_months,
-        monthlyAmount: dealInfo.monthly_cost,
-        upfrontAmount: dealInfo.upfront_cost,
+        productName: dealInfo?.product_name || sanitise.string(body.productName) || "Product",
+        network: dealInfo?.network || sanitise.string(body.networkProvider) || "Outright",
+        contractMonths: dealInfo?.contract_months ?? 0,
+        monthlyAmount: dealInfo?.monthly_cost ?? 0,
+        upfrontAmount: dealInfo?.upfront_cost ?? 0,
         deliveryAddress: {
           line1: sanitise.string(delivery.line1) || "",
           line2: sanitise.string(delivery.line2) || null,
@@ -4695,6 +4824,11 @@ checkoutRouter.post("/create-intent", async (c) => {
       c.executionCtx.waitUntil(
         sendOrderEmail("confirmation", c.env, emailData).catch((err) => {
           console.error("[checkout] Unexpected error in sendOrderEmail:", err);
+        })
+      );
+      c.executionCtx.waitUntil(
+        sendAdminOrderNotification(c.env, emailData).catch((err) => {
+          console.error("[checkout] Unexpected error in admin notification:", err);
         })
       );
     }
