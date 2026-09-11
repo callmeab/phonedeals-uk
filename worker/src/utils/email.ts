@@ -584,3 +584,184 @@ export async function sendAdminOrderNotification(
 
   return result;
 }
+
+// =============================================================================
+// Pre-order Types & Email Dispatchers
+// =============================================================================
+
+export interface PreorderEmailData {
+  reservationRef: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  model: string;
+  storage: string;
+  color: string;
+  purchaseType: 'outright' | 'contract';
+  network?: string;
+  priceGbp: number;
+  depositAmount: number;
+  releaseDate: string;
+}
+
+function buildPreorderConfirmationEmail(data: PreorderEmailData): { subject: string; html: string } {
+  const subject = `Priority Reservation Confirmed — ${data.reservationRef} | ${data.model}`;
+
+  const html = wrapInLayout(`
+    <!-- Status badge -->
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="display:inline-block;background:linear-gradient(135deg,#e0e7ff 0%,#f5f3ff 100%);
+                  color:#4338ca;font-size:13px;font-weight:700;padding:6px 18px;border-radius:999px;
+                  letter-spacing:0.5px;border:1px solid #c7d2fe;">
+        ★ PRIORITY QUEUE RESERVED
+      </div>
+    </div>
+
+    <h2 style="margin:0 0 8px;color:#111827;font-size:24px;font-weight:800;text-align:center;">
+      You're in line for the ${data.model}!
+    </h2>
+    <p style="margin:0 0 28px;color:#6b7280;font-size:15px;line-height:1.6;text-align:center;">
+      Hi ${data.customerName.split(' ')[0]}, your reservation deposit has been confirmed. Your unit is prioritized in our initial UK launch batch.
+    </p>
+
+    <!-- Reservation Ref box -->
+    <div style="background:linear-gradient(135deg,#f8fafc 0%,#f1f5f9 100%);border:2px dashed #cbd5e1;
+                border-radius:12px;padding:20px;margin-bottom:28px;text-align:center;">
+      <p style="margin:0 0 4px;color:#64748b;font-size:12px;font-weight:700;
+                text-transform:uppercase;letter-spacing:1px;">Reservation Reference</p>
+      <p style="margin:0;color:#0f172a;font-size:24px;font-weight:800;
+                font-family:monospace,monospace;letter-spacing:1px;">${data.reservationRef}</p>
+    </div>
+
+    <!-- Reserved Specifications -->
+    <h3 style="margin:0 0 14px;color:#374151;font-size:14px;font-weight:700;
+               text-transform:uppercase;letter-spacing:0.5px;">Device Specifications</h3>
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+           style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;margin-bottom:28px;">
+      <tr style="background-color:#f9fafb;">
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Model</td>
+        <td style="padding:14px 20px;font-size:14px;font-weight:700;color:#111827;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">
+          ${data.model}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Color & Finish</td>
+        <td style="padding:14px 20px;font-size:14px;color:#4b5563;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">${data.color}</td>
+      </tr>
+      <tr style="background-color:#f9fafb;">
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Storage Capacity</td>
+        <td style="padding:14px 20px;font-size:14px;color:#4b5563;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">${data.storage}</td>
+      </tr>
+      <tr>
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Purchase Preference</td>
+        <td style="padding:14px 20px;font-size:14px;color:#4b5563;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">
+          ${data.purchaseType === 'outright' ? 'SIM-Free (Outright)' : `Contract (${data.network || 'UK Network'})`}
+        </td>
+      </tr>
+      <tr style="background-color:#f9fafb;">
+        <td style="padding:14px 20px;font-size:14px;font-weight:600;color:#374151;
+                   border-bottom:1px solid #e5e7eb;">Total Price (RRP)</td>
+        <td style="padding:14px 20px;font-size:14px;color:#4b5563;
+                   border-bottom:1px solid #e5e7eb;text-align:right;">
+          ${formatCurrency(data.priceGbp)}
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:14px 20px;font-size:14px;font-weight:700;color:#047857;">
+          Deposit Paid (100% Refundable)
+        </td>
+        <td style="padding:14px 20px;font-size:16px;font-weight:800;color:#047857;
+                   text-align:right;">
+          ✓ ${formatCurrency(data.depositAmount)}
+        </td>
+      </tr>
+    </table>
+
+    <!-- Launch Timeline -->
+    <div style="background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);
+                border:1px solid #bfdbfe;border-radius:12px;padding:24px;
+                margin-bottom:28px;">
+      <p style="margin:0 0 12px;color:#1e3a8a;font-size:13px;font-weight:700;
+                text-transform:uppercase;letter-spacing:0.5px;">📅 Next Steps & Key Dates</p>
+      <ul style="margin:0;padding-left:20px;color:#334155;font-size:14px;line-height:1.7;">
+        <li><strong>Sept 12, 2026:</strong> We'll email you a secure link to confirm your delivery address and settle the remaining balance (or finalize your network contract).</li>
+        <li><strong>Sept 18, 2026:</strong> Official release day! Priority launch day dispatch with tracked UK courier delivery.</li>
+        <li><strong>Change of mind?</strong> Your £${data.depositAmount.toFixed(2)} deposit is 100% refundable at any time prior to dispatch.</li>
+      </ul>
+    </div>
+
+    <p style="margin:0;color:#9ca3af;font-size:13px;text-align:center;line-height:1.6;">
+      Need to amend your order or have questions? Contact us at
+      <a href="mailto:${SUPPORT_EMAIL}" style="color:#6366f1;text-decoration:none;">${SUPPORT_EMAIL}</a>.
+    </p>
+  `);
+
+  return { subject, html };
+}
+
+export async function sendPreorderEmail(
+  env: Env,
+  data: PreorderEmailData,
+): Promise<{ success: boolean; error?: string }> {
+  if (!env.RESEND_API_KEY) {
+    console.warn('[email] RESEND_API_KEY not set — skipping preorder email send');
+    return { success: false, error: 'RESEND_API_KEY not configured' };
+  }
+
+  const { subject, html } = buildPreorderConfirmationEmail(data);
+  const result = await callResendApi(env.RESEND_API_KEY, data.customerEmail, subject, html);
+
+  if (!result.success) {
+    console.error(`[email] Failed to send preorder email to ${data.customerEmail}:`, result.error);
+  } else {
+    console.log(`[email] Sent preorder email to ${data.customerEmail} (ref: ${data.reservationRef})`);
+  }
+
+  return result;
+}
+
+export async function sendAdminPreorderNotification(
+  env: Env,
+  data: PreorderEmailData,
+): Promise<{ success: boolean; error?: string }> {
+  if (!env.RESEND_API_KEY) {
+    console.warn('[email] RESEND_API_KEY not set — skipping admin preorder notification');
+    return { success: false, error: 'RESEND_API_KEY not configured' };
+  }
+
+  const subject = `🔥 New iPhone 18 Pre-Order — ${data.reservationRef} (${data.model})`;
+
+  const html = wrapInLayout(`
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="display:inline-block;background-color:#dbeafe;color:#1e40af;
+                  font-size:13px;font-weight:700;padding:6px 16px;border-radius:999px;">
+        🔥 NEW PRE-BOOKING RESERVATION
+      </div>
+    </div>
+
+    <h2 style="margin:0 0 12px;color:#111827;font-size:22px;font-weight:700;">
+      New reservation from ${data.customerName}
+    </h2>
+
+    <p style="margin:0 0 24px;color:#4b5563;font-size:15px;">
+      <strong>Reference:</strong> ${data.reservationRef}<br />
+      <strong>Model:</strong> ${data.model} - ${data.storage} (${data.color})<br />
+      <strong>Customer Email:</strong> ${data.customerEmail}<br />
+      <strong>Customer Phone:</strong> ${data.customerPhone}<br />
+      <strong>Purchase Option:</strong> ${data.purchaseType} (${data.network || 'SIM-Free'})<br />
+      <strong>Deposit:</strong> £${data.depositAmount.toFixed(2)} (Paid)
+    </p>
+  `);
+
+  const result = await callResendApi(env.RESEND_API_KEY, ADMIN_NOTIFICATION_EMAIL, subject, html);
+  return result;
+}
+

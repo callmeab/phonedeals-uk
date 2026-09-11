@@ -38,7 +38,7 @@ const OUTPUT_FILE = join(__dirname, '..', 'routes.txt');
 const API_URL = process.env['API_URL'] ?? 'https://api.phonedealsuk.co.uk';
 
 // Static routes always pre-rendered regardless of products
-const STATIC_ROUTES = ['/', '/iphone', '/samsung'];
+const STATIC_ROUTES = ['/', '/iphone', '/samsung', '/iphone-18-pro-preorder'];
 
 async function fetchAllSlugs() {
   const url = `${API_URL}/api/products?limit=500`;

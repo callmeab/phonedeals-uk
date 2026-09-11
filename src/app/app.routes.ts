@@ -100,6 +100,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/watches-listing/watches-listing.component').then(m => m.WatchesListingComponent),
       },
       {
+        path: 'iphone-18-pro-preorder',
+        loadComponent: () => import('./features/preorder/iphone18-preorder.component').then(m => m.Iphone18PreorderComponent),
+      },
+      {
+        path: 'iphone-18-pro-preorder/confirmation',
+        loadComponent: () => import('./features/preorder/preorder-confirmation.component').then(m => m.PreorderConfirmationComponent),
+      },
+      {
         path: 'phones/:slug',
         loadComponent: () => import('./features/product-detail/product-detail.component').then(m => m.ProductDetailComponent),
       },

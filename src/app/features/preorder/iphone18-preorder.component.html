@@ -1,0 +1,569 @@
+<div class="min-h-screen bg-slate-50 text-slate-900 pb-20">
+  
+  <!-- TOP LAUNCH ANNOUNCEMENT TICKER -->
+  <div class="bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 text-white border-b border-indigo-900/50 py-2.5 px-4 text-center text-xs sm:text-sm font-medium">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-center gap-2">
+      <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold border border-indigo-500/30 text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+        UK Launch Allocation
+      </span>
+      <span>Official Pre-Orders Open Sept 12, 2026 • Official UK Release Sept 18, 2026</span>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+
+    <!-- BREADCRUMBS -->
+    <nav class="flex items-center text-xs sm:text-sm text-slate-500 mb-6 space-x-2">
+      <a routerLink="/" class="hover:text-indigo-600 transition-colors">Home</a>
+      <span>/</span>
+      <span class="text-slate-400">Pre-Order</span>
+      <span>/</span>
+      <span class="text-slate-800 font-semibold">iPhone 18 Pro Series</span>
+    </nav>
+
+    <!-- HERO / BANNER SECTION -->
+    <section class="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-950 via-indigo-950 to-slate-900 text-white shadow-2xl p-6 sm:p-10 lg:p-14 mb-10 border border-slate-800">
+      
+      <!-- Optional Hero Background Image with CSS Fallback -->
+      @if (!heroBannerError()) {
+        <img
+          src="/iphone-18/iphone-18-pro.webp"
+          alt="iPhone 18 Pro Launch Banner"
+          (error)="onHeroError()"
+          class="absolute inset-0 w-full h-full object-cover object-center opacity-25 mix-blend-overlay pointer-events-none"
+        />
+      }
+
+      <!-- Background Glow Orbs -->
+      <div class="absolute -top-24 -left-24 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-rose-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left Hero Copy -->
+        <div class="lg:col-span-7 space-y-4 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-indigo-300 text-xs font-semibold">
+            <svg class="w-4 h-4 text-indigo-400" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-1.99.6-2.63 1.35-.57.65-.98 1.72-.85 2.74 1.01.08 2.03-.51 2.56-1.24z"/>
+            </svg>
+            Apple A20 Pro 2nm Architecture
+          </div>
+
+          <h1 class="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
+            iPhone 18 Pro <span class="bg-gradient-to-r from-indigo-400 via-sky-300 to-rose-300 bg-clip-text text-transparent">&amp; Pro Max</span>
+          </h1>
+
+          <p class="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
+            Engineered with 2nm silicon, next-generation periscope telephoto optics, and grade 5 aerospace micro-titanium. Reserve your device today with a <strong class="text-white font-bold">100% refundable £99 deposit</strong> to guarantee launch-day delivery.
+          </p>
+
+          <!-- Key Guarantees Badges -->
+          <div class="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs font-semibold text-slate-300">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              100% Refundable Anytime
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              Locked-in UK Launch Price
+            </span>
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              Priority Batch 1 Dispatch
+            </span>
+          </div>
+        </div>
+
+        <!-- Right Countdown Timer Card -->
+        <div class="lg:col-span-5">
+          <div class="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl p-6 sm:p-7 shadow-xl text-center">
+            <div class="flex items-center justify-center gap-2 mb-3 text-indigo-300 text-xs font-bold uppercase tracking-wider">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+              UK Release Countdown
+            </div>
+
+            <div class="grid grid-cols-4 gap-2 sm:gap-3 mb-4">
+              <div class="bg-black/30 rounded-xl p-2.5 sm:p-3 border border-white/10">
+                <div class="text-2xl sm:text-3xl font-black text-white font-mono">{{ countdown().days }}</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400 mt-0.5">Days</div>
+              </div>
+              <div class="bg-black/30 rounded-xl p-2.5 sm:p-3 border border-white/10">
+                <div class="text-2xl sm:text-3xl font-black text-white font-mono">{{ countdown().hours }}</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400 mt-0.5">Hours</div>
+              </div>
+              <div class="bg-black/30 rounded-xl p-2.5 sm:p-3 border border-white/10">
+                <div class="text-2xl sm:text-3xl font-black text-white font-mono">{{ countdown().minutes }}</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400 mt-0.5">Mins</div>
+              </div>
+              <div class="bg-black/30 rounded-xl p-2.5 sm:p-3 border border-white/10">
+                <div class="text-2xl sm:text-3xl font-black text-white font-mono">{{ countdown().seconds }}</div>
+                <div class="text-[10px] uppercase font-bold text-slate-400 mt-0.5">Secs</div>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-300 mb-0">
+              Orders placed now secure <strong>Tier-1 Launch Day Delivery</strong> across England, Scotland, Wales &amp; Northern Ireland.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- MAIN CONFIGURATOR & RESERVATION SECTION -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+      
+      <!-- =================================================================== -->
+      <!-- LEFT COLUMN: LIVE PRODUCT SHOWCASE (STICKY)                         -->
+      <!-- =================================================================== -->
+      <div class="lg:col-span-5 lg:sticky lg:top-24 space-y-6">
+        
+        <!-- Main Device Card -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-8 flex flex-col items-center text-center relative overflow-hidden">
+          
+          <!-- Top Variant Badges -->
+          <div class="w-full flex items-center justify-between gap-2 mb-4">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700">
+              {{ preorder.selectedModel() }}
+            </span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+              {{ preorder.selectedStorage() }}
+            </span>
+          </div>
+
+          <!-- Product Image Showcase with Graceful CSS Fallback -->
+          <div class="w-full h-80 sm:h-96 flex items-center justify-center relative p-4 my-2">
+            
+            <!-- When image file exists, render clean standard <img> -->
+            @if (!imageLoadError()) {
+              <img
+                [src]="preorder.currentImagePath()"
+                [alt]="preorder.selectedModel() + ' in ' + preorder.selectedColor()"
+                (error)="onImageError()"
+                class="max-h-full max-w-full object-contain drop-shadow-2xl transition-all duration-300 transform hover:scale-105"
+              />
+            }
+
+            <!-- Graceful CSS Fallback Box (No broken image icons) -->
+            @if (imageLoadError()) {
+              <div class="w-full h-full rounded-2xl border-2 border-dashed border-slate-300 bg-slate-100 flex flex-col items-center justify-center p-6 text-center">
+                <div class="w-16 h-16 rounded-full bg-slate-200 flex items-center justify-center text-slate-400 mb-3 shadow-inner">
+                  <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h4 class="text-sm font-bold text-slate-700 mb-1">
+                  {{ preorder.selectedModel() }}
+                </h4>
+                <p class="text-xs font-medium text-slate-500 mb-2">
+                  Finish: <span class="font-semibold text-slate-800">{{ preorder.selectedColor() }}</span>
+                </p>
+                <div class="mt-2 py-1.5 px-3 bg-white rounded-lg border border-slate-200 text-[11px] font-mono text-slate-600 shadow-sm max-w-xs break-all">
+                  Expected file: <br/>
+                  <strong class="text-indigo-600">public{{ preorder.currentImagePath() }}</strong>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Multi-angle View Selector -->
+          <div class="flex items-center justify-center gap-2.5 mt-1 mb-2">
+            @for (angleItem of preorder.currentGalleryAngles(); track angleItem.angle) {
+              <button
+                type="button"
+                (click)="selectAngle(angleItem.angle)"
+                [class.border-indigo-600]="preorder.selectedAngle() === angleItem.angle"
+                [class.ring-2]="preorder.selectedAngle() === angleItem.angle"
+                [class.ring-indigo-400]="preorder.selectedAngle() === angleItem.angle"
+                [class.bg-indigo-50]="preorder.selectedAngle() === angleItem.angle"
+                [class.border-slate-200]="preorder.selectedAngle() !== angleItem.angle"
+                class="w-16 h-16 rounded-xl border p-1 bg-white hover:border-indigo-300 transition-all flex flex-col items-center justify-between group shadow-sm focus:outline-none cursor-pointer"
+                [title]="angleItem.label + ' view'"
+              >
+                <div class="w-full h-10 flex items-center justify-center overflow-hidden">
+                  <img
+                    [src]="angleItem.path"
+                    [alt]="angleItem.label"
+                    class="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-200"
+                  />
+                </div>
+                <span class="text-[9px] font-bold uppercase tracking-wider text-slate-500 group-hover:text-indigo-600">
+                  {{ angleItem.label }}
+                </span>
+              </button>
+            }
+          </div>
+
+          <!-- Color name and description -->
+          <div class="mt-4">
+            <h3 class="text-lg font-bold text-slate-900">
+              {{ preorder.selectedColor() }}
+            </h3>
+            <p class="text-xs text-slate-500">
+              Grade 5 Micro-Brushed Titanium Finish
+            </p>
+          </div>
+
+          <!-- Price & Deposit Highlight Pill -->
+          <div class="mt-6 w-full pt-4 border-t border-slate-100 flex items-center justify-between">
+            <div class="text-left">
+              <span class="text-xs text-slate-500 block">Total UK RRP</span>
+              <span class="text-2xl font-black text-slate-900">£{{ preorder.currentPrice().toFixed(2) }}</span>
+            </div>
+            <div class="text-right">
+              <span class="text-xs text-emerald-600 font-bold block">Refundable Deposit</span>
+              <span class="text-2xl font-black text-emerald-600">£{{ preorder.depositAmount().toFixed(2) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Specs Highlight -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-3 text-xs text-slate-600">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+            </svg>
+            Official Hardware Specifications
+          </h4>
+          <div class="flex justify-between py-1 border-b border-slate-50">
+            <span class="text-slate-500">Display</span>
+            <span class="font-semibold text-slate-800">{{ currentSpecs().screen }}</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-slate-50">
+            <span class="text-slate-500">Processor</span>
+            <span class="font-semibold text-slate-800">{{ currentSpecs().chip }}</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-slate-50">
+            <span class="text-slate-500">Camera System</span>
+            <span class="font-semibold text-slate-800">{{ currentSpecs().camera }}</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-slate-50">
+            <span class="text-slate-500">Battery Life</span>
+            <span class="font-semibold text-slate-800">{{ currentSpecs().battery }}</span>
+          </div>
+          <div class="flex justify-between py-1">
+            <span class="text-slate-500">Build</span>
+            <span class="font-semibold text-slate-800">{{ currentSpecs().chassis }}</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- RIGHT COLUMN: CONFIGURATOR & RESERVATION FORM                       -->
+      <!-- =================================================================== -->
+      <div class="lg:col-span-7 space-y-8">
+
+        <!-- 1. SELECT MODEL -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">1</span>
+            <h2 class="text-lg font-bold text-slate-900">Select Model</h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            @for (m of preorder.models; track m.name) {
+              <button
+                type="button"
+                (click)="selectModel(m.name)"
+                [class.border-indigo-600]="preorder.selectedModel() === m.name"
+                [class.bg-indigo-50]="preorder.selectedModel() === m.name"
+                [class.shadow-md]="preorder.selectedModel() === m.name"
+                class="rounded-2xl border-2 border-slate-200 p-5 text-left transition-all hover:border-indigo-400 relative focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                @if (preorder.selectedModel() === m.name) {
+                  <span class="absolute top-4 right-4 w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  </span>
+                }
+                <div class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">{{ m.displayTitle }}</div>
+                <h3 class="text-lg font-extrabold text-slate-900 mb-1">{{ m.name }}</h3>
+                <div class="text-sm font-semibold text-slate-600">From £{{ m.startingPrice }}</div>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- 2. SELECT COLOR -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">2</span>
+              <h2 class="text-lg font-bold text-slate-900">Select Finish</h2>
+            </div>
+            <span class="text-xs font-semibold text-slate-600">{{ preorder.selectedColor() }}</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            @for (c of preorder.colors; track c.name) {
+              <button
+                type="button"
+                (click)="selectColor(c.name)"
+                [class.border-indigo-600]="preorder.selectedColor() === c.name"
+                [class.ring-2]="preorder.selectedColor() === c.name"
+                [class.ring-indigo-600]="preorder.selectedColor() === c.name"
+                [class.bg-slate-50]="preorder.selectedColor() === c.name"
+                class="rounded-2xl border-2 border-slate-200 p-4 text-center transition-all hover:border-slate-400 flex flex-col items-center justify-center gap-2 focus:outline-none"
+              >
+                <!-- Color Ring Swatch -->
+                <span
+                  class="w-9 h-9 rounded-full shadow-md border-2 border-white ring-1 ring-slate-300"
+                  [style.backgroundColor]="c.hex"
+                ></span>
+                <span class="text-xs font-bold text-slate-900">{{ c.name }}</span>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- 3. SELECT STORAGE -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">3</span>
+            <h2 class="text-lg font-bold text-slate-900">Select Storage Capacity</h2>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            @for (s of preorder.storages; track s) {
+              <button
+                type="button"
+                (click)="selectStorage(s)"
+                [class.border-indigo-600]="preorder.selectedStorage() === s"
+                [class.bg-indigo-50]="preorder.selectedStorage() === s"
+                [class.shadow-sm]="preorder.selectedStorage() === s"
+                class="rounded-2xl border-2 border-slate-200 p-4 text-center transition-all hover:border-indigo-400 focus:outline-none"
+              >
+                <div class="text-base font-extrabold text-slate-900">{{ s }}</div>
+                <div class="text-xs text-slate-500 mt-1">
+                  @if (s === '256GB') { Popular }
+                  @else if (s === '512GB') { Power User }
+                  @else if (s === '1TB') { Pro Cinema }
+                  @else { Maximum }
+                </div>
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- 4. PURCHASE PREFERENCE (OUTRIGHT VS CONTRACT) -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-7">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">4</span>
+            <h2 class="text-lg font-bold text-slate-900">How would you like to buy?</h2>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            
+            <!-- Outright SIM-Free -->
+            <button
+              type="button"
+              (click)="selectPurchaseType('outright')"
+              [class.border-indigo-600]="preorder.purchaseType() === 'outright'"
+              [class.bg-indigo-50]="preorder.purchaseType() === 'outright'"
+              class="rounded-2xl border-2 border-slate-200 p-4 text-left transition-all hover:border-slate-400 focus:outline-none"
+            >
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-sm font-bold text-slate-900">SIM-Free (Outright)</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold">Unlocked</span>
+              </div>
+              <p class="text-xs text-slate-500">Pay £99 deposit now. Settle the balance of £{{ preorder.currentPrice() - 99 }} upon official release.</p>
+            </button>
+
+            <!-- With Network Deal -->
+            <button
+              type="button"
+              (click)="selectPurchaseType('contract')"
+              [class.border-indigo-600]="preorder.purchaseType() === 'contract'"
+              [class.bg-indigo-50]="preorder.purchaseType() === 'contract'"
+              class="rounded-2xl border-2 border-slate-200 p-4 text-left transition-all hover:border-slate-400 focus:outline-none"
+            >
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-sm font-bold text-slate-900">UK Network Contract</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 font-bold">Monthly Plan</span>
+              </div>
+              <p class="text-xs text-slate-500">Reserve now with £99 deposit. Select and finalize your EE, O2, Vodafone, or Three contract on Sept 12.</p>
+            </button>
+          </div>
+
+          <!-- Network chips if contract selected -->
+          @if (preorder.purchaseType() === 'contract') {
+            <div class="pt-2 border-t border-slate-100">
+              <label class="block text-xs font-semibold text-slate-700 mb-2">Preferred UK Network:</label>
+              <div class="flex flex-wrap gap-2">
+                @for (net of ['EE', 'O2', 'Vodafone', 'Three']; track net) {
+                  <button
+                    type="button"
+                    (click)="selectNetwork(net)"
+                    [class.bg-slate-900]="preorder.selectedNetwork() === net"
+                    [class.text-white]="preorder.selectedNetwork() === net"
+                    [class.bg-slate-100]="preorder.selectedNetwork() !== net"
+                    [class.text-slate-800]="preorder.selectedNetwork() !== net"
+                    class="px-4 py-2 rounded-xl text-xs font-bold transition-colors hover:bg-slate-200"
+                  >
+                    {{ net }} Deal
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- 5. 100% REFUNDABLE DEPOSIT BANNER -->
+        <div class="bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 rounded-3xl p-6 shadow-sm">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center flex-shrink-0 shadow-md">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <h3 class="text-base font-extrabold text-emerald-900">
+                100% Refundable Reservation Deposit: £{{ preorder.depositAmount().toFixed(2) }}
+              </h3>
+              <p class="text-xs text-emerald-800 leading-relaxed">
+                Your deposit guarantees your priority spot in the initial UK dispatch batch. If you change your mind for any reason prior to dispatch on September 18, 2026, simply email or call us for an immediate, full refund.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. RESERVATION FORM -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-md p-6 sm:p-8">
+          <div class="flex items-center gap-2 mb-6">
+            <span class="w-6 h-6 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold">5</span>
+            <h2 class="text-lg font-bold text-slate-900">Customer Details &amp; Confirmation</h2>
+          </div>
+
+          <form [formGroup]="reservationForm" (ngSubmit)="submitReservation()" class="space-y-4">
+            
+            <!-- Full Name -->
+            <div>
+              <label for="customerName" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Full Name <span class="text-rose-500">*</span>
+              </label>
+              <input
+                id="customerName"
+                type="text"
+                formControlName="customerName"
+                placeholder="e.g. John Alexander Smith"
+                class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                [class.border-rose-400]="reservationForm.get('customerName')?.invalid && reservationForm.get('customerName')?.touched"
+              />
+              @if (reservationForm.get('customerName')?.invalid && reservationForm.get('customerName')?.touched) {
+                <p class="text-xs text-rose-500 mt-1">Please enter your full name.</p>
+              }
+            </div>
+
+            <!-- Email Address -->
+            <div>
+              <label for="customerEmail" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                Email Address <span class="text-rose-500">*</span>
+              </label>
+              <input
+                id="customerEmail"
+                type="email"
+                formControlName="customerEmail"
+                placeholder="name@example.co.uk"
+                class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                [class.border-rose-400]="reservationForm.get('customerEmail')?.invalid && reservationForm.get('customerEmail')?.touched"
+              />
+              <p class="text-[11px] text-slate-400 mt-1">Your reservation reference and launch updates will be sent here.</p>
+              @if (reservationForm.get('customerEmail')?.invalid && reservationForm.get('customerEmail')?.touched) {
+                <p class="text-xs text-rose-500 mt-1">Please enter a valid email address.</p>
+              }
+            </div>
+
+            <!-- UK Mobile Phone -->
+            <div>
+              <label for="customerPhone" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                UK Mobile Number <span class="text-rose-500">*</span>
+              </label>
+              <input
+                id="customerPhone"
+                type="tel"
+                formControlName="customerPhone"
+                placeholder="07123 456789 or +447123456789"
+                class="w-full px-4 py-3 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                [class.border-rose-400]="reservationForm.get('customerPhone')?.invalid && reservationForm.get('customerPhone')?.touched"
+              />
+              <p class="text-[11px] text-slate-400 mt-1">Required for priority courier dispatch alerts on release day.</p>
+              @if (reservationForm.get('customerPhone')?.invalid && reservationForm.get('customerPhone')?.touched) {
+                <p class="text-xs text-rose-500 mt-1">Please enter a valid UK mobile number starting with 07 or +447.</p>
+              }
+            </div>
+
+            <!-- Marketing Checkbox -->
+            <div class="pt-2">
+              <label class="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="marketingOptIn"
+                  class="mt-1 w-4 h-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500"
+                />
+                <span class="text-xs text-slate-600 leading-normal">
+                  Keep me updated on exclusive iPhone 18 contract promotions and trade-in bonus valuations.
+                </span>
+              </label>
+            </div>
+
+            <!-- Server Error Alert -->
+            @if (formError()) {
+              <div class="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-medium">
+                {{ formError() }}
+              </div>
+            }
+
+            <!-- CTA SUBMISSION BUTTON -->
+            <div class="pt-4">
+              <button
+                type="submit"
+                [disabled]="isSubmitting()"
+                class="w-full py-4 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-extrabold text-base shadow-lg shadow-indigo-600/30 transition-all transform active:scale-[0.99] flex items-center justify-center gap-3 cursor-pointer"
+              >
+                @if (isSubmitting()) {
+                  <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span>Securing Your Allocation...</span>
+                } @else {
+                  <span>Reserve Now — Pay £{{ preorder.depositAmount().toFixed(2) }} Deposit</span>
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                  </svg>
+                }
+              </button>
+            </div>
+
+            <!-- Trust / Security Footer -->
+            <div class="pt-4 flex flex-wrap items-center justify-center gap-4 text-[11px] text-slate-400 border-t border-slate-100">
+              <span class="flex items-center gap-1">
+                <svg class="w-3.5 h-3.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                256-bit Bank-Grade Encryption
+              </span>
+              <span>•</span>
+              <span>Instant Confirmation Email</span>
+              <span>•</span>
+              <span>Official UK Warranty</span>
+            </div>
+
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

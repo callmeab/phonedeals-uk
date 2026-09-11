@@ -9,7 +9,9 @@
     "db:setup:prod": "wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/001_initial_schema.sql && wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/002_seed_categories.sql",
     "db:seed:admin": "tsx src/db/seed-admin.ts",
     "db:migrate:mobiles-style": "wrangler d1 execute phonedeals-uk-db --local --file=src/db/migrations/004_mobiles_style_checkout.sql",
-    "db:migrate:mobiles-style:prod": "wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/004_mobiles_style_checkout.sql"
+    "db:migrate:mobiles-style:prod": "wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/004_mobiles_style_checkout.sql",
+    "db:migrate:preorder": "wrangler d1 execute phonedeals-uk-db --local --file=src/db/migrations/011_iphone18_prebooking.sql",
+    "db:migrate:preorder:prod": "wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/011_iphone18_prebooking.sql"
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",

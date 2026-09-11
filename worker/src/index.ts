@@ -14,6 +14,7 @@ import adminExtrasRouter from './routes/admin';
 import debugRouter from './routes/debug';
 import checkoutRouter from './routes/checkout';
 import ordersRouter from './routes/orders';
+import preorderRouter from './routes/preorder';
 
 // Create a new Hono app with our Env bindings
 const app = new Hono<{ Bindings: Env }>();
@@ -50,6 +51,9 @@ api.route('/images', imagesRouter);
 
 // Checkout flow
 api.route('/checkout', checkoutRouter);
+
+// Pre-order flow (iPhone 18 Pro / Pro Max)
+api.route('/preorder', preorderRouter);
 
 // Temporary debug routes — remove before production deploy
 api.route('/debug', debugRouter);

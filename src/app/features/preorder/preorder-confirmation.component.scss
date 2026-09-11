@@ -1,0 +1,9 @@
+:host {
+  display: block;
+}
+
+@media print {
+  nav, button, a {
+    display: none !important;
+  }
+}
