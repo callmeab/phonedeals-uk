@@ -1,0 +1,640 @@
+<div class="px-4 sm:px-6 lg:px-8 py-8 w-full max-w-9xl mx-auto space-y-8">
+
+  <!-- PAGE HEADER -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2.5">
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+          UK Allocation Portal
+        </span>
+        <span class="text-xs font-semibold text-gray-500">Official Release Sept 18, 2026</span>
+      </div>
+      <h1 class="text-3xl font-black text-gray-900 tracking-tight mt-1.5 flex items-center gap-3">
+        iPhone 18 Pro Series Bookings
+      </h1>
+      <p class="mt-1 text-sm text-gray-600">
+        Monitor live customer pre-bookings, deposit collections, allocation queues, and status workflows.
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-3">
+      <button
+        type="button"
+        (click)="exportCsv()"
+        [disabled]="isExporting()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-300 text-gray-700 text-sm font-semibold shadow-sm hover:bg-gray-50 hover:text-gray-900 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+      >
+        @if (isExporting()) {
+          <svg class="animate-spin h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <span>Exporting...</span>
+        } @else {
+          <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          <span>Export CSV</span>
+        }
+      </button>
+
+      <button
+        type="button"
+        (click)="loadPreorders(); loadStats()"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold shadow-sm hover:bg-indigo-700 transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span>Refresh</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- STATS CARDS ROW -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    
+    <!-- Total Bookings Card -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-md transition-shadow relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Total Bookings</span>
+        <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4 flex items-baseline gap-2">
+        <span class="text-3xl font-black text-gray-900 font-mono">
+          {{ stats()?.totalBookings ?? 0 }}
+        </span>
+        <span class="text-xs font-medium text-emerald-600">
+          ({{ stats()?.activeBookings ?? 0 }} Active)
+        </span>
+      </div>
+      <p class="mt-1 text-xs text-gray-500">Customers in UK launch allocation</p>
+    </div>
+
+    <!-- Total Deposits Collected Card -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-md transition-shadow relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Deposits Collected</span>
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4 flex items-baseline gap-2">
+        <span class="text-3xl font-black text-emerald-600 font-mono">
+          £{{ (stats()?.totalDeposits ?? 0).toFixed(2) }}
+        </span>
+      </div>
+      <p class="mt-1 text-xs text-gray-500">100% refundable reservation escrow</p>
+    </div>
+
+    <!-- Most Popular Model Card -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-md transition-shadow relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Most Popular Model</span>
+        <div class="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4">
+        <span class="text-xl sm:text-2xl font-black text-gray-900 truncate block">
+          {{ stats()?.mostPopularModel ?? 'N/A' }}
+        </span>
+      </div>
+      <p class="mt-1 text-xs text-gray-500">Highest reservation demand</p>
+    </div>
+
+    <!-- Most Popular Color / Finish Card -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200/80 hover:shadow-md transition-shadow relative overflow-hidden">
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Top Finish &amp; Storage</span>
+        <div class="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+          </svg>
+        </div>
+      </div>
+      <div class="mt-4 flex items-center gap-2">
+        <span
+          class="w-5 h-5 rounded-full border border-gray-300 shadow-sm"
+          [style.backgroundColor]="getColorHex(stats()?.mostPopularColor ?? '')"
+        ></span>
+        <span class="text-xl sm:text-2xl font-black text-gray-900">
+          {{ stats()?.mostPopularColor ?? 'N/A' }}
+        </span>
+        <span class="text-xs font-bold px-2 py-0.5 rounded-md bg-gray-100 text-gray-700">
+          {{ stats()?.mostPopularStorage ?? '' }}
+        </span>
+      </div>
+      <p class="mt-1 text-xs text-gray-500">Most requested color combination</p>
+    </div>
+
+  </div>
+
+  <!-- FILTER & SEARCH BAR -->
+  <div class="bg-white rounded-2xl p-5 shadow-sm border border-gray-200/80 space-y-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 items-center">
+      
+      <!-- Search Box (Debounced) -->
+      <div class="lg:col-span-4 relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <input
+          type="text"
+          [value]="searchTerm()"
+          (input)="onSearchInput($event)"
+          placeholder="Search ref #, name, email, phone..."
+          class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+        />
+      </div>
+
+      <!-- Model Dropdown -->
+      <div class="lg:col-span-2">
+        <select
+          [ngModel]="selectedModel()"
+          (ngModelChange)="selectedModel.set($event); onFilterChange()"
+          class="block w-full py-2 px-3 border border-gray-300 rounded-xl text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+        >
+          <option value="all">All Models</option>
+          <option value="iPhone 18 Pro">iPhone 18 Pro (6.3")</option>
+          <option value="iPhone 18 Pro Max">iPhone 18 Pro Max (6.9")</option>
+        </select>
+      </div>
+
+      <!-- Color Dropdown -->
+      <div class="lg:col-span-2">
+        <select
+          [ngModel]="selectedColor()"
+          (ngModelChange)="selectedColor.set($event); onFilterChange()"
+          class="block w-full py-2 px-3 border border-gray-300 rounded-xl text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+        >
+          <option value="all">All Finishes</option>
+          <option value="Glacier">Glacier Blue</option>
+          <option value="Burgundy">Deep Burgundy</option>
+          <option value="Silver">Natural Silver</option>
+          <option value="Black">Space Black</option>
+        </select>
+      </div>
+
+      <!-- Status Dropdown -->
+      <div class="lg:col-span-2">
+        <select
+          [ngModel]="selectedStatus()"
+          (ngModelChange)="selectedStatus.set($event); onFilterChange()"
+          class="block w-full py-2 px-3 border border-gray-300 rounded-xl text-sm text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+        >
+          <option value="all">All Statuses</option>
+          @for (s of statusOptions; track s.value) {
+            <option [value]="s.value">{{ s.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Reset Button -->
+      <div class="lg:col-span-2 flex justify-end">
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="w-full sm:w-auto px-4 py-2 text-xs font-bold text-gray-600 hover:text-indigo-600 rounded-xl hover:bg-gray-100 transition-colors"
+        >
+          Reset Filters
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- TABLE CONTAINER -->
+  <div class="bg-white rounded-2xl shadow-sm border border-gray-200/80 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 text-left text-sm">
+        <thead class="bg-gray-50/80 text-xs font-bold uppercase tracking-wider text-gray-600">
+          <tr>
+            <th scope="col" class="py-4 pl-6 pr-3">Ref #</th>
+            <th scope="col" class="px-3 py-4">Customer</th>
+            <th scope="col" class="px-3 py-4">Device Details</th>
+            <th scope="col" class="px-3 py-4">Price &amp; Deposit</th>
+            <th scope="col" class="px-3 py-4">Booking Date</th>
+            <th scope="col" class="px-3 py-4">Status</th>
+            <th scope="col" class="py-4 pl-3 pr-6 text-right">Action</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 bg-white">
+          
+          <!-- Loading State Skeleton -->
+          @if (isLoading()) {
+            @for (i of [1,2,3,4,5]; track i) {
+              <tr class="animate-pulse">
+                <td class="py-4 pl-6 pr-3"><div class="h-4 bg-gray-200 rounded w-24"></div></td>
+                <td class="px-3 py-4"><div class="h-4 bg-gray-200 rounded w-36 mb-1"></div><div class="h-3 bg-gray-100 rounded w-28"></div></td>
+                <td class="px-3 py-4"><div class="h-4 bg-gray-200 rounded w-32 mb-1"></div><div class="h-3 bg-gray-100 rounded w-20"></div></td>
+                <td class="px-3 py-4"><div class="h-4 bg-gray-200 rounded w-20 mb-1"></div><div class="h-3 bg-gray-100 rounded w-16"></div></td>
+                <td class="px-3 py-4"><div class="h-4 bg-gray-200 rounded w-24"></div></td>
+                <td class="px-3 py-4"><div class="h-6 bg-gray-200 rounded-full w-24"></div></td>
+                <td class="py-4 pl-3 pr-6 text-right"><div class="h-8 bg-gray-200 rounded-lg w-16 ml-auto"></div></td>
+              </tr>
+            }
+          }
+
+          <!-- Data Rows -->
+          @if (!isLoading()) {
+            @for (item of preorders(); track item.id) {
+              <tr class="hover:bg-indigo-50/30 transition-colors">
+                
+                <!-- Ref -->
+                <td class="py-4 pl-6 pr-3 whitespace-nowrap">
+                  <div class="flex items-center gap-1.5">
+                    <span class="font-mono font-black text-gray-900 text-xs sm:text-sm">
+                      {{ item.reservation_ref }}
+                    </span>
+                    <button
+                      type="button"
+                      (click)="copyToClipboard(item.reservation_ref, 'Reference')"
+                      title="Copy Reference"
+                      class="text-gray-400 hover:text-indigo-600 transition-colors"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <span class="text-[11px] text-gray-400 block font-mono">ID: {{ item.id.substring(0, 8) }}...</span>
+                </td>
+
+                <!-- Customer -->
+                <td class="px-3 py-4">
+                  <div class="font-bold text-gray-900">{{ item.customer_name }}</div>
+                  <div class="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
+                    <a href="mailto:{{ item.customer_email }}" class="hover:text-indigo-600 transition-colors">
+                      {{ item.customer_email }}
+                    </a>
+                  </div>
+                  <div class="text-xs text-gray-500 flex items-center gap-2 mt-0.5 font-mono">
+                    <a href="tel:{{ item.customer_phone }}" class="hover:text-indigo-600 transition-colors">
+                      {{ item.customer_phone }}
+                    </a>
+                  </div>
+                </td>
+
+                <!-- Device Details -->
+                <td class="px-3 py-4 whitespace-nowrap">
+                  <div class="flex items-center gap-2.5">
+                    <span
+                      class="w-3.5 h-3.5 rounded-full border border-gray-300 shadow-sm flex-shrink-0"
+                      [style.backgroundColor]="getColorHex(item.color)"
+                      [title]="item.color"
+                    ></span>
+                    <div>
+                      <span class="font-bold text-gray-900 block text-xs sm:text-sm">
+                        {{ item.model }}
+                      </span>
+                      <span class="text-xs text-gray-500">
+                        {{ item.storage }} • {{ item.color }}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Price & Deposit -->
+                <td class="px-3 py-4 whitespace-nowrap">
+                  <div class="font-bold text-gray-900">£{{ item.price_gbp.toFixed(2) }}</div>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                      £{{ item.deposit_amount.toFixed(2) }} {{ item.deposit_status }}
+                    </span>
+                    <span class="text-[11px] text-gray-500 uppercase font-semibold">
+                      {{ item.network || 'SIM-Free' }}
+                    </span>
+                  </div>
+                </td>
+
+                <!-- Booking Date -->
+                <td class="px-3 py-4 whitespace-nowrap text-xs text-gray-600">
+                  <div>{{ item.created_at | date:'mediumDate' }}</div>
+                  <div class="text-[11px] text-gray-400 font-mono">{{ item.created_at | date:'shortTime' }}</div>
+                </td>
+
+                <!-- Status Badge -->
+                <td class="px-3 py-4 whitespace-nowrap">
+                  <span
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold border"
+                    [ngClass]="getStatusBadgeClass(item.status)"
+                  >
+                    {{ getStatusLabel(item.status) }}
+                  </span>
+                </td>
+
+                <!-- Action: View Details -->
+                <td class="py-4 pl-3 pr-6 text-right whitespace-nowrap">
+                  <button
+                    type="button"
+                    (click)="openDetail(item)"
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 hover:bg-indigo-100 text-xs font-bold transition-colors"
+                  >
+                    <span>View</span>
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </td>
+
+              </tr>
+            }
+
+            <!-- Empty State -->
+            @if (preorders().length === 0) {
+              <tr>
+                <td colspan="7" class="py-16 text-center">
+                  <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto text-gray-400 mb-3">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    </svg>
+                  </div>
+                  <h3 class="text-base font-bold text-gray-900">No Pre-Bookings Found</h3>
+                  <p class="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                    There are no customer reservations matching your active filter criteria. Try clearing search or resetting filters.
+                  </p>
+                  <button
+                    type="button"
+                    (click)="resetFilters()"
+                    class="mt-4 inline-flex items-center px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-colors"
+                  >
+                    Clear All Filters
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINATION BAR -->
+    <div class="px-6 py-4 bg-gray-50/80 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-600">
+      <div>
+        Showing
+        <strong class="font-bold text-gray-900">{{ preorders().length > 0 ? (currentPage() - 1) * pageSize() + 1 : 0 }}</strong>
+        to
+        <strong class="font-bold text-gray-900">{{ (currentPage() - 1) * pageSize() + preorders().length }}</strong>
+        of
+        <strong class="font-bold text-gray-900">{{ totalItems() }}</strong>
+        total reservations
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          (click)="goToPage(currentPage() - 1)"
+          [disabled]="currentPage() <= 1"
+          class="px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Previous
+        </button>
+        <span class="px-2 font-mono font-bold text-gray-900">
+          Page {{ currentPage() }} of {{ totalPages() }}
+        </span>
+        <button
+          type="button"
+          (click)="goToPage(currentPage() + 1)"
+          [disabled]="currentPage() >= totalPages()"
+          class="px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE-OVER DETAIL DRAWER -->
+  @if (isDrawerOpen() && selectedPreorder(); as order) {
+    <div class="fixed inset-0 z-50 overflow-hidden" aria-labelledby="slide-over-title" role="dialog" aria-modal="true">
+      
+      <!-- Backdrop -->
+      <div
+        class="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity duration-300"
+        (click)="closeDrawer()"
+      ></div>
+
+      <div class="fixed inset-y-0 right-0 max-w-full flex pl-10">
+        <div class="w-screen max-w-md sm:max-w-lg bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out">
+          
+          <!-- Drawer Header -->
+          <div class="px-6 py-5 border-b border-gray-200 flex items-center justify-between bg-gray-50/80">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-mono text-sm font-black text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+                  {{ order.reservation_ref }}
+                </span>
+                <span
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold border"
+                  [ngClass]="getStatusBadgeClass(order.status)"
+                >
+                  {{ getStatusLabel(order.status) }}
+                </span>
+              </div>
+              <h2 class="text-base font-bold text-gray-900 mt-1">Reservation Details</h2>
+            </div>
+            
+            <button
+              type="button"
+              (click)="closeDrawer()"
+              class="rounded-lg p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-200 transition-colors"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Drawer Body (Scrollable) -->
+          <div class="flex-1 overflow-y-auto p-6 space-y-6">
+
+            <!-- Device Variant Showcase -->
+            <div class="rounded-2xl border border-gray-200 p-4 bg-gradient-to-br from-slate-50 to-indigo-50/30 flex items-center gap-4">
+              <div class="w-20 h-24 flex items-center justify-center p-1 bg-white rounded-xl shadow-sm border border-gray-200/80 flex-shrink-0">
+                <img
+                  [src]="order.image_path || '/iphone-18/iphone-18-pro.webp'"
+                  [alt]="order.model"
+                  class="max-h-full max-w-full object-contain"
+                />
+              </div>
+              <div class="space-y-1">
+                <div class="text-xs font-bold uppercase tracking-wider text-indigo-600">
+                  {{ order.display_size || 'Official UK Model' }}
+                </div>
+                <h3 class="text-base font-black text-gray-900">{{ order.model }}</h3>
+                <div class="flex items-center gap-2 text-xs text-gray-600">
+                  <span
+                    class="w-3.5 h-3.5 rounded-full border border-gray-300 shadow-sm inline-block"
+                    [style.backgroundColor]="getColorHex(order.color)"
+                  ></span>
+                  <span class="font-bold">{{ order.color }}</span>
+                  <span>•</span>
+                  <span class="font-bold">{{ order.storage }}</span>
+                </div>
+                <div class="text-xs font-black text-gray-900 pt-1">
+                  Full RRP: £{{ order.price_gbp.toFixed(2) }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Inline Status Modifier -->
+            <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200/80 space-y-3">
+              <label class="block text-xs font-bold uppercase tracking-wider text-gray-700">
+                Update Booking Status
+              </label>
+              <div class="flex items-center gap-2">
+                <select
+                  #statusSelect
+                  [value]="order.status"
+                  class="block w-full py-2 px-3 border border-gray-300 rounded-xl text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  @for (opt of statusOptions; track opt.value) {
+                    <option [value]="opt.value" [selected]="opt.value === order.status">
+                      {{ opt.label }}
+                    </option>
+                  }
+                </select>
+                <button
+                  type="button"
+                  (click)="updateStatus(statusSelect.value)"
+                  [disabled]="isUpdatingStatus()"
+                  class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-colors disabled:opacity-50 flex items-center gap-1.5 whitespace-nowrap"
+                >
+                  @if (isUpdatingStatus()) {
+                    <span>Saving...</span>
+                  } @else {
+                    <span>Save</span>
+                  }
+                </button>
+              </div>
+            </div>
+
+            <!-- Customer Information Card -->
+            <div class="rounded-2xl border border-gray-200 p-4 space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 border-b border-gray-100 pb-2">
+                Customer Information
+              </h4>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-500">Full Name</span>
+                <span class="font-bold text-gray-900">{{ order.customer_name }}</span>
+              </div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-500">Email Address</span>
+                <div class="flex items-center gap-1.5">
+                  <a href="mailto:{{ order.customer_email }}" class="font-semibold text-indigo-600 hover:underline">
+                    {{ order.customer_email }}
+                  </a>
+                  <button
+                    type="button"
+                    (click)="copyToClipboard(order.customer_email, 'Email')"
+                    class="text-gray-400 hover:text-indigo-600"
+                  >
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-500">Mobile Phone</span>
+                <div class="flex items-center gap-1.5">
+                  <a href="tel:{{ order.customer_phone }}" class="font-mono font-bold text-gray-900 hover:text-indigo-600">
+                    {{ order.customer_phone }}
+                  </a>
+                  <button
+                    type="button"
+                    (click)="copyToClipboard(order.customer_phone, 'Phone')"
+                    class="text-gray-400 hover:text-indigo-600"
+                  >
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-500">Marketing Consent</span>
+                <span class="font-semibold text-gray-700">
+                  {{ order.marketing_opt_in ? 'Yes (Opted In)' : 'No' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Financial & Deposit Details Card -->
+            <div class="rounded-2xl border border-gray-200 p-4 space-y-3">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-gray-500 border-b border-gray-100 pb-2">
+                Deposit &amp; Purchase Structure
+              </h4>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-500">Purchase Option</span>
+                <span class="font-bold text-gray-900 uppercase">
+                  {{ order.purchase_type === 'contract' ? 'Network Contract' : 'Outright (SIM-Free)' }}
+                </span>
+              </div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-500">Network Deal</span>
+                <span class="font-bold text-indigo-700">
+                  {{ order.network || 'SIM-Free' }}
+                  @if (order.contract_months) { ({{ order.contract_months }} Months) }
+                </span>
+              </div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-500">Refundable Deposit</span>
+                <span class="font-mono font-black text-emerald-600 text-sm">
+                  £{{ order.deposit_amount.toFixed(2) }}
+                </span>
+              </div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="text-gray-500">Deposit Status</span>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  ✓ {{ order.deposit_status }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Timestamps -->
+            <div class="rounded-2xl bg-gray-50 p-4 space-y-2 text-xs text-gray-500 font-mono">
+              <div class="flex justify-between">
+                <span>Booked At:</span>
+                <span class="text-gray-800 font-semibold">{{ order.created_at | date:'medium' }}</span>
+              </div>
+              @if (order.updated_at) {
+                <div class="flex justify-between">
+                  <span>Last Updated:</span>
+                  <span class="text-gray-800 font-semibold">{{ order.updated_at | date:'medium' }}</span>
+                </div>
+              }
+            </div>
+
+          </div>
+
+          <!-- Drawer Footer -->
+          <div class="p-4 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
+            <button
+              type="button"
+              (click)="closeDrawer()"
+              class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-gray-700 text-xs font-bold hover:bg-gray-100 transition-colors"
+            >
+              Close Window
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  }
+
+</div>

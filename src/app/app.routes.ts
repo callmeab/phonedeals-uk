@@ -68,6 +68,10 @@ export const routes: Routes = [
         path: 'orders/:id',
         loadComponent: () => import('./features/admin/orders/order-detail.component').then(m => m.AdminOrderDetailComponent),
       },
+      {
+        path: 'preorders',
+        loadComponent: () => import('./features/admin/preorders/preorders-list.component').then(m => m.AdminPreordersListComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

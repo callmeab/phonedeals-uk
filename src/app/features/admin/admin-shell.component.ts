@@ -66,6 +66,22 @@ import { AuthService } from '../../core/services/auth.service';
           </a>
 
           <a 
+            routerLink="/xk92-admin/preorders" 
+            routerLinkActive="bg-accent text-white" 
+            class="flex items-center justify-between px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors group"
+          >
+            <div class="flex items-center">
+              <svg class="mr-3 h-5 w-5 shrink-0 text-indigo-400 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+              <span>iPhone 18 Bookings</span>
+            </div>
+            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-extrabold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+              NEW
+            </span>
+          </a>
+
+          <a 
             routerLink="/admin/products" 
             routerLinkActive="bg-accent text-white" 
             class="flex items-center px-3 py-2.5 rounded-md text-sm font-medium text-gray-300 hover:bg-white/5 transition-colors group"
