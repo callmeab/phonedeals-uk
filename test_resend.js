@@ -1,4 +1,12 @@
-const apiKey = 're_JbPnNZrQ_8HTocs59m9K61n5q1NhRPgT5';
+const fs = require('fs');
+let apiKey = process.env.RESEND_API_KEY;
+if (!apiKey) {
+  try {
+    const content = fs.readFileSync('.dev.vars', 'utf8');
+    const match = content.match(/RESEND_API_KEY=([^\r\n]+)/);
+    if (match) apiKey = match[1].trim();
+  } catch (e) {}
+}
 
 async function testResend() {
   const emailToSendTo = 'hereab983@gmail.com'; // User's email they tested with
@@ -12,7 +20,7 @@ async function testResend() {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'PhoneDeals UK <onboarding@resend.dev>',
+        from: 'Mobello.UK <orders@mobello.uk>',
         to: [emailToSendTo],
         subject: 'Test Email from PhoneDeals UK API',
         html: '<p>If you receive this, the API key is working!</p>',
