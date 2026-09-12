@@ -29,9 +29,20 @@ export class PreorderConfirmationComponent implements OnInit {
   reservation = signal<PreorderReservationResult | null>(null);
   isLoading = signal<boolean>(true);
   error = signal<string | null>(null);
+  formattedDate = signal<string>('');
+  showReceiptModal = signal<boolean>(false);
 
   ngOnInit(): void {
     this.seo.setPageTitle('Reservation Confirmed | iPhone 18 Pre-Order UK');
+
+    const now = new Date();
+    this.formattedDate.set(
+      now.toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      })
+    );
 
     const ref = this.route.snapshot.queryParamMap.get('ref');
     const cached = this.preorderService.getLastReservation();
@@ -75,6 +86,10 @@ export class PreorderConfirmationComponent implements OnInit {
       this.isLoading.set(false);
       this.error.set('No reservation reference provided.');
     }
+  }
+
+  toggleReceiptModal(): void {
+    this.showReceiptModal.update(v => !v);
   }
 
   printPage(): void {

@@ -2,175 +2,454 @@
   <div class="max-w-3xl mx-auto px-4 sm:px-6">
 
     @if (isLoading()) {
-      <div class="bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm">
+      <div class="no-print bg-white rounded-3xl border border-slate-200 p-12 text-center shadow-sm">
         <div class="inline-block animate-spin w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full mb-4"></div>
         <p class="text-sm font-semibold text-slate-600">Retrieving your reservation details...</p>
       </div>
     } @else {
       @if (reservation(); as res) {
       
-      <!-- MAIN CONFIRMATION CARD -->
-      <div class="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden mb-8">
+        <!-- ── 1. ON-SCREEN CONFIRMATION VIEW (Hidden during print) ────────────────────────── -->
+        <div class="no-print">
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden mb-8">
+            
+            <!-- Header Banner -->
+            <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white p-8 sm:p-10 text-center">
+              <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-4 ring-8 ring-white/10">
+                <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span class="inline-block uppercase tracking-widest text-[11px] font-bold bg-white/20 px-3 py-1 rounded-full mb-2">
+                Priority Queue Allocation Confirmed
+              </span>
+              <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
+                You're In Line for the {{ res.model }}!
+              </h1>
+              <p class="text-sm sm:text-base text-emerald-50 mt-2 max-w-lg mx-auto">
+                Thank you, {{ res.customerName }}. Your priority reservation deposit has been confirmed. A confirmation receipt has been sent to <strong class="text-white">{{ res.customerEmail }}</strong>.
+              </p>
+            </div>
+
+            <!-- Reservation Reference Pill -->
+            <div class="bg-slate-50 border-y border-slate-200 py-5 px-6 text-center">
+              <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                Reservation Reference Number
+              </div>
+              <div class="text-2xl sm:text-3xl font-mono font-black text-indigo-700 tracking-wider">
+                {{ res.reservationRef }}
+              </div>
+            </div>
+
+            <!-- Details Grid -->
+            <div class="p-6 sm:p-8 space-y-6">
+              <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">
+                Reservation Summary
+              </h2>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <span class="text-xs text-slate-500 block">Model &amp; Display</span>
+                  <span class="font-bold text-slate-900">{{ res.model }}</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <span class="text-xs text-slate-500 block">Finish &amp; Color</span>
+                  <span class="font-bold text-slate-900">{{ res.color }} Titanium</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <span class="text-xs text-slate-500 block">Storage Capacity</span>
+                  <span class="font-bold text-slate-900">{{ res.storage }}</span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <span class="text-xs text-slate-500 block">Purchase Type</span>
+                  <span class="font-bold text-slate-900">
+                    {{ res.purchaseType === 'outright' ? 'SIM-Free (Outright)' : 'Contract (' + (res.network || 'UK Network') + ')' }}
+                  </span>
+                </div>
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                  <span class="text-xs text-slate-500 block">Full UK RRP</span>
+                  <span class="font-bold text-slate-900">£{{ res.priceGbp.toFixed(2) }}</span>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
+                  <span class="text-xs text-emerald-700 block font-semibold">Deposit Paid (100% Refundable)</span>
+                  <span class="font-black text-emerald-700 text-lg">✓ £{{ res.depositAmount.toFixed(2) }}</span>
+                </div>
+              </div>
+
+              <!-- What Happens Next Section -->
+              <div class="mt-8 pt-6 border-t border-slate-200">
+                <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                  <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  What Happens Next?
+                </h3>
+
+                <div class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+                  
+                  <!-- Step 1 -->
+                  <div class="relative">
+                    <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-emerald-600 ring-4 ring-white"></div>
+                    <h4 class="text-sm font-bold text-slate-900">Priority Allocation Locked In</h4>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                      Your reservation is logged with reference <strong>{{ res.reservationRef }}</strong>. You are guaranteed a unit from our initial UK release allocation.
+                    </p>
+                  </div>
+
+                  <!-- Step 2 -->
+                  <div class="relative">
+                    <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-indigo-600 ring-4 ring-white"></div>
+                    <h4 class="text-sm font-bold text-slate-900">Order &amp; Delivery Finalization</h4>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                      We'll send you a private link to verify your UK delivery address and settle your balance of <strong>£{{ (res.priceGbp - res.depositAmount).toFixed(2) }}</strong> (or finalize your network direct debit if purchasing with a contract).
+                    </p>
+                  </div>
+
+                  <!-- Step 3 -->
+                  <div class="relative">
+                    <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-indigo-600 ring-4 ring-white"></div>
+                    <h4 class="text-sm font-bold text-slate-900">{{ res.releaseDate || 'September 18, 2026' }}: Launch Day Delivery</h4>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                      Your new {{ res.model }} is dispatched via insured, tracked courier for launch-day arrival right at your doorstep.
+                    </p>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Refund Guarantee Note -->
+              <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
+                <span>Changed your mind? Your £{{ res.depositAmount.toFixed(2) }} deposit is 100% refundable at any time prior to dispatch.</span>
+                <a href="mailto:support@mobello.uk" class="text-indigo-600 font-bold hover:underline ml-2 flex-shrink-0">Contact Support</a>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="pt-4 flex flex-col sm:flex-row gap-3">
+                <button
+                  type="button"
+                  (click)="printPage()"
+                  class="flex-1 py-3 px-5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                  title="Print Official PDF Receipt"
+                >
+                  <svg class="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                  </svg>
+                  Print Official Receipt
+                </button>
+
+                <button
+                  type="button"
+                  (click)="toggleReceiptModal()"
+                  class="py-3 px-5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                  title="Preview Receipt on screen"
+                >
+                  <svg class="w-4 h-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  Preview Receipt
+                </button>
+
+                <a
+                  routerLink="/"
+                  class="flex-1 py-3 px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-md flex items-center justify-center gap-2"
+                >
+                  Browse More Deals
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                  </svg>
+                </a>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ── 2. ON-SCREEN RECEIPT MODAL PREVIEW (Hidden during print) ───────────────────── -->
+        @if (showReceiptModal()) {
+          <div class="no-print fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/75 backdrop-blur-sm overflow-y-auto">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full my-auto overflow-hidden border border-slate-200">
+              
+              <!-- Modal Top Bar -->
+              <div class="bg-slate-900 text-white px-5 py-3.5 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-[10px] font-extrabold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                    Document Preview
+                  </span>
+                  <span class="text-sm font-bold text-slate-100">Official Pre-Order Receipt Voucher</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button
+                    type="button"
+                    (click)="printPage()"
+                    class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                    </svg>
+                    Print Now
+                  </button>
+                  <button
+                    type="button"
+                    (click)="toggleReceiptModal()"
+                    class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition cursor-pointer"
+                    title="Close"
+                  >
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Modal Receipt Paper Body -->
+              <div class="p-4 sm:p-8 max-h-[80vh] overflow-y-auto bg-slate-100">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                  <ng-container *ngTemplateOutlet="receiptSheet; context: { res: res }"></ng-container>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        }
+
+        <!-- ── 3. DEDICATED PRINT RECEIPT CONTAINER (Rendered on window.print()) ─────────── -->
+        <div class="official-print-receipt">
+          <ng-container *ngTemplateOutlet="receiptSheet; context: { res: res }"></ng-container>
+        </div>
+
+        <!-- ── 4. REUSABLE RECEIPT SHEET TEMPLATE ────────────────────────────────────────── -->
+        <ng-template #receiptSheet let-res="res">
+          <div class="receipt-paper">
+            
+            <!-- Receipt Header -->
+            <div class="receipt-header">
+              <div class="receipt-brand">
+                <div class="brand-logo-text">
+                  <span class="brand-main">MOBELLO<span class="brand-dot">.UK</span></span>
+                  <span class="brand-tag">PREMIUM MOBILE DEALS</span>
+                </div>
+                <div class="brand-company">
+                  Mobello UK Ltd • Registered in England &amp; Wales<br/>
+                  Web: <strong>www.mobello.uk</strong> • Support: <strong>orders&#64;mobello.uk</strong>
+                </div>
+              </div>
+
+              <div class="receipt-doc-meta">
+                <div class="doc-badge">OFFICIAL RECEIPT &amp; VOUCHER</div>
+                <div class="doc-ref-label">RESERVATION REFERENCE</div>
+                <div class="doc-ref-value">{{ res.reservationRef }}</div>
+                <div class="doc-date">Issue Date: <strong>{{ formattedDate() }}</strong></div>
+                <div class="doc-status">
+                  Payment Status: <span class="status-pill-paid">PAID &amp; CONFIRMED</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="receipt-divider"></div>
+
+            <!-- Customer & Allocation 2-Column Grid -->
+            <div class="receipt-grid-2col">
+              <div class="receipt-info-box">
+                <div class="info-box-title">Reserved For (Customer Details)</div>
+                <table class="info-table">
+                  <tr>
+                    <td class="lbl">Customer Name:</td>
+                    <td class="val font-bold">{{ res.customerName }}</td>
+                  </tr>
+                  <tr>
+                    <td class="lbl">Email Address:</td>
+                    <td class="val">{{ res.customerEmail }}</td>
+                  </tr>
+                  <tr>
+                    <td class="lbl">Phone Number:</td>
+                    <td class="val">{{ res.customerPhone }}</td>
+                  </tr>
+                  <tr>
+                    <td class="lbl">Delivery Region:</td>
+                    <td class="val">United Kingdom (GB)</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div class="receipt-info-box">
+                <div class="info-box-title">Reservation &amp; Dispatch Details</div>
+                <table class="info-table">
+                  <tr>
+                    <td class="lbl">Priority Tier:</td>
+                    <td class="val font-bold text-emerald-800">Batch #1 Allocation (Guaranteed)</td>
+                  </tr>
+                  <tr>
+                    <td class="lbl">Official UK Release:</td>
+                    <td class="val font-semibold">{{ res.releaseDate || '18 September 2026' }}</td>
+                  </tr>
+                  <tr>
+                    <td class="lbl">Courier Service:</td>
+                    <td class="val">Insured Tracked Courier (Launch Day)</td>
+                  </tr>
+                  <tr>
+                    <td class="lbl">Purchase Type:</td>
+                    <td class="val">
+                      {{ res.purchaseType === 'outright' ? 'SIM-Free (Outright Purchase)' : 'Contract (' + (res.network || 'UK Network') + ')' }}
+                    </td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+
+            <!-- Itemized Products Table -->
+            <div class="receipt-table-section">
+              <table class="receipt-items-table">
+                <thead>
+                  <tr>
+                    <th class="th-num">#</th>
+                    <th class="th-desc">Product Description</th>
+                    <th class="th-specs">Specifications</th>
+                    <th class="th-plan">Plan</th>
+                    <th class="th-price text-right">UK RRP (inc VAT)</th>
+                    <th class="th-dep text-right">Deposit Paid</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="td-num">1</td>
+                    <td class="td-desc">
+                      <strong class="product-title">Apple {{ res.model }}</strong>
+                      <span class="product-subtitle">Brand New UK Stock • 1-Year Apple Warranty</span>
+                    </td>
+                    <td class="td-specs">
+                      <span class="font-bold">{{ res.storage }}</span><br/>
+                      <span class="text-slate-600">{{ res.color }} Titanium</span>
+                    </td>
+                    <td class="td-plan">
+                      {{ res.purchaseType === 'outright' ? 'SIM-Free' : (res.network || 'Contract') }}
+                    </td>
+                    <td class="td-price text-right font-mono">
+                      £{{ res.priceGbp.toFixed(2) }}
+                    </td>
+                    <td class="td-dep text-right font-mono font-bold text-emerald-800">
+                      £{{ res.depositAmount.toFixed(2) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Financial Summary Box -->
+            <div class="receipt-financial-split">
+              
+              <!-- Left: Guarantee Note -->
+              <div class="financial-left">
+                <div class="guarantee-card">
+                  <div class="guarantee-title">
+                    <svg class="w-4 h-4 text-emerald-700 inline-block mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                    100% Refundable Deposit Guarantee
+                  </div>
+                  <p class="guarantee-text">
+                    Your £{{ res.depositAmount.toFixed(2) }} reservation deposit is fully refundable at any time prior to item dispatch upon request to orders&#64;mobello.uk.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Right: Totals Table -->
+              <div class="financial-right">
+                <table class="totals-table">
+                  <tr>
+                    <td class="tot-label">Total UK Retail RRP:</td>
+                    <td class="tot-val font-mono">£{{ res.priceGbp.toFixed(2) }}</td>
+                  </tr>
+                  <tr class="row-deposit-paid">
+                    <td class="tot-label font-bold text-emerald-900">Priority Deposit Paid:</td>
+                    <td class="tot-val font-mono font-bold text-emerald-900">-£{{ res.depositAmount.toFixed(2) }}</td>
+                  </tr>
+                  <tr class="row-balance-due">
+                    <td class="tot-label font-extrabold text-indigo-950">Balance Due at Dispatch:</td>
+                    <td class="tot-val font-mono font-black text-indigo-950 text-base">£{{ (res.priceGbp - res.depositAmount).toFixed(2) }}</td>
+                  </tr>
+                </table>
+                <p class="totals-disclaimer">
+                  * For contract orders, the monthly line rental &amp; network agreement are finalized prior to dispatch.
+                </p>
+              </div>
+
+            </div>
+
+            <!-- Fulfillment Process & Next Steps -->
+            <div class="receipt-steps-box">
+              <div class="steps-box-header">Next Steps &amp; Dispatch Timeline</div>
+              <div class="steps-box-grid">
+                <div class="step-card">
+                  <div class="step-num">Step 1</div>
+                  <div class="step-card-title">Stock Allocation</div>
+                  <div class="step-card-desc">Your reservation reference is registered in our UK launch allocation batch.</div>
+                </div>
+                <div class="step-card">
+                  <div class="step-num">Step 2</div>
+                  <div class="step-card-title">Final Address &amp; Balance</div>
+                  <div class="step-card-desc">A secure link will be sent to your email to verify your UK delivery address and settle balance.</div>
+                </div>
+                <div class="step-card">
+                  <div class="step-num">Step 3</div>
+                  <div class="step-card-title">Launch Day Dispatch</div>
+                  <div class="step-card-desc">Delivered via insured next-day courier with full online tracking and PIN verification.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Security, Barcode & Stamp Strip -->
+            <div class="receipt-security-strip">
+              <div class="barcode-container">
+                <div class="barcode-bars">
+                  ||| | |||| | ||| |||||| | ||| |||| | |||| || ||| | |||||| |||
+                </div>
+                <div class="barcode-ref">* {{ res.reservationRef }} *</div>
+              </div>
+
+              <div class="security-seal">
+                <div class="seal-header">MOBELLO UK ALLOCATION VERIFIED</div>
+                <div class="seal-sub">Authorized Pre-Order Reservation Voucher</div>
+              </div>
+            </div>
+
+            <!-- Receipt Legal Footer -->
+            <div class="receipt-legal-footer">
+              <p>
+                Mobello UK Ltd • Registered in England &amp; Wales • Support Email: <strong>orders&#64;mobello.uk</strong> • Website: <strong>www.mobello.uk</strong>
+              </p>
+              <p class="receipt-notice">
+                This is an official computer-generated receipt and reservation certificate. Please retain this document for warranty, delivery verification, and support inquiries.
+              </p>
+            </div>
+
+          </div>
+        </ng-template>
+
+      } @else {
         
-        <!-- Header Banner -->
-        <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 text-white p-8 sm:p-10 text-center">
-          <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center mx-auto mb-4 ring-8 ring-white/10">
-            <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+        <!-- Error / Not found card -->
+        <div class="no-print bg-white rounded-3xl border border-slate-200 p-8 text-center shadow-md">
+          <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
+            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
             </svg>
           </div>
-          <span class="inline-block uppercase tracking-widest text-[11px] font-bold bg-white/20 px-3 py-1 rounded-full mb-2">
-            Priority Queue Allocation Confirmed
-          </span>
-          <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight">
-            You're In Line for the {{ res.model }}!
-          </h1>
-          <p class="text-sm sm:text-base text-emerald-50 mt-2 max-w-lg mx-auto">
-            Thank you, {{ res.customerName }}. Your priority reservation deposit has been confirmed. A confirmation receipt has been sent to <strong class="text-white">{{ res.customerEmail }}</strong>.
+          <h2 class="text-xl font-bold text-slate-900 mb-2">Reservation Not Found</h2>
+          <p class="text-xs text-slate-500 mb-6 max-w-sm mx-auto">
+            {{ error() || 'We could not locate this reservation reference. If you placed an order, please check your email receipt.' }}
           </p>
+          <a
+            routerLink="/iphone-18-pro-preorder"
+            class="inline-flex py-3 px-6 rounded-xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 transition-colors shadow-md"
+          >
+            Go to iPhone 18 Pre-Order
+          </a>
         </div>
 
-        <!-- Reservation Reference Pill -->
-        <div class="bg-slate-50 border-y border-slate-200 py-5 px-6 text-center">
-          <div class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
-            Reservation Reference Number
-          </div>
-          <div class="text-2xl sm:text-3xl font-mono font-black text-indigo-700 tracking-wider">
-            {{ res.reservationRef }}
-          </div>
-        </div>
-
-        <!-- Details Grid -->
-        <div class="p-6 sm:p-8 space-y-6">
-          <h2 class="text-xs font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 pb-2">
-            Reservation Summary
-          </h2>
-
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <span class="text-xs text-slate-500 block">Model &amp; Display</span>
-              <span class="font-bold text-slate-900">{{ res.model }}</span>
-            </div>
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <span class="text-xs text-slate-500 block">Finish &amp; Color</span>
-              <span class="font-bold text-slate-900">{{ res.color }} Titanium</span>
-            </div>
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <span class="text-xs text-slate-500 block">Storage Capacity</span>
-              <span class="font-bold text-slate-900">{{ res.storage }}</span>
-            </div>
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <span class="text-xs text-slate-500 block">Purchase Type</span>
-              <span class="font-bold text-slate-900">
-                {{ res.purchaseType === 'outright' ? 'SIM-Free (Outright)' : 'Contract (' + (res.network || 'UK Network') + ')' }}
-              </span>
-            </div>
-            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-              <span class="text-xs text-slate-500 block">Full UK RRP</span>
-              <span class="font-bold text-slate-900">£{{ res.priceGbp.toFixed(2) }}</span>
-            </div>
-            <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-100">
-              <span class="text-xs text-emerald-700 block font-semibold">Deposit Paid (100% Refundable)</span>
-              <span class="font-black text-emerald-700 text-lg">✓ £{{ res.depositAmount.toFixed(2) }}</span>
-            </div>
-          </div>
-
-          <!-- What Happens Next Section -->
-          <div class="mt-8 pt-6 border-t border-slate-200">
-            <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-              <svg class="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              What Happens Next?
-            </h3>
-
-            <div class="relative pl-6 space-y-6 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
-              
-              <!-- Step 1 -->
-              <div class="relative">
-                <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-emerald-600 ring-4 ring-white"></div>
-                <h4 class="text-sm font-bold text-slate-900">Priority Allocation Locked In</h4>
-                <p class="text-xs text-slate-500 mt-0.5">
-                  Your reservation is logged with reference <strong>{{ res.reservationRef }}</strong>. You are guaranteed a unit from our initial UK release allocation.
-                </p>
-              </div>
-
-              <!-- Step 2 -->
-              <div class="relative">
-                <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-indigo-600 ring-4 ring-white"></div>
-                <h4 class="text-sm font-bold text-slate-900">September 12, 2026: Order &amp; Delivery Finalization</h4>
-                <p class="text-xs text-slate-500 mt-0.5">
-                  We'll send you a private link to verify your UK delivery address and settle your balance of <strong>£{{ (res.priceGbp - res.depositAmount).toFixed(2) }}</strong> (or finalize your network direct debit if purchasing with a contract).
-                </p>
-              </div>
-
-              <!-- Step 3 -->
-              <div class="relative">
-                <div class="absolute -left-6 top-0 w-4 h-4 rounded-full bg-indigo-600 ring-4 ring-white"></div>
-                <h4 class="text-sm font-bold text-slate-900">September 18, 2026: Launch Day Delivery</h4>
-                <p class="text-xs text-slate-500 mt-0.5">
-                  Your new {{ res.model }} is dispatched via insured, tracked courier for launch-day arrival right at your doorstep.
-                </p>
-              </div>
-
-            </div>
-          </div>
-
-          <!-- Refund Guarantee Note -->
-          <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-600 flex items-center justify-between">
-            <span>Changed your mind? Your £{{ res.depositAmount.toFixed(2) }} deposit is 100% refundable at any time prior to dispatch.</span>
-            <a href="mailto:support@mobello.uk" class="text-indigo-600 font-bold hover:underline ml-2 flex-shrink-0">Contact Support</a>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="pt-4 flex flex-col sm:flex-row gap-3">
-            <button
-              type="button"
-              (click)="printPage()"
-              class="flex-1 py-3 px-6 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs uppercase tracking-wider transition-colors flex items-center justify-center gap-2 cursor-pointer"
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
-              </svg>
-              Print Receipt
-            </button>
-            <a
-              routerLink="/"
-              class="flex-1 py-3 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider text-center transition-colors shadow-md flex items-center justify-center gap-2"
-            >
-              Browse More Deals
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
-              </svg>
-            </a>
-          </div>
-
-        </div>
-
-      </div>
-
-    } @else {
-      
-      <!-- Error / Not found card -->
-      <div class="bg-white rounded-3xl border border-slate-200 p-8 text-center shadow-md">
-        <div class="w-14 h-14 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-4">
-          <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-          </svg>
-        </div>
-        <h2 class="text-xl font-bold text-slate-900 mb-2">Reservation Not Found</h2>
-        <p class="text-xs text-slate-500 mb-6 max-w-sm mx-auto">
-          {{ error() || 'We could not locate this reservation reference. If you placed an order, please check your email receipt.' }}
-        </p>
-        <a
-          routerLink="/iphone-18-pro-preorder"
-          class="inline-flex py-3 px-6 rounded-xl bg-indigo-600 text-white font-bold text-xs uppercase tracking-wider hover:bg-indigo-700 transition-colors shadow-md"
-        >
-          Go to iPhone 18 Pre-Order
-        </a>
-      </div>
+      }
     }
-  }
 
   </div>
 </div>
