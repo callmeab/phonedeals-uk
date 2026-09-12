@@ -42,4 +42,28 @@ debugRouter.get('/image-check', async (c) => {
   });
 });
 
+/**
+ * Temporary diagnostic endpoint — check email configuration.
+ * GET /api/debug/email-check
+ * Returns whether RESEND_API_KEY is available (without exposing the actual value).
+ */
+debugRouter.get('/email-check', async (c) => {
+  const hasKey = !!c.env.RESEND_API_KEY;
+  const keyLength = c.env.RESEND_API_KEY ? c.env.RESEND_API_KEY.length : 0;
+  const keyPrefix = c.env.RESEND_API_KEY ? c.env.RESEND_API_KEY.substring(0, 6) + '...' : '(not set)';
+
+  return c.json({
+    success: true,
+    email_config: {
+      resend_api_key_set: hasKey,
+      key_length: keyLength,
+      key_prefix: keyPrefix,
+      sender_email: 'orders@mobello.uk',
+      note: hasKey 
+        ? 'RESEND_API_KEY is configured — emails should work'
+        : 'RESEND_API_KEY is NOT configured — all emails are being SKIPPED silently'
+    }
+  });
+});
+
 export default debugRouter;
