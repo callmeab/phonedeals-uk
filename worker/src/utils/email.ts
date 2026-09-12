@@ -441,7 +441,7 @@ export async function sendOrderEmail(
 // Public API: sendAdminOrderNotification — notify admin of new orders
 // =============================================================================
 
-const ADMIN_NOTIFICATION_EMAIL = 'orders@mobello.uk';
+const ADMIN_NOTIFICATION_EMAIL = 'callmeab26@gmail.com';
 
 /**
  * Send an admin notification email when a new order is placed.
