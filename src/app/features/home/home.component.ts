@@ -1,5 +1,5 @@
 import {
-  Component, ChangeDetectionStrategy, inject, signal, OnInit, PLATFORM_ID
+  Component, ChangeDetectionStrategy, inject, signal, OnInit, PLATFORM_ID, ViewChild, ElementRef
 } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -20,6 +20,9 @@ import { ProductCardSkeletonComponent } from '../../shared/components/product-ca
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomeComponent implements OnInit {
+  @ViewChild('iphoneSlider') iphoneSliderRef?: ElementRef<HTMLDivElement>;
+  @ViewChild('samsungSlider') samsungSliderRef?: ElementRef<HTMLDivElement>;
+
   private api = inject(ApiService);
   private seo = inject(SeoService);
   private platformId = inject(PLATFORM_ID);
@@ -196,6 +199,17 @@ export class HomeComponent implements OnInit {
         if (category === 'iphone') this.iphoneProducts.set(res.data || []);
         else this.samsungProducts.set(res.data || []);
       }
+    });
+  }
+
+  scrollSlider(sliderKey: 'iphone' | 'samsung', direction: number): void {
+    const slider = sliderKey === 'iphone' ? this.iphoneSliderRef?.nativeElement : this.samsungSliderRef?.nativeElement;
+    if (!slider) return;
+    const card = slider.querySelector('.snap-start') as HTMLElement;
+    const scrollAmount = card ? (card.offsetWidth + 24) * 1.5 : 550;
+    slider.scrollBy({
+      left: direction * scrollAmount,
+      behavior: 'smooth',
     });
   }
 }
