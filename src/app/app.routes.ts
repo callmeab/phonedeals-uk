@@ -111,6 +111,10 @@ export const routes: Routes = [
       {
         path: 'iphone-18-pro-preorder',
         loadComponent: () => import('./features/preorder/iphone18-preorder.component').then(m => m.Iphone18PreorderComponent),
+      },
+      {
+        path: 'iphone-18-pro-preorder/checkout',
+        loadComponent: () => import('./features/preorder/preorder-checkout.component').then(m => m.PreorderCheckoutComponent),
         canDeactivate: [preorderGuard],
       },
       {

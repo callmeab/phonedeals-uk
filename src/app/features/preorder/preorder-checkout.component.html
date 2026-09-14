@@ -1,0 +1,636 @@
+<div class="min-h-screen bg-slate-50/60 pb-16">
+
+  <!-- Top Header Bar -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
+      <a routerLink="/iphone-18-pro-preorder" class="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-600 hover:text-indigo-600 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        <span>Back to Product Selection</span>
+      </a>
+
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">
+          <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          100% Refundable Deposit
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+    
+    <!-- Page Title -->
+    <div class="mb-8">
+      <div class="flex items-center gap-2 mb-1">
+        <span class="text-xs font-bold uppercase tracking-widest text-indigo-600">Official Pre-Order Booking</span>
+        <span class="text-slate-300">•</span>
+        <span class="text-xs font-medium text-slate-500">Official UK Launch Sept 18, 2026</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight">
+        iPhone 18 Priority Allocation Checkout
+      </h1>
+      <p class="text-xs sm:text-sm text-slate-500 mt-1">
+        Complete your customer details and Direct Debit reservation to secure guaranteed dispatch from the initial UK batch.
+      </p>
+    </div>
+
+    <!-- Main Grid: Form (left) + Summary (right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- ════════════════ LEFT COLUMN: 3-STEP WIZARD ════════════════ -->
+      <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+
+        <!-- ═══ STEP PROGRESS BAR ═══ -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-4 sm:p-5">
+          <div class="flex items-center justify-between">
+            @for (step of [1, 2, 3]; track step) {
+              <div class="flex items-center gap-2 flex-1"
+                [class.opacity-40]="currentStep() < step && !isStepComplete(step)"
+              >
+                <div
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all"
+                  [class.bg-indigo-600]="currentStep() === step"
+                  [class.text-white]="currentStep() === step"
+                  [class.bg-emerald-500]="isStepComplete(step) && currentStep() !== step"
+                  [class.text-white]="isStepComplete(step) && currentStep() !== step"
+                  [class.bg-slate-200]="!isStepComplete(step) && currentStep() !== step"
+                  [class.text-slate-500]="!isStepComplete(step) && currentStep() !== step"
+                >
+                  @if (isStepComplete(step) && currentStep() !== step) {
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  } @else {
+                    {{ step }}
+                  }
+                </div>
+                <div class="hidden sm:block min-w-0">
+                  <p class="text-xs font-bold truncate text-slate-800">
+                    {{ step === 1 ? 'Personal Details' : step === 2 ? 'Address & Insurance' : 'Direct Debit & Payment' }}
+                  </p>
+                  <p class="text-[10px] text-slate-400">
+                    {{ step === 1 ? 'Name & Contact' : step === 2 ? 'UK Delivery & Cover' : 'Mandate & £99 Deposit' }}
+                  </p>
+                </div>
+              </div>
+              @if (step < 3) {
+                <div class="h-0.5 w-6 sm:w-12 bg-slate-200 shrink-0 mx-1"></div>
+              }
+            }
+          </div>
+        </div>
+
+        <!-- ═══ THE REACTIVE FORM CONTAINER ═══ -->
+        <form [formGroup]="reservationForm" (ngSubmit)="submitReservation()">
+
+          <!-- ══════════════════════════════════════════ -->
+          <!-- STEP 1: PERSONAL DETAILS                   -->
+          <!-- ══════════════════════════════════════════ -->
+          @if (currentStep() === 1) {
+            <div formGroupName="personalDetails" class="bg-white rounded-3xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6">
+              <div>
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Step 1 of 3</span>
+                <h2 class="text-xl font-black text-slate-900 mt-0.5">Personal &amp; Contact Details</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Must match the legal account holder name for credit and Direct Debit setup.</p>
+              </div>
+
+              <!-- First & Last Name -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">First Name *</label>
+                  <input
+                    type="text"
+                    formControlName="firstName"
+                    placeholder="e.g. John"
+                    class="w-full px-4 py-3 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    [class.border-rose-400]="stepGroup.get('firstName')?.invalid && stepGroup.get('firstName')?.touched"
+                    [class.border-slate-300]="!stepGroup.get('firstName')?.invalid || !stepGroup.get('firstName')?.touched"
+                  />
+                  @if (stepGroup.get('firstName')?.invalid && stepGroup.get('firstName')?.touched) {
+                    <p class="text-xs text-rose-600 mt-1">First name is required (min 2 characters).</p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Last Name *</label>
+                  <input
+                    type="text"
+                    formControlName="lastName"
+                    placeholder="e.g. Smith"
+                    class="w-full px-4 py-3 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    [class.border-rose-400]="stepGroup.get('lastName')?.invalid && stepGroup.get('lastName')?.touched"
+                    [class.border-slate-300]="!stepGroup.get('lastName')?.invalid || !stepGroup.get('lastName')?.touched"
+                  />
+                  @if (stepGroup.get('lastName')?.invalid && stepGroup.get('lastName')?.touched) {
+                    <p class="text-xs text-rose-600 mt-1">Last name is required (min 2 characters).</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Email Address -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Email Address *</label>
+                <input
+                  type="email"
+                  formControlName="email"
+                  placeholder="e.g. john.smith@example.com"
+                  class="w-full px-4 py-3 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  [class.border-rose-400]="stepGroup.get('email')?.invalid && stepGroup.get('email')?.touched"
+                  [class.border-slate-300]="!stepGroup.get('email')?.invalid || !stepGroup.get('email')?.touched"
+                />
+                <p class="text-[11px] text-slate-400 mt-1">We'll send your priority reservation reference and dispatch tracking here.</p>
+                @if (stepGroup.get('email')?.invalid && stepGroup.get('email')?.touched) {
+                  <p class="text-xs text-rose-600 mt-1">Please enter a valid email address.</p>
+                }
+              </div>
+
+              <!-- Phone & DOB -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">UK Mobile Number *</label>
+                  <input
+                    type="tel"
+                    formControlName="phone"
+                    placeholder="e.g. 07123 456789"
+                    class="w-full px-4 py-3 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    [class.border-rose-400]="stepGroup.get('phone')?.invalid && stepGroup.get('phone')?.touched"
+                    [class.border-slate-300]="!stepGroup.get('phone')?.invalid || !stepGroup.get('phone')?.touched"
+                  />
+                  <p class="text-[11px] text-slate-400 mt-1">For DPD / Royal Mail launch day delivery SMS alerts.</p>
+                  @if (stepGroup.get('phone')?.invalid && stepGroup.get('phone')?.touched) {
+                    <p class="text-xs text-rose-600 mt-1">Valid UK mobile number required (07... or +447...).</p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Date of Birth (18+ only) *</label>
+                  <input
+                    type="date"
+                    formControlName="dob"
+                    class="w-full px-4 py-3 rounded-xl border text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                    [class.border-rose-400]="stepGroup.get('dob')?.invalid && stepGroup.get('dob')?.touched"
+                    [class.border-slate-300]="!stepGroup.get('dob')?.invalid || !stepGroup.get('dob')?.touched"
+                  />
+                  <p class="text-[11px] text-slate-400 mt-1">Must be 18+ to pre-book contract &amp; finance reservations.</p>
+                  @if (stepGroup.get('dob')?.invalid && stepGroup.get('dob')?.touched) {
+                    <p class="text-xs text-rose-600 mt-1">You must be at least 18 years of age.</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="pt-4 border-t border-slate-100 flex items-center justify-end">
+                <button
+                  type="button"
+                  (click)="nextStep()"
+                  class="px-8 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Continue to Delivery Address</span>
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- ══════════════════════════════════════════ -->
+          <!-- STEP 2: ADDRESS & INSURANCE               -->
+          <!-- ══════════════════════════════════════════ -->
+          @if (currentStep() === 2) {
+            <div formGroupName="addressAndInsurance" class="bg-white rounded-3xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6">
+              <div>
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Step 2 of 3</span>
+                <h2 class="text-xl font-black text-slate-900 mt-0.5">UK Delivery Address &amp; Device Cover</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Where should we deliver your iPhone 18 on release day?</p>
+              </div>
+
+              <!-- Postcode -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Postcode *</label>
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    formControlName="postcode"
+                    placeholder="e.g. SW1A 1AA"
+                    class="w-48 px-4 py-3 rounded-xl border text-sm uppercase font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    [class.border-rose-400]="stepGroup.get('postcode')?.invalid && stepGroup.get('postcode')?.touched"
+                    [class.border-slate-300]="!stepGroup.get('postcode')?.invalid || !stepGroup.get('postcode')?.touched"
+                  />
+                </div>
+                @if (stepGroup.get('postcode')?.invalid && stepGroup.get('postcode')?.touched) {
+                  <p class="text-xs text-rose-600 mt-1">Postcode is required.</p>
+                }
+              </div>
+
+              <!-- Current Address -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Street Address Line 1 *</label>
+                <input
+                  type="text"
+                  formControlName="currentAddress"
+                  placeholder="e.g. 10 Downing Street"
+                  class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  [class.border-rose-400]="stepGroup.get('currentAddress')?.invalid && stepGroup.get('currentAddress')?.touched"
+                  [class.border-slate-300]="!stepGroup.get('currentAddress')?.invalid || !stepGroup.get('currentAddress')?.touched"
+                />
+                @if (stepGroup.get('currentAddress')?.invalid && stepGroup.get('currentAddress')?.touched) {
+                  <p class="text-xs text-rose-600 mt-1">Address is required.</p>
+                }
+              </div>
+
+              <!-- City -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Town / City *</label>
+                <input
+                  type="text"
+                  formControlName="city"
+                  placeholder="e.g. London"
+                  class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  [class.border-rose-400]="stepGroup.get('city')?.invalid && stepGroup.get('city')?.touched"
+                  [class.border-slate-300]="!stepGroup.get('city')?.invalid || !stepGroup.get('city')?.touched"
+                />
+                @if (stepGroup.get('city')?.invalid && stepGroup.get('city')?.touched) {
+                  <p class="text-xs text-rose-600 mt-1">City is required.</p>
+                }
+              </div>
+
+              <!-- Time at Address -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-2">Time at Current Address *</label>
+                <div class="flex flex-wrap gap-2">
+                  @for (opt of timeAtAddressOptions; track opt) {
+                    <button
+                      type="button"
+                      (click)="setTimeControl('addressAndInsurance.timeAtAddress', opt)"
+                      [class.bg-indigo-600]="stepGroup.get('timeAtAddress')?.value === opt"
+                      [class.text-white]="stepGroup.get('timeAtAddress')?.value === opt"
+                      [class.bg-slate-100]="stepGroup.get('timeAtAddress')?.value !== opt"
+                      [class.text-slate-700]="stepGroup.get('timeAtAddress')?.value !== opt"
+                      class="px-4 py-2 rounded-xl text-xs font-bold transition-colors hover:bg-slate-200"
+                    >
+                      {{ opt }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- ─── INSURANCE OPTIONS SECTION ─── -->
+              <div class="pt-4 border-t border-slate-100 space-y-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="text-sm font-extrabold text-slate-900">Optional iPhone 18 AppleCare-Style Cover</h3>
+                    <p class="text-xs text-slate-500">Protect your investment with UK next-day replacement.</p>
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  
+                  <!-- Option 1: None -->
+                  <div
+                    (click)="setInsurancePlan('none')"
+                    [class.border-indigo-600]="stepGroup.get('insurancePlan')?.value === 'none'"
+                    [class.bg-indigo-50]="stepGroup.get('insurancePlan')?.value === 'none'"
+                    class="p-4 rounded-2xl border-2 border-slate-200 cursor-pointer transition-all hover:border-slate-300"
+                  >
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-xs font-bold text-slate-900">No Cover</span>
+                      <span class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                        [class.border-indigo-600]="stepGroup.get('insurancePlan')?.value === 'none'"
+                        [class.bg-indigo-600]="stepGroup.get('insurancePlan')?.value === 'none'"
+                      >
+                        @if (stepGroup.get('insurancePlan')?.value === 'none') {
+                          <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        }
+                      </span>
+                    </div>
+                    <p class="text-base font-black text-slate-900">£0</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Standard 1-year Apple manufacturer warranty only.</p>
+                  </div>
+
+                  <!-- Option 2: Lite -->
+                  <div
+                    (click)="setInsurancePlan('lite')"
+                    [class.border-indigo-600]="stepGroup.get('insurancePlan')?.value === 'lite'"
+                    [class.bg-indigo-50]="stepGroup.get('insurancePlan')?.value === 'lite'"
+                    class="p-4 rounded-2xl border-2 border-slate-200 cursor-pointer transition-all hover:border-slate-300"
+                  >
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-xs font-bold text-indigo-700">Insurance Lite</span>
+                      <span class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                        [class.border-indigo-600]="stepGroup.get('insurancePlan')?.value === 'lite'"
+                        [class.bg-indigo-600]="stepGroup.get('insurancePlan')?.value === 'lite'"
+                      >
+                        @if (stepGroup.get('insurancePlan')?.value === 'lite') {
+                          <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        }
+                      </span>
+                    </div>
+                    <p class="text-base font-black text-slate-900">£12.00<span class="text-xs font-normal text-slate-500">/mo</span></p>
+                    <p class="text-[11px] text-slate-500 mt-1">Accidental damage, breakdown, and worldwide cover.</p>
+                  </div>
+
+                  <!-- Option 3: Complete -->
+                  <div
+                    (click)="setInsurancePlan('complete')"
+                    [class.border-indigo-600]="stepGroup.get('insurancePlan')?.value === 'complete'"
+                    [class.bg-indigo-50]="stepGroup.get('insurancePlan')?.value === 'complete'"
+                    class="p-4 rounded-2xl border-2 border-slate-200 cursor-pointer transition-all hover:border-slate-300 relative"
+                  >
+                    <span class="absolute -top-2.5 right-3 text-[9px] font-extrabold uppercase tracking-wider bg-indigo-600 text-white px-2 py-0.5 rounded-full">
+                      Popular
+                    </span>
+                    <div class="flex items-center justify-between mb-2">
+                      <span class="text-xs font-bold text-indigo-700">Complete</span>
+                      <span class="w-4 h-4 rounded-full border-2 flex items-center justify-center"
+                        [class.border-indigo-600]="stepGroup.get('insurancePlan')?.value === 'complete'"
+                        [class.bg-indigo-600]="stepGroup.get('insurancePlan')?.value === 'complete'"
+                      >
+                        @if (stepGroup.get('insurancePlan')?.value === 'complete') {
+                          <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                        }
+                      </span>
+                    </div>
+                    <p class="text-base font-black text-slate-900">£16.00<span class="text-xs font-normal text-slate-500">/mo</span></p>
+                    <p class="text-[11px] text-slate-500 mt-1">Full accidental damage + Theft &amp; Loss protection.</p>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <button
+                  type="button"
+                  (click)="prevStep()"
+                  class="px-5 py-3 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors"
+                >
+                  ← Back to Personal Details
+                </button>
+
+                <button
+                  type="button"
+                  (click)="nextStep()"
+                  class="px-8 py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-sm shadow-md transition-all flex items-center gap-2 cursor-pointer"
+                >
+                  <span>Continue to Direct Debit</span>
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+
+          <!-- ══════════════════════════════════════════ -->
+          <!-- STEP 3: DIRECT DEBIT & DEPOSIT PAYMENT    -->
+          <!-- ══════════════════════════════════════════ -->
+          @if (currentStep() === 3) {
+            <div formGroupName="paymentAndExtras" class="bg-white rounded-3xl border border-slate-200 shadow-xs p-6 sm:p-8 space-y-6">
+              <div>
+                <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">Step 3 of 3</span>
+                <h2 class="text-xl font-black text-slate-900 mt-0.5">Direct Debit Mandate &amp; Reservation Deposit</h2>
+                <p class="text-xs text-slate-500 mt-0.5">
+                  Only the <strong class="text-slate-800">£{{ preorder.depositAmount().toFixed(2) }} refundable deposit</strong> is charged today. The Direct Debit mandate secures your remaining device balance for collection only upon dispatch.
+                </p>
+              </div>
+
+              <!-- Mandate Callout Box -->
+              <div class="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-100 flex items-start gap-3.5">
+                <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shrink-0">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                </div>
+                <div class="text-xs text-indigo-900 space-y-1">
+                  <p class="font-bold">Official Direct Debit Guarantee</p>
+                  <p class="text-indigo-800 text-[11px] leading-relaxed">
+                    This mandate is protected by the UK Direct Debit Guarantee. If any details or amounts change, you will be notified at least 3 working days in advance. You can cancel at any time.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Account Holder Name -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1.5">Account Holder Name *</label>
+                <input
+                  type="text"
+                  formControlName="accountName"
+                  placeholder="e.g. John M Smith"
+                  class="w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  [class.border-rose-400]="stepGroup.get('accountName')?.invalid && stepGroup.get('accountName')?.touched"
+                  [class.border-slate-300]="!stepGroup.get('accountName')?.invalid || !stepGroup.get('accountName')?.touched"
+                />
+                @if (stepGroup.get('accountName')?.invalid && stepGroup.get('accountName')?.touched) {
+                  <p class="text-xs text-rose-600 mt-1">Account holder name is required.</p>
+                }
+              </div>
+
+              <!-- Sort Code & Account Number -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Sort Code *</label>
+                  <input
+                    type="text"
+                    formControlName="sortCode"
+                    (input)="onSortCodeInput($event)"
+                    placeholder="20-40-60"
+                    maxlength="8"
+                    class="w-full px-4 py-3 rounded-xl border text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    [class.border-rose-400]="stepGroup.get('sortCode')?.invalid && stepGroup.get('sortCode')?.touched"
+                    [class.border-slate-300]="!stepGroup.get('sortCode')?.invalid || !stepGroup.get('sortCode')?.touched"
+                  />
+                  @if (stepGroup.get('sortCode')?.invalid && stepGroup.get('sortCode')?.touched) {
+                    <p class="text-xs text-rose-600 mt-1">Enter a valid 6-digit sort code (XX-XX-XX).</p>
+                  }
+                </div>
+
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Account Number *</label>
+                  <input
+                    type="text"
+                    formControlName="accountNumber"
+                    (input)="onAccountNumberInput($event)"
+                    placeholder="87654321"
+                    maxlength="8"
+                    class="w-full px-4 py-3 rounded-xl border text-sm font-mono tracking-widest focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    [class.border-rose-400]="stepGroup.get('accountNumber')?.invalid && stepGroup.get('accountNumber')?.touched"
+                    [class.border-slate-300]="!stepGroup.get('accountNumber')?.invalid || !stepGroup.get('accountNumber')?.touched"
+                  />
+                  @if (stepGroup.get('accountNumber')?.invalid && stepGroup.get('accountNumber')?.touched) {
+                    <p class="text-xs text-rose-600 mt-1">Enter a valid 8-digit UK account number.</p>
+                  }
+                </div>
+              </div>
+
+              <!-- Time with Bank -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-2">Time with Bank *</label>
+                <div class="flex flex-wrap gap-2">
+                  @for (opt of timeWithBankOptions; track opt) {
+                    <button
+                      type="button"
+                      (click)="setTimeControl('paymentAndExtras.timeWithBank', opt)"
+                      [class.bg-indigo-600]="stepGroup.get('timeWithBank')?.value === opt"
+                      [class.text-white]="stepGroup.get('timeWithBank')?.value === opt"
+                      [class.bg-slate-100]="stepGroup.get('timeWithBank')?.value !== opt"
+                      [class.text-slate-700]="stepGroup.get('timeWithBank')?.value !== opt"
+                      class="px-4 py-2 rounded-xl text-xs font-bold transition-colors hover:bg-slate-200"
+                    >
+                      {{ opt }}
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Error Alert -->
+              @if (formError()) {
+                <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium">
+                  {{ formError() }}
+                </div>
+              }
+
+              <!-- Action buttons -->
+              <div class="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <button
+                  type="button"
+                  (click)="prevStep()"
+                  class="w-full sm:w-auto px-5 py-3 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs hover:bg-slate-50 transition-colors"
+                >
+                  ← Back to Address
+                </button>
+
+                <button
+                  type="submit"
+                  [disabled]="isSubmitting()"
+                  class="w-full sm:w-auto px-10 py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-emerald-600/30 transition-all transform active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-3 cursor-pointer"
+                >
+                  @if (isSubmitting()) {
+                    <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    <span>Securing Your Allocation...</span>
+                  } @else {
+                    <span>Confirm Pre-Order • Pay £{{ preorder.depositAmount().toFixed(2) }}</span>
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                  }
+                </button>
+              </div>
+
+            </div>
+          }
+
+        </form>
+
+      </div>
+
+      <!-- ════════════════ RIGHT COLUMN: STICKY ORDER SUMMARY ════════════════ -->
+      <aside class="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-20 space-y-5">
+        
+        <!-- Summary Card -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-5">
+          
+          <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+            <div>
+              <span class="text-[10px] font-extrabold uppercase tracking-wider text-indigo-600">Reserved Device</span>
+              <h3 class="text-base font-black text-slate-900">{{ preorder.selectedModel() }}</h3>
+            </div>
+            <a routerLink="/iphone-18-pro-preorder" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 hover:underline">
+              Change
+            </a>
+          </div>
+
+          <!-- Product Image & Chips -->
+          <div class="flex items-center gap-4">
+            <div class="w-20 h-20 bg-slate-50 rounded-2xl border border-slate-100 p-2 flex items-center justify-center shrink-0">
+              <img
+                [src]="preorder.currentImagePath()"
+                [alt]="preorder.selectedModel()"
+                class="max-h-full max-w-full object-contain"
+              />
+            </div>
+
+            <div class="space-y-1.5 min-w-0 flex-1">
+              <div class="flex items-center gap-2">
+                <span
+                  class="w-3 h-3 rounded-full border border-slate-300 shrink-0"
+                  [style.backgroundColor]="getColorHex(preorder.selectedColor())"
+                ></span>
+                <span class="text-xs font-bold text-slate-800 truncate">{{ preorder.selectedColor() }} Titanium</span>
+              </div>
+              <p class="text-xs text-slate-500 font-medium">{{ preorder.selectedStorage() }} Storage</p>
+              <span class="inline-block text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700">
+                {{ preorder.selectedNetwork() }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Price Breakdown -->
+          <div class="space-y-2.5 pt-4 border-t border-slate-100 text-xs">
+            <div class="flex justify-between text-slate-600">
+              <span>Full Retail Value:</span>
+              <span class="font-bold text-slate-900">£{{ preorder.currentPrice().toFixed(2) }}</span>
+            </div>
+
+            @if (insuranceLabel) {
+              <div class="flex justify-between text-slate-600">
+                <span>Protection Plan:</span>
+                <span class="font-bold text-purple-700">{{ insuranceLabel }}</span>
+              </div>
+            }
+
+            <div class="flex justify-between text-slate-600">
+              <span>Remaining on Dispatch:</span>
+              <span class="font-mono text-slate-700">£{{ (preorder.currentPrice() - preorder.depositAmount()).toFixed(2) }}</span>
+            </div>
+          </div>
+
+          <!-- Total Due Today Callout -->
+          <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-950 text-white flex items-center justify-between">
+            <div>
+              <span class="text-[10px] uppercase font-extrabold tracking-widest text-indigo-300 block">Due Today</span>
+              <span class="text-2xl font-black text-white">£{{ preorder.depositAmount().toFixed(2) }}</span>
+            </div>
+            <span class="text-xs bg-emerald-500/20 text-emerald-300 font-bold px-3 py-1 rounded-full border border-emerald-400/30">
+              100% Refundable
+            </span>
+          </div>
+
+          <!-- Guarantee Badges -->
+          <div class="space-y-2 pt-2 text-[11px] text-slate-500">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Instant cancellation &amp; full refund prior to Sept 18</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Official UK Direct Debit Mandate protection</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Priority dispatch from first UK carrier allocation</span>
+            </div>
+          </div>
+
+        </div>
+
+      </aside>
+
+    </div>
+
+  </main>
+
+</div>
