@@ -148,7 +148,7 @@ export class PreorderService {
     );
   }
 
-  // Create Reservation
+  // Create Reservation (full payload)
   createReservation(req: PreorderReservationRequest): Observable<{ success: boolean; reservationRef: string; details: PreorderReservationResult }> {
     return this.http.post<{ success: boolean; reservationRef: string; details: PreorderReservationResult }>(
       `${this.apiUrl}/api/preorder/reserve`,

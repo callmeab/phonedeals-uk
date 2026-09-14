@@ -42,5 +42,15 @@ export const validate = {
     const stripped = value.replace(/[\s-]/g, '');
     const regex = /^(?:0|\+44)7\d{9}$/;
     return regex.test(stripped);
+  },
+
+  isValidSortCode: (value: string): boolean => {
+    if (!value) return false;
+    return /^[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(value);
+  },
+
+  isValidAccountNumber: (value: string): boolean => {
+    if (!value) return false;
+    return /^[0-9]{8}$/.test(value);
   }
 };

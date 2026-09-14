@@ -38,14 +38,44 @@ export interface PreorderApiResponse {
 }
 
 export interface PreorderReservationRequest {
-  customerName: string;
-  customerEmail: string;
-  customerPhone: string;
+  // Personal details
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  title?: string;
+
+  // Variant selection
   model: string;
   storage: string;
   color: string;
   purchaseType: 'outright' | 'contract';
   network?: string;
+  contractMonths?: number;
+
+  // Delivery address
+  deliveryAddress: {
+    line1: string;
+    line2?: string | null;
+    city: string;
+    county?: string | null;
+    postcode: string;
+  };
+  timeAtAddress?: string;
+
+  // Payment / Direct Debit
+  accountHolderName: string;
+  sortCode: string;
+  accountNumber: string;
+  timeWithBank?: string;
+
+  // Insurance
+  insurancePlan?: 'none' | 'lite' | 'complete';
+  insuranceBilling?: 'monthly' | 'annual';
+
+  // Optional
+  dealId?: number | null;
   marketingOptIn?: boolean;
 }
 

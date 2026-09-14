@@ -274,7 +274,7 @@ adminPreordersRouter.get('/', async (c) => {
     const total = countRow?.total ?? 0;
 
     // 2. Data rows joined with product image
-    const dataSql = 'SELECT r.id, r.reservation_ref, r.customer_name, r.customer_email, r.customer_phone, r.model, r.storage, r.color, r.purchase_type, r.network, r.contract_months, r.price_gbp, r.deposit_amount, r.deposit_status, r.status, r.marketing_opt_in, r.created_at, r.updated_at, p.image_path, p.display_size FROM preorder_reservations r LEFT JOIN preorder_products p ON p.model = r.model AND p.storage = r.storage AND p.color = r.color WHERE ' + whereClause + ' ORDER BY r.created_at DESC LIMIT ? OFFSET ?';
+    const dataSql = 'SELECT r.id, r.reservation_ref, r.customer_name, r.customer_email, r.customer_phone, r.first_name, r.last_name, r.model, r.storage, r.color, r.purchase_type, r.network, r.contract_months, r.price_gbp, r.deposit_amount, r.deposit_status, r.status, r.marketing_opt_in, r.created_at, r.updated_at, r.insurance_plan, r.deal_id, p.image_path, p.display_size FROM preorder_reservations r LEFT JOIN preorder_products p ON p.model = r.model AND p.storage = r.storage AND p.color = r.color WHERE ' + whereClause + ' ORDER BY r.created_at DESC LIMIT ? OFFSET ?';
 
     const dataBindings = [...bindings, limit, offset];
     const dataStmt = c.env.DB.prepare(dataSql).bind(...dataBindings);

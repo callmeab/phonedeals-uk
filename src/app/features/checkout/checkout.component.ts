@@ -5,9 +5,6 @@ import {
   FormGroup,
   ReactiveFormsModule,
   Validators,
-  AbstractControl,
-  ValidationErrors,
-  ValidatorFn
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -15,47 +12,12 @@ import { CartService } from '../../core/services/cart.service';
 import { OrderService, OrderDetails } from '../../core/services/order.service';
 import { ToastService } from '../../core/services/toast.service';
 import { CanDeactivateCheckout } from './checkout.guard';
-
-// ── Validators ──────────────────────────────────────────────────────────────
-
-export function ukPhoneValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    if (!control.value) return null;
-    // Accepts: 07xxxxxxxxx or +447xxxxxxxxx
-    const isValid = /^(\+44\s?7|07)\d{9}$/.test(control.value.replace(/\s+/g, ''));
-    return isValid ? null : { invalidUkPhone: true };
-  };
-}
-
-export function sortCodeValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    if (!control.value) return null;
-    const isValid = /^[0-9]{2}-[0-9]{2}-[0-9]{2}$/.test(control.value);
-    return isValid ? null : { invalidSortCode: true };
-  };
-}
-
-export function accountNumberValidator(): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    if (!control.value) return null;
-    const isValid = /^[0-9]{8}$/.test(control.value);
-    return isValid ? null : { invalidAccountNumber: true };
-  };
-}
-
-export function ageValidator(minAge: number): ValidatorFn {
-  return (control: AbstractControl): ValidationErrors | null => {
-    if (!control.value) return null;
-    const dob = new Date(control.value);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const m = today.getMonth() - dob.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-    return age >= minAge ? null : { minAge: { requiredAge: minAge, actualAge: age } };
-  };
-}
+import {
+  ukPhoneValidator,
+  sortCodeValidator,
+  accountNumberValidator,
+  ageValidator
+} from '../../core/utils/form-validators';
 
 // ── Component ────────────────────────────────────────────────────────────────
 

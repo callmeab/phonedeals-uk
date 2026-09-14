@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { checkoutGuard } from './features/checkout/checkout.guard';
+import { preorderGuard } from './features/preorder/preorder.guard';
 
 export const routes: Routes = [
   {
@@ -72,6 +73,10 @@ export const routes: Routes = [
         path: 'preorders',
         loadComponent: () => import('./features/admin/preorders/preorders-list.component').then(m => m.AdminPreordersListComponent),
       },
+      {
+        path: 'preorders/:id',
+        loadComponent: () => import('./features/admin/preorders/preorder-detail.component').then(m => m.AdminPreorderDetailComponent),
+      },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
@@ -106,6 +111,7 @@ export const routes: Routes = [
       {
         path: 'iphone-18-pro-preorder',
         loadComponent: () => import('./features/preorder/iphone18-preorder.component').then(m => m.Iphone18PreorderComponent),
+        canDeactivate: [preorderGuard],
       },
       {
         path: 'iphone-18-pro-preorder/confirmation',

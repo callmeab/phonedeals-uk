@@ -11,6 +11,10 @@ export interface AdminPreorderItem {
   customer_name: string;
   customer_email: string;
   customer_phone: string;
+  first_name?: string;
+  last_name?: string;
+  date_of_birth?: string;
+  title?: string;
   model: 'iPhone 18 Pro' | 'iPhone 18 Pro Max';
   storage: '256GB' | '512GB' | '1TB' | '2TB';
   color: 'Black' | 'Silver' | 'Glacier' | 'Burgundy';
@@ -26,6 +30,23 @@ export interface AdminPreorderItem {
   updated_at?: string | null;
   image_path?: string;
   display_size?: string;
+  // Address
+  delivery_address_line1?: string;
+  delivery_address_line2?: string;
+  delivery_city?: string;
+  delivery_county?: string;
+  delivery_postcode?: string;
+  time_at_address?: string;
+  // Payment
+  account_holder_name?: string;
+  sort_code?: string;
+  account_number?: string;
+  time_with_bank?: string;
+  // Insurance
+  insurance_plan?: string;
+  insurance_billing?: string;
+  // Deal
+  deal_id?: number | null;
 }
 
 export interface AdminPreorderDetail extends AdminPreorderItem {

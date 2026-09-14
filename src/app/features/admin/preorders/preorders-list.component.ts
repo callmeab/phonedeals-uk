@@ -8,13 +8,13 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AdminPreorderService,
   AdminPreorderItem,
-  AdminPreorderDetail,
   PreorderStats,
   PreorderStatus,
   PreorderFilterParams
@@ -24,13 +24,14 @@ import { ToastService } from '../../../core/services/toast.service';
 @Component({
   selector: 'app-admin-preorders-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './preorders-list.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AdminPreordersListComponent implements OnInit {
   private preorderService = inject(AdminPreorderService);
   private toast = inject(ToastService);
+  private router = inject(Router);
   private destroyRef = inject(DestroyRef);
 
   // Data Signals
@@ -57,11 +58,6 @@ export class AdminPreordersListComponent implements OnInit {
 
   // Search Debounce Subject
   private searchSubject = new Subject<string>();
-
-  // Drawer / Detail View Signals
-  selectedPreorder = signal<AdminPreorderDetail | null>(null);
-  isDrawerOpen = signal<boolean>(false);
-  isUpdatingStatus = signal<boolean>(false);
   copiedField = signal<string | null>(null);
 
   // Available Status Options
@@ -190,47 +186,7 @@ export class AdminPreordersListComponent implements OnInit {
   }
 
   openDetail(item: AdminPreorderItem): void {
-    this.selectedPreorder.set(item as AdminPreorderDetail);
-    this.isDrawerOpen.set(true);
-    // Refresh full detail from backend
-    this.preorderService.getPreorderById(item.id).subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.selectedPreorder.set(res.data);
-        }
-      }
-    });
-  }
-
-  closeDrawer(): void {
-    this.isDrawerOpen.set(false);
-    this.selectedPreorder.set(null);
-  }
-
-  updateStatus(newStatus: string): void {
-    const preorder = this.selectedPreorder();
-    if (!preorder) return;
-
-    this.isUpdatingStatus.set(true);
-    this.preorderService.updateStatus(preorder.id, newStatus as PreorderStatus).subscribe({
-      next: (res) => {
-        this.isUpdatingStatus.set(false);
-        if (res.success) {
-          this.toast.success('Reservation status updated');
-          this.selectedPreorder.set(res.data);
-          // Update in local preorders list without full reload
-          const updatedList = this.preorders().map((p) =>
-            p.id === preorder.id ? { ...p, status: newStatus as PreorderStatus, updated_at: res.data.updated_at } : p
-          );
-          this.preorders.set(updatedList);
-          this.loadStats(); // refresh counts
-        }
-      },
-      error: () => {
-        this.isUpdatingStatus.set(false);
-        this.toast.error('Failed to update status');
-      }
-    });
+    this.router.navigate(['/xk92-admin/preorders', item.id]);
   }
 
   copyToClipboard(text: string, label: string): void {

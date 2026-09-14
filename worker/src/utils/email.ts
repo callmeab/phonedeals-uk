@@ -602,6 +602,14 @@ export interface PreorderEmailData {
   priceGbp: number;
   depositAmount: number;
   releaseDate: string;
+  deliveryAddress?: {
+    line1: string;
+    line2?: string | null;
+    city: string;
+    county?: string | null;
+    postcode: string;
+  };
+  insurancePlan?: string;
 }
 
 function buildPreorderConfirmationEmail(data: PreorderEmailData): { subject: string; html: string } {
@@ -685,6 +693,47 @@ function buildPreorderConfirmationEmail(data: PreorderEmailData): { subject: str
       </tr>
     </table>
 
+    ${data.deliveryAddress ? `
+    <!-- Delivery Address -->
+    <h3 style="margin:0 0 12px;color:#374151;font-size:14px;font-weight:700;
+               text-transform:uppercase;letter-spacing:0.5px;">Delivery Address</h3>
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;
+                padding:16px 20px;margin-bottom:28px;">
+      <p style="margin:0;color:#374151;font-size:14px;line-height:1.8;">
+        ${[data.deliveryAddress.line1, data.deliveryAddress.line2, data.deliveryAddress.city, data.deliveryAddress.county, data.deliveryAddress.postcode].filter(Boolean).join('<br />')}
+      </p>
+    </div>
+    ` : ''}
+
+    ${data.insurancePlan && data.insurancePlan !== 'none' ? `
+    <!-- Insurance Selection -->
+    <div style="background:#f5f3ff;border:1px solid #ede9fe;border-radius:12px;
+                padding:16px 20px;margin-bottom:28px;">
+      <p style="margin:0 0 4px;color:#7c3aed;font-size:12px;font-weight:700;
+                text-transform:uppercase;letter-spacing:1px;">🛡️ Insurance Selected</p>
+      <p style="margin:0;color:#4c1d95;font-size:15px;font-weight:700;">
+        Mobile Insurance ${data.insurancePlan === 'complete' ? 'Complete (Theft & Loss)' : 'Lite'}
+      </p>
+      <p style="margin:4px 0 0;color:#6b7280;font-size:13px;">
+        Your insurance will activate on device delivery. Details will be confirmed separately.
+      </p>
+    </div>
+    ` : ''}
+
+    <!-- Deposit Note -->
+    <div style="background:linear-gradient(135deg,#f0fdf4 0%,#ecfdf5 100%);
+                border:1px solid #bbf7d0;border-radius:12px;padding:20px;
+                margin-bottom:28px;text-align:center;">
+      <p style="margin:0 0 4px;color:#15803d;font-size:12px;font-weight:700;
+                text-transform:uppercase;letter-spacing:1px;">💳 Deposit Only Charged</p>
+      <p style="margin:0;color:#166534;font-size:15px;font-weight:700;">
+        Only ${formatCurrency(data.depositAmount)} has been charged today
+      </p>
+      <p style="margin:6px 0 0;color:#4b5563;font-size:13px;">
+        The remaining balance of ${formatCurrency(data.priceGbp - data.depositAmount)} will be collected via Direct Debit on dispatch.
+      </p>
+    </div>
+
     <!-- Launch Timeline -->
     <div style="background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);
                 border:1px solid #bfdbfe;border-radius:12px;padding:24px;
@@ -692,8 +741,8 @@ function buildPreorderConfirmationEmail(data: PreorderEmailData): { subject: str
       <p style="margin:0 0 12px;color:#1e3a8a;font-size:13px;font-weight:700;
                 text-transform:uppercase;letter-spacing:0.5px;">📅 Next Steps & Key Dates</p>
       <ul style="margin:0;padding-left:20px;color:#334155;font-size:14px;line-height:1.7;">
-        <li><strong>Sept 12, 2026:</strong> We'll email you a secure link to confirm your delivery address and settle the remaining balance (or finalize your network contract).</li>
         <li><strong>Sept 18, 2026:</strong> Official release day! Priority launch day dispatch with tracked UK courier delivery.</li>
+        <li><strong>Direct Debit:</strong> The remaining balance will be collected from your bank account on the dispatch date.</li>
         <li><strong>Change of mind?</strong> Your £${data.depositAmount.toFixed(2)} deposit is 100% refundable at any time prior to dispatch.</li>
       </ul>
     </div>
