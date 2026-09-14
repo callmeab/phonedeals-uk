@@ -114,3 +114,33 @@ export interface Order {
   contract_summary_accepted: number;
   contract_summary_accepted_at?: string;
 }
+
+export interface PreorderProduct {
+  id: number;
+  model: string;
+  display_size: string;
+  storage: string;
+  color: string;
+  price_gbp: number;
+  deposit_amount: number;
+  stock_status: 'available' | 'limited' | 'sold_out';
+  release_date: string;
+  image_path: string;
+  created_at: string;
+  updated_at?: string | null;
+  updated_by?: string | null;
+}
+
+export interface PreorderPriceHistory {
+  id: number;
+  product_id: number;
+  old_price: number;
+  new_price: number;
+  old_deposit?: number | null;
+  new_deposit?: number | null;
+  changed_by?: string | null;
+  changed_at: string;
+  model?: string;
+  storage?: string;
+  color?: string;
+}

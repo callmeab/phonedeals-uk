@@ -74,6 +74,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/preorders/preorders-list.component').then(m => m.AdminPreordersListComponent),
       },
       {
+        path: 'preorders/pricing',
+        loadComponent: () => import('./features/admin/preorders/preorder-pricing.component').then(m => m.PreorderPricingComponent),
+      },
+      {
         path: 'preorders/:id',
         loadComponent: () => import('./features/admin/preorders/preorder-detail.component').then(m => m.AdminPreorderDetailComponent),
       },

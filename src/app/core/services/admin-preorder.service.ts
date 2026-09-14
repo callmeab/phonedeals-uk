@@ -66,6 +66,50 @@ export interface PreorderStats {
   byStatus: Record<string, number>;
 }
 
+export interface PreorderProductVariant {
+  id: number;
+  model: 'iPhone 18 Pro' | 'iPhone 18 Pro Max';
+  display_size: string;
+  storage: '256GB' | '512GB' | '1TB' | '2TB';
+  color: 'Black' | 'Silver' | 'Glacier' | 'Burgundy';
+  price_gbp: number;
+  deposit_amount: number;
+  stock_status: 'available' | 'limited' | 'sold_out';
+  release_date: string;
+  image_path?: string;
+  created_at: string;
+  updated_at?: string | null;
+  updated_by?: string | null;
+}
+
+export interface PriceHistoryItem {
+  id: number;
+  product_id: number;
+  old_price: number;
+  new_price: number;
+  old_deposit?: number | null;
+  new_deposit?: number | null;
+  changed_by?: string | null;
+  changed_at: string;
+  model?: string;
+  storage?: string;
+  color?: string;
+}
+
+export interface UpdateProductPricePayload {
+  price_gbp?: number;
+  deposit_amount?: number;
+  stock_status?: 'available' | 'limited' | 'sold_out';
+}
+
+export interface BulkPriceUpdatePayload {
+  ids: number[];
+  adjustment?: number;
+  price_gbp?: number;
+  deposit_amount?: number;
+  stock_status?: 'available' | 'limited' | 'sold_out';
+}
+
 export interface PreorderFilterParams {
   status?: string;
   model?: string;
@@ -182,5 +226,53 @@ export class AdminPreorderService {
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
+  }
+
+  // ===========================================================================
+  // Preorder Product Pricing & Stock Management
+  // ===========================================================================
+  private productsUrl = `${environment.apiUrl}/api/admin/preorder-products`;
+
+  getPreorderProducts(filters: { model?: string; storage?: string; color?: string; stock_status?: string } = {}): Observable<{ success: boolean; data: PreorderProductVariant[]; total: number }> {
+    let params = new HttpParams();
+    if (filters.model && filters.model !== 'all') {
+      params = params.set('model', filters.model);
+    }
+    if (filters.storage && filters.storage !== 'all') {
+      params = params.set('storage', filters.storage);
+    }
+    if (filters.color && filters.color !== 'all') {
+      params = params.set('color', filters.color);
+    }
+    if (filters.stock_status && filters.stock_status !== 'all') {
+      params = params.set('stock_status', filters.stock_status);
+    }
+
+    return this.http.get<{ success: boolean; data: PreorderProductVariant[]; total: number }>(this.productsUrl, { params });
+  }
+
+  updatePreorderProductPrice(
+    id: number,
+    data: UpdateProductPricePayload
+  ): Observable<{ success: boolean; message: string; data: PreorderProductVariant }> {
+    return this.http.patch<{ success: boolean; message: string; data: PreorderProductVariant }>(
+      `${this.productsUrl}/${id}`,
+      data
+    );
+  }
+
+  bulkUpdatePrices(
+    payload: BulkPriceUpdatePayload
+  ): Observable<{ success: boolean; message: string; updatedCount: number }> {
+    return this.http.patch<{ success: boolean; message: string; updatedCount: number }>(
+      `${this.productsUrl}/bulk`,
+      payload
+    );
+  }
+
+  getPriceHistory(id: number): Observable<{ success: boolean; data: PriceHistoryItem[] }> {
+    return this.http.get<{ success: boolean; data: PriceHistoryItem[] }>(
+      `${this.productsUrl}/${id}/history`
+    );
   }
 }

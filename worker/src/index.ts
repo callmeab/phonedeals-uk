@@ -16,6 +16,7 @@ import checkoutRouter from './routes/checkout';
 import ordersRouter from './routes/orders';
 import preorderRouter from './routes/preorder';
 import { adminPreordersRouter } from './routes/admin-preorders';
+import { adminPreorderProductsRouter } from './routes/admin-preorder-products';
 
 // Create a new Hono app with our Env bindings
 const app = new Hono<{ Bindings: Env }>();
@@ -89,6 +90,10 @@ adminRoutes.route('/orders', ordersRouter);
 
 // Mount protected iPhone 18 preorders admin endpoint
 adminRoutes.route('/preorders', adminPreordersRouter);
+
+// Mount protected iPhone 18 preorder products pricing admin endpoint
+adminRoutes.route('/preorder-products', adminPreorderProductsRouter);
+adminPreordersRouter.route('/products', adminPreorderProductsRouter);
 
 // Mount protected admin routes under /api/admin
 api.route('/admin', adminRoutes);

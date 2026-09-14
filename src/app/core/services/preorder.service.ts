@@ -84,6 +84,14 @@ export class PreorderService {
     return this.currentVariant()?.deposit_amount ?? 99.00;
   });
 
+  getModelStartingPrice(modelName: string): number {
+    const list = this.variants().filter(v => v.model === modelName);
+    if (list.length > 0) {
+      return Math.min(...list.map(v => v.price_gbp));
+    }
+    return modelName === 'iPhone 18 Pro' ? 1199.00 : 1299.00;
+  }
+
   // Active view angle: 1 (front), 2 (perspective), 3 (studio profile)
   selectedAngle = signal<1 | 2 | 3>(1);
 

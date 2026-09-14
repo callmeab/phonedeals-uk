@@ -13,7 +13,9 @@
     "db:migrate:preorder": "wrangler d1 execute phonedeals-uk-db --local --file=src/db/migrations/011_iphone18_prebooking.sql",
     "db:migrate:preorder:prod": "wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/011_iphone18_prebooking.sql",
     "db:migrate:preorder-update": "wrangler d1 execute phonedeals-uk-db --local --file=src/db/migrations/012_add_updated_at_to_preorder_reservations.sql",
-    "db:migrate:preorder-update:prod": "wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/012_add_updated_at_to_preorder_reservations.sql"
+    "db:migrate:preorder-update:prod": "wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/012_add_updated_at_to_preorder_reservations.sql",
+    "db:migrate:preorder-pricing": "wrangler d1 execute phonedeals-uk-db --local --file=src/db/migrations/014_preorder_price_history.sql",
+    "db:migrate:preorder-pricing:prod": "wrangler d1 execute phonedeals-uk-db --remote --file=src/db/migrations/014_preorder_price_history.sql"
   },
   "dependencies": {
     "aws4fetch": "^1.0.20",
