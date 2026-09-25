@@ -15,7 +15,7 @@ import { RouterLink } from '@angular/router';
           <!-- Column 1: Brand -->
           <div class="">
             <a routerLink="/" class="flex items-center  text-2xl font-bold tracking-tight text-white w-fit">
-              <img src="/image-logo/full-logo.png" alt="Mobello.uk Logo" class="h-40  object-contain">
+              <img src="/image-logo/full-logo.png" alt="Mobello.uk Logo" width="160" height="160" loading="lazy" class="h-40 w-auto object-contain">
               <!-- <span>Mobello<span class="text-accent">.uk</span></span> -->
             </a>
             <p class="text-sm font-medium text-gray-400">

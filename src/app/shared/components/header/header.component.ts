@@ -40,7 +40,18 @@ function slugToPath(slug: string): string {
           <!-- Logo -->
           <div class="flex-shrink-0 z-10">
             <a routerLink="/" class="flex items-center">
-              <img src="/image-logo/logo.png" alt="Mobello.uk Logo" class="h-20 w-auto object-contain">
+              <picture>
+                <source srcset="/image-logo/logo.webp" type="image/webp">
+                <img
+                  src="/image-logo/logo.png"
+                  alt="Mobello.uk Logo"
+                  width="80"
+                  height="80"
+                  fetchpriority="high"
+                  loading="eager"
+                  class="h-20 w-20 object-contain"
+                >
+              </picture>
               <span class="text-2xl font-bold tracking-tight hidden sm:block">Mobello<span class="text-accent">.uk</span></span>
             </a>
           </div>

@@ -2,3 +2,7 @@
 /iphone
 /samsung
 /iphone-18-pro-preorder
+/cookie-policy
+/privacy-policy
+/terms-and-conditions
+/contact-us

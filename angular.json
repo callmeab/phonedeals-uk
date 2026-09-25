@@ -78,7 +78,7 @@
                 "scripts": true,
                 "styles": true,
                 "fonts": {
-                  "inline": false
+                  "inline": true
                 }
               },
               "budgets": [

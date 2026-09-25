@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://mobello.uk'
-};
+  apiUrl: 'https://mobello.uk',
+  cloudflareWebAnalyticsToken: ''
+};

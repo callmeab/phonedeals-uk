@@ -10,3 +10,27 @@
 /api/*
   Access-Control-Allow-Origin: https://www.phonedealsuk.co.uk
   Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
+
+# Immutable hashed JS and CSS bundles (1 year cache)
+/*.js
+  Cache-Control: public, max-age=31536000, immutable
+/*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# Static images and media (1 week cache + 1 day stale-while-revalidate)
+/iphone-18/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/image-logo/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/assets/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/*.png
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/*.jpg
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/*.webp
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/*.ico
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400
+/*.svg
+  Cache-Control: public, max-age=604800, stale-while-revalidate=86400

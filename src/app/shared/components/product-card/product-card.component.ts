@@ -59,8 +59,8 @@ import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE
               [alt]="product.name"
               width="320"
               height="240"
-              fetchpriority="high"
-              loading="eager"
+              [attr.fetchpriority]="priority ? 'high' : 'auto'"
+              [attr.loading]="priority ? 'eager' : 'lazy'"
               (error)="onImageError($event)"
               class="w-full h-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.04]"
             >
@@ -193,6 +193,7 @@ import { resolveProductImageUrl, getPrimaryProductImage, PLACEHOLDER_PHONE_IMAGE
 export class ProductCardComponent {
   @Input({ required: true }) product!: Product;
   @Input() variant: 'grid' | 'list' = 'grid';
+  @Input() priority: boolean = false;
 
   private router = inject(Router);
 
